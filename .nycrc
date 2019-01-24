@@ -1,0 +1,10 @@
+{
+  "exclude": [
+    "spec"
+  ],
+  "reporter": [
+    "lcov",
+    "text-summary",
+    "html"
+  ]
+}

@@ -1,6 +1,3 @@
-/*jshint jasmine: true, node: true */
-'use strict';
-
 const fs = require('fs-extra');
 const mock = require('mock-require');
 const EventEmitter = require('events').EventEmitter;
@@ -56,6 +53,10 @@ describe('skyux new command', () => {
 
     // Keeps the logs clean from promptly
     spyOn(process.stdout, 'write');
+
+    mock('../lib/install', function () {
+      return Promise.resolve();
+    });
 
     customError = null;
   });
@@ -212,7 +213,7 @@ describe('skyux new command', () => {
   });
 
   it('should use the --name argument and handle an error', () => {
-    const skyuxNew = mock.reRequire('../lib/new')({
+    mock.reRequire('../lib/new')({
       name: 'This Is Invalid'
     });
 

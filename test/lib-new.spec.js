@@ -52,7 +52,7 @@ describe('skyux new command', () => {
     });
 
     // Keeps the logs clean from promptly
-    spyOn(process.stdout, 'write');
+    // spyOn(process.stdout, 'write');
 
     mock('../lib/install', function () {
       return Promise.resolve();

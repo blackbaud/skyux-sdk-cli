@@ -2,13 +2,24 @@ const mock = require('mock-require');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('npm install library', () => {
-
+  let mockFs;
 
   beforeEach(() => {
+    mockFs = {
+      existsSync() {},
+      removeSync() {}
+    };
+
     spyOn(logger, 'promise').and.returnValue({
       succeed: () => {},
       fail: () => {}
     });
+
+    mock('fs-extra', mockFs);
+  });
+
+  afterEach(() => {
+    mock.stopAll();
   });
 
   function getArgsFromSpawn(settings) {
@@ -38,14 +49,22 @@ describe('npm install library', () => {
     return npmInstallPromise;
   }
 
-  it('should not set cwd in path is not passed in the settings', () => {
+  it('should not set cwd in path if not passed in the settings', () => {
     expect(getArgsFromSpawn({})).toEqual({});
   });
 
-  it('should set cwd in path is not passed in the settings', () => {
+  it('should set cwd in path if not passed in the settings', () => {
     const myCustomPath = 'my-custom-path';
     expect(getArgsFromSpawn({ path: myCustomPath })).toEqual({
       cwd: myCustomPath
+    });
+  });
+
+  it('should set child spawn stdio if passed in the settings', () => {
+    expect(getArgsFromSpawn({
+      stdio: 'foobar'
+    })).toEqual({
+      stdio: 'foobar'
     });
   });
 
@@ -61,6 +80,17 @@ describe('npm install library', () => {
       expect(err).toEqual('npm install failed.');
       done();
     });
+  });
+
+  it('should delete package-lock.json before running npm install', (done) => {
+    spyOn(mockFs, 'existsSync').and.returnValue(true);
+
+    const spy = spyOn(mockFs, 'removeSync').and.callThrough();
+
+    getPromiseFromSpawn(0).then(() => {
+      expect(spy).toHaveBeenCalledWith('package-lock.json');
+      done();
+    }, () => {});
   });
 
 });

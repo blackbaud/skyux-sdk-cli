@@ -1,4 +1,3 @@
-/* eslint-disable */
 const mock = require('mock-require');
 const EventEmitter = require('events').EventEmitter;
 
@@ -9,7 +8,7 @@ const sendLine = (line, cb) => {
   });
 };
 
-fdescribe('skyux new command', () => {
+describe('skyux new command', () => {
   let customError = '';
   let emitter;
   let versionsRequested;
@@ -71,7 +70,7 @@ fdescribe('skyux new command', () => {
     });
 
     // Keeps the logs clean from promptly
-    // spyOn(process.stdout, 'write');
+    spyOn(process.stdout, 'write');
 
     mock('../lib/npm-install', function () {
       return Promise.resolve();
@@ -115,6 +114,8 @@ fdescribe('skyux new command', () => {
     sendLine('some-spa-name', () => {
       sendLine('some-spa-name', () => {
         emitter.on('spawnCalled', (command, args, settings) => {
+          exitChildSpawn(1);
+
           skyuxNew.then(() => {
             expect(command).toEqual('git');
             expect(args).toEqual([
@@ -128,12 +129,16 @@ fdescribe('skyux new command', () => {
             done();
           });
 
-          // Mock git checkout error
-          setImmediate(() => {
-            emitter.emit('exit', 1);
-          });
+          exitChildSpawn();
         });
       });
+    });
+  }
+
+  function exitChildSpawn(exitCode = 0) {
+    // Trigger child process to finish.
+    setImmediate(() => {
+      emitter.emit('exit', exitCode);
     });
   }
 
@@ -191,9 +196,6 @@ fdescribe('skyux new command', () => {
             `${customTemplateName} template successfully cloned.`
           );
           done();
-        }).catch((err) => {
-          console.info('ERROR', err);
-          done();
         });
       });
     });
@@ -245,6 +247,26 @@ fdescribe('skyux new command', () => {
     });
   });
 
+  it('should use -t flag as an alias for --template', (done) => {
+    spyOnPrompt();
+
+    const customTemplateName = 'valid-template-name';
+    const skyuxNew = mock.reRequire('../lib/new')({
+      t: customTemplateName
+    });
+
+    sendLine('some-spa-name', () => {
+      sendLine('', () => {
+        skyuxNew.then(() => {
+          expect(spyLoggerPromise.succeed).toHaveBeenCalledWith(
+            `${customTemplateName} template successfully cloned.`
+          );
+          done();
+        });
+      });
+    });
+  });
+
   it('should catch a SPA name with invalid characters', (done) => {
     mock.reRequire('../lib/new')({});
 
@@ -283,10 +305,7 @@ fdescribe('skyux new command', () => {
     });
 
     sendLine('some-spa-name', () => {
-      // Trigger child process to finish.
-      setImmediate(() => {
-        emitter.emit('exit', 0);
-      });
+      exitChildSpawn();
 
       skyuxNew.then(() => {
         expect(gitCloneUrls.indexOf(repo) > -1).toBe(true);
@@ -370,28 +389,16 @@ fdescribe('skyux new command', () => {
     spyOn(mockFs, 'existsSync').and.returnValue(false);
 
     const skyuxNew = mock.reRequire('../lib/new')({});
-    let spawnCalledCount = 0;
-
-    /* eslint-disable */
 
     sendLine('some-spa-name', () => {
       sendLine('some-spa-repo', () => {
-        emitter.on('spawnCalled', () => {
+        exitChildSpawn();
 
-          if (spawnCalledCount === 1) {
-            skyuxNew.then(() => {
-              expect(spyLogger.info).toHaveBeenCalledWith(
-                'Change into that directory and run "skyux serve" to begin.'
-              );
-              done();
-            });
-          }
-
-          // Mock git checkout and npm install (x3) success.
-          setImmediate(() => {
-            spawnCalledCount++;
-            emitter.emit('exit', 0);
-          });
+        skyuxNew.then(() => {
+          expect(spyLogger.info).toHaveBeenCalledWith(
+            'Change into that directory and run "skyux serve" to begin.'
+          );
+          done();
         });
       });
     });
@@ -401,37 +408,17 @@ fdescribe('skyux new command', () => {
     spawnGitCheckout('ignore', done);
   });
 
-  it('shoul d pass stdio: inherit to spawn when logLevel is verbose', (done) => {
+  it('should pass stdio: inherit to spawn when logLevel is verbose', (done) => {
     spyLogger.logLevel = 'verbose';
     spawnGitCheckout('inherit', done);
   });
 
-  it('should handle errors when running npm install', (done) => {
-    spyOn(mockFs, 'existsSync').and.returnValue(false);
-
-    const skyuxNew = mock.reRequire('../lib/new')({});
-
-    sendLine('some-spa-name', () => {
-
-      // Don't provide current repo URL to clone
-      sendLine('', () => {
-        emitter.on('spawnCalled', () => {
-          skyuxNew.then(() => {
-            expect(spyLogger.error).toHaveBeenCalledWith('npm install failed.');
-            done();
-          });
-
-          // Mock npm install failure.
-          setImmediate(() => {
-            emitter.emit('exit', 1);
-          });
-        });
-      });
-    });
-  });
-
   it('should handle errors when cleaning the template', (done) => {
     spyOn(mockFs, 'existsSync').and.returnValue(false);
+    spyOn(mockFs, 'removeSync').and.throwError(
+      new Error('')
+    );
+
     spyOnPrompt();
 
     const skyuxNew = mock.reRequire('../lib/new')({});
@@ -440,6 +427,47 @@ fdescribe('skyux new command', () => {
       sendLine('some-spa-repo', () => {
         skyuxNew.then(() => {
           expect(spyLogger.info).toHaveBeenCalledWith('Template cleanup failed.');
+          done();
+        });
+      });
+    });
+  });
+
+  it('should update package dependencies to the latest version', (done) => {
+    const spy = spyOn(mockFs, 'writeJson').and.callThrough();
+
+    spyOn(mockFs, 'readJsonSync').and.returnValue({
+      dependencies: {
+        'foo': 'latest',
+        'bar': '1.0.0'
+      },
+      devDependencies: {
+        'foo': 'latest',
+        'bar': '1.0.0'
+      },
+      peerDependencies: {
+        'foo': 'latest',
+        'bar': '1.0.0'
+      }
+    });
+
+    const skyuxNew = mock.reRequire('../lib/new')({});
+
+    sendLine('some-spa-name', () => {
+      sendLine('some-spa-repo', () => {
+        exitChildSpawn();
+
+        skyuxNew.then(() => {
+          expect(spy).toHaveBeenCalledWith(
+            'skyux-spa-some-spa-name/tmp/package.json',
+            {
+              dependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
+              peerDependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
+              devDependencies: { foo: 'foo-LATEST', bar: '1.0.0' }
+            },
+            { spaces: 2 }
+          );
+          expect(versionsRequested['foo']).toEqual(true);
           done();
         });
       });

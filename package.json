@@ -1,5 +1,5 @@
 {
-  "name": "@blackbaud/skyux-sdk-cli",
+  "name": "@skyux-sdk/cli",
   "version": "1.6.2",
   "description": "",
   "main": "index.js",

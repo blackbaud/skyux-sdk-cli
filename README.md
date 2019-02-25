@@ -1,7 +1,7 @@
 # @skyux-sdk/cli
 
-[![npm](https://img.shields.io/npm/v/@blackbaud/skyux-cli.svg)](https://www.npmjs.com/package/@blackbaud/skyux-cli)
-[![status](https://travis-ci.org/blackbaud/skyux-cli.svg?branch=master)](https://travis-ci.org/blackbaud/skyux-cli)
+[![npm](https://img.shields.io/npm/v/@skyux-sdk/cli.svg)](https://www.npmjs.com/package/@skyux-sdk/cli)
+[![status](https://travis-ci.org/blackbaud/skyux-sdk-cli.svg?branch=master)](https://travis-ci.org/blackbaud/skyux-sdk-cli)
 
 The SKY UX CLI provides a command line interface for the SKY UX Builder. For documentation on how to use SKY UX CLI, see [the Learn section of the SKY UX website](https://developer.blackbaud.com/skyux2/learn).
 

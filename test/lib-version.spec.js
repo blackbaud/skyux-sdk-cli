@@ -29,6 +29,6 @@ describe('skyux version command', () => {
     const lib = proxyquire('../lib/version', stubs);
     lib.logVersion();
 
-    expect(logger.info).toHaveBeenCalledWith(`skyux-cli: ${version}`);
+    expect(logger.info).toHaveBeenCalledWith(`@skyux-sdk/cli: ${version}`);
   });
 });

@@ -1,6 +1,3 @@
-/*jshint jasmine: true, node: true */
-'use strict';
-
 const path = require('path');
 const proxyquire = require('proxyquire');
 const logger = require('@blackbaud/skyux-logger');
@@ -32,6 +29,6 @@ describe('skyux version command', () => {
     const lib = proxyquire('../lib/version', stubs);
     lib.logVersion();
 
-    expect(logger.info).toHaveBeenCalledWith(`skyux-cli: ${version}`);
+    expect(logger.info).toHaveBeenCalledWith(`@skyux-sdk/cli: ${version}`);
   });
 });

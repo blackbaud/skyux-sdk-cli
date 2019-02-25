@@ -1,19 +1,8 @@
-/*jshint jasmine: true, node: true */
-'use strict';
-
 const fs = require('fs-extra');
 const mock = require('mock-require');
 const EventEmitter = require('events').EventEmitter;
 
 let emitter;
-
-const sendLine = (line, cb) => {
-  setImmediate(() => {
-    process.stdin.emit('data', line + '\n');
-    cb();
-  });
-};
-
 let logger;
 let npmInstallSpy;
 

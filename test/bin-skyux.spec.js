@@ -1,6 +1,3 @@
-/*jshint jasmine: true, node: true */
-'use strict';
-
 const mock = require('mock-require');
 
 describe('skyux bin', () => {
@@ -10,20 +7,16 @@ describe('skyux bin', () => {
     0: 'TEST1',
     1: 'TEST2'
   };
-  let minimistArgs;
   let notifierArgs;
   let notifyArgs;
   let cliArgs;
 
   beforeEach(() => {
-
-    minimistArgs = null;
     notifierArgs = null;
     notifyArgs = null;
     cliArgs = null;
 
-    mock('minimist', (args) => {
-      minimistArgs = args;
+    mock('minimist', () => {
       return cliExpectedArgs;
     });
 
@@ -42,9 +35,7 @@ describe('skyux bin', () => {
   });
 
   afterEach(() => {
-    mock.stop('minimist');
-    mock.stop('update-notifier');
-    mock.stop('../index');
+    mock.stopAll();
   });
 
   it('should pass package.json to update-notifier', () => {

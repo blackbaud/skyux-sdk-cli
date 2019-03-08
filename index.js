@@ -60,9 +60,9 @@ function getModulesAnswered(command, argv, globs) {
       const pkgName = pkgJson.name || dirName;
 
       if (modulesCalled[pkgName]) {
-        logger.verbose(`Multiple instances found. Skipping passing command to ${pkgName}`);
+        logger.verbose(`Multiple instances found. Skipping passing command to ${pkgName} at ${pkg}.`);
       } else {
-        logger.verbose(`Passing command to ${pkgName}`);
+        logger.verbose(`Passing command to ${pkgName} at ${pkg}.`);
 
         modulesCalled[pkgName] = true;
         if (module.runCommand(command, argv)) {

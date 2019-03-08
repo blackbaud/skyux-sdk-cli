@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "bin": {
-    "sky-pages": "bin/sky-pages.js",
     "skyux": "bin/skyux.js"
   },
   "scripts": {
@@ -39,7 +38,7 @@
     "eslint": "5.12.1",
     "jasmine": "2.99.0",
     "mock-require": "3.0.3",
-    "nyc": "13.1.0",
+    "nyc": "13.3.0",
     "proxyquire": "2.1.0"
   }
 }

@@ -238,9 +238,9 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
       expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed ${customCommand} to 2 modules:`)
       expect(logger.verbose).toHaveBeenCalledWith(`local-module-name, non-scoped-global-module-name`);
     });
@@ -275,10 +275,10 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed ${customCommand} to 1 module:`)
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed ${customCommand} to 1 module:`);
       expect(logger.verbose).toHaveBeenCalledWith(`local-module-name`);
     });
 
@@ -337,12 +337,12 @@ describe('skyux CLI', () => {
     it('should log path', () => {
       cli({ _: ['customCommand'] });
 
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to local-module-name`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to scoped-global-module-name`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module at scoped-global-module/package.json.`);
     });
 
   });
@@ -391,8 +391,10 @@ describe('skyux CLI', () => {
 
     cli({ _: ['customCommand'] });
 
-    expect(logger.verbose).toHaveBeenCalledWith(`Passing command to duplicate-module-name`);
-    expect(logger.verbose).toHaveBeenCalledWith(`Multiple instances found. Skipping passing command to duplicate-module-name`);
+    expect(logger.verbose).toHaveBeenCalledWith('Passing command to duplicate-module-name at local-module/package.json.');
+    expect(logger.verbose).toHaveBeenCalledWith(
+      'Multiple instances found. Skipping passing command to duplicate-module-name at local-module/package.json.'
+    );
   });
 
   it('should recognize packages in both `@blackbaud` and `@skyux-sdk` namespaces', () => {

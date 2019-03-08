@@ -3,6 +3,7 @@ const logger = require('@blackbaud/skyux-logger');
 
 describe('npm install library', () => {
   let mockFs;
+  let spyLoggerPromise;
 
   beforeEach(() => {
     mockFs = {
@@ -10,10 +11,10 @@ describe('npm install library', () => {
       removeSync() {}
     };
 
-    spyOn(logger, 'promise').and.returnValue({
-      succeed: () => {},
-      fail: () => {}
-    });
+    spyLoggerPromise = jasmine.createSpyObj('logger', ['succeed','fail']);
+    spyOn(logger, 'promise').and.returnValue(spyLoggerPromise);
+
+    spyOn(logger, 'error');
 
     mock('fs-extra', mockFs);
   });
@@ -37,12 +38,19 @@ describe('npm install library', () => {
     return spawnArgs;
   }
 
-  function getPromiseFromSpawn(exitCode) {
-    const spySpawn = jasmine.createSpyObj('spawn', ['on']);
+  function getPromiseFromSpawn(exitCode, customError) {
+    const spySpawnStderr = jasmine.createSpyObj('stderr', ['on']);
+    const spySpawn = jasmine.createSpyObj('spawn', ['on', 'stderr']);
+
+    spySpawn.stderr = spySpawnStderr;
     mock('cross-spawn', () => spySpawn);
 
     const npmInstall = mock.reRequire('../lib/npm-install');
     const npmInstallPromise = npmInstall();
+
+    if (customError) {
+      spySpawnStderr.on.calls.argsFor(0)[1](Buffer.from(customError));
+    }
 
     spySpawn.on.calls.argsFor(0)[1](exitCode);
 
@@ -66,31 +74,41 @@ describe('npm install library', () => {
     })).toEqual({
       stdio: 'foobar'
     });
+    expect(logger.promise).toHaveBeenCalledWith(
+      'Running npm install. This step can take several minutes. Add `--logLevel verbose` for realtime output.'
+    );
   });
 
-  it('should listen for the exit event and resolve if exit code is 0', (done) => {
-    getPromiseFromSpawn(0).then(() => {
-      expect(logger.promise).toHaveBeenCalledWith('Running npm install (can take several minutes)');
-      done();
-    }, () => {});
-  });
+  it('should not log verbose suggestion if stdio is inherit', () => {
+    getArgsFromSpawn({ stdio: 'inherit' });
+    expect(logger.promise).toHaveBeenCalledWith(
+      'Running npm install. This step can take several minutes.'
+    );
+  })
 
-  it('should listen for the exit event and reject if exit code is not 0', (done) => {
-    getPromiseFromSpawn(1).then(() => {}, (err) => {
-      expect(err).toEqual('npm install failed.');
+  it('should reject with any error caught from npm install', (done) => {
+    const error = 'custom error it failed';
+    getPromiseFromSpawn(1, error).catch(err => {
+      expect(err).toEqual(error);
+      expect(logger.promise).toHaveBeenCalledWith('Running npm install. This step can take several minutes.');
+      expect(spyLoggerPromise.fail).toHaveBeenCalled();
       done();
     });
   });
 
-  it('should delete package-lock.json before running npm install', (done) => {
-    spyOn(mockFs, 'existsSync').and.returnValue(true);
-
-    const spy = spyOn(mockFs, 'removeSync').and.callThrough();
-
-    getPromiseFromSpawn(0).then(() => {
-      expect(spy).toHaveBeenCalledWith('package-lock.json');
+  it('should listen for the exit event and reject if exit code is not 0', (done) => {
+    getPromiseFromSpawn(1).catch((err) => {
+      expect(err).toEqual('Unknown error occured. `npm install` has failed.  Run `skyux install --logLevel verbose` for more information.');
+      expect(spyLoggerPromise.fail).toHaveBeenCalled();
       done();
-    }, () => {});
+    });
+  });
+
+  it('should listen for the exit event and resolve if exit code is 0', (done) => {
+    getPromiseFromSpawn(0).then(() => {
+      expect(spyLoggerPromise.succeed).toHaveBeenCalled();
+      done();
+    });
   });
 
 });

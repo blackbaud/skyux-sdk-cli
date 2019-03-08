@@ -51,9 +51,7 @@ describe('skyux install command', () => {
 
     install().then(() => {
       expect(spyRemove).toHaveBeenCalled();
-      expect(npmInstallSpy).toHaveBeenCalledWith({
-        stdio: 'ignore'
-      });
+      expect(npmInstallSpy).toHaveBeenCalledWith({});
 
       done();
     });
@@ -71,6 +69,18 @@ describe('skyux install command', () => {
       done();
     });
 
+  });
+
+  it('should delete node_modules, package-lock.json, and run npm install', (done) => {
+    const install = mock.reRequire('../lib/install');
+
+    install().then(() => {
+      expect(spyRemove).toHaveBeenCalledWith('node_modules');
+      expect(spyRemove).toHaveBeenCalledWith('package-lock.json');
+      expect(npmInstallSpy).toHaveBeenCalledWith({});
+
+      done();
+    });
   });
 
   it('should handle successfully deleting node_modules', (done) => {

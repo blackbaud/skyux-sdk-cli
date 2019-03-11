@@ -175,7 +175,7 @@ describe('skyux new command', () => {
 
     cloneTest(() => {
       expect(spyLoggerPromise.fail).toHaveBeenCalledWith(
-        'Template not found at location, https://github.com/blackbaud/skyux-template-valid-template-name.'
+        'Template not found at location, https://github.com/blackbaud/skyux-sdk-template-valid-template-name.'
       );
       done();
     });

@@ -70,6 +70,8 @@ describe('skyux new command', () => {
     });
 
     // Keeps the logs clean from promptly
+    // WARNING: While it may keep the logs clean, unless you add `.and.callThrough()`
+    // it will hide any debugging information (console.log) you have in the spec file.
     spyOn(process.stdout, 'write');
 
     mock('../lib/npm-install', function () {
@@ -202,16 +204,34 @@ describe('skyux new command', () => {
   });
 
   it('should name the package with a specific prefix depending on the template', (done) => {
+    const spy = spyOn(mockFs, 'writeJson').and.callThrough();
+
+    const libName = 'some-lib-name';
     const libTemplateName = 'library';
     const skyuxNew = mock.reRequire('../lib/new')({
       template: libTemplateName
     });
 
-    sendLine('some-spa-name', () => {
+    sendLine(libName, () => {
       sendLine('', () => {
         skyuxNew.then(() => {
           expect(spyLogger.info).toHaveBeenCalledWith(
-            `Creating a new SPA named 'skyux-lib-some-spa-name'.`
+            `Creating a new SPA named 'skyux-lib-${libName}'.`
+          );
+          expect(spy).toHaveBeenCalledWith(
+            `skyux-lib-${libName}/tmp/package.json`,
+            {
+              dependencies: {},
+              peerDependencies: {},
+              devDependencies: {},
+              name: `blackbaud-skyux-lib-${libName}`,
+              description: `Library for skyux-lib-${libName}`,
+              repository: {
+                type: 'git',
+                url: ''
+              }
+            },
+            { spaces: 2 }
           );
           done();
         });
@@ -452,18 +472,26 @@ describe('skyux new command', () => {
     });
 
     const skyuxNew = mock.reRequire('../lib/new')({});
+    const spaName = 'some-spa-name';
+    const spaRepo = 'some-spa-repo';
 
-    sendLine('some-spa-name', () => {
-      sendLine('some-spa-repo', () => {
+    sendLine(spaName, () => {
+      sendLine(spaRepo, () => {
         exitChildSpawn();
 
         skyuxNew.then(() => {
           expect(spy).toHaveBeenCalledWith(
-            'skyux-spa-some-spa-name/tmp/package.json',
+            `skyux-spa-${spaName}/tmp/package.json`,
             {
               dependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
               peerDependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
-              devDependencies: { foo: 'foo-LATEST', bar: '1.0.0' }
+              devDependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
+              name: `blackbaud-skyux-spa-${spaName}`,
+              description: `Single-page-application (SPA) for skyux-spa-${spaName}`,
+              repository: {
+                type: 'git',
+                url: spaRepo
+              }
             },
             { spaces: 2 }
           );

@@ -1,6 +1,6 @@
 # 3.0.1 (2019-04-09)
 
-- Bugfix to correctly update dependencies, set name and description when running `skyux new`. [#17](https://github.com/blackbaud/skyux-sdk-cli/pull/17)
+- Bugfix to correctly update dependencies and set name and description when running `skyux new`. [#17](https://github.com/blackbaud/skyux-sdk-cli/pull/17)
 
 # 3.0.0 (2019-03-13)
 

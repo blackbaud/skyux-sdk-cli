@@ -64,8 +64,8 @@ describe('skyux new command', () => {
     });
 
     versionsRequested = {};
-    mock('latest-version', (dep) => {
-      versionsRequested[dep] = true;
+    mock('latest-version', (dep, options) => {
+      versionsRequested[dep] = options;
       return Promise.resolve(`${dep}-LATEST`);
     });
 
@@ -453,7 +453,7 @@ describe('skyux new command', () => {
     });
   });
 
-  it('should update package dependencies to the latest version', (done) => {
+  it('should update package dependencies', (done) => {
     const spy = spyOn(mockFs, 'writeJson').and.callThrough();
 
     spyOn(mockFs, 'readJsonSync').and.returnValue({
@@ -483,9 +483,9 @@ describe('skyux new command', () => {
           expect(spy).toHaveBeenCalledWith(
             `skyux-spa-${spaName}/tmp/package.json`,
             {
-              dependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
-              peerDependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
-              devDependencies: { foo: 'foo-LATEST', bar: '1.0.0' },
+              dependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
+              peerDependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
+              devDependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
               name: `blackbaud-skyux-spa-${spaName}`,
               description: `Single-page-application (SPA) for skyux-spa-${spaName}`,
               repository: {
@@ -495,7 +495,8 @@ describe('skyux new command', () => {
             },
             { spaces: 2 }
           );
-          expect(versionsRequested['foo']).toEqual(true);
+          expect(versionsRequested['foo']).toEqual({ version: 'latest' });
+          expect(versionsRequested['bar']).toEqual({ version: '1.0.0' });
           done();
         });
       });

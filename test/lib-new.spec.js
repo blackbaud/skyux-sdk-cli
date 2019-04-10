@@ -453,7 +453,7 @@ describe('skyux new command', () => {
     });
   });
 
-  it('should update package dependencies', (done) => {
+  it('should update package dependencies & devDeps but not peerDeps', (done) => {
     const spy = spyOn(mockFs, 'writeJson').and.callThrough();
 
     spyOn(mockFs, 'readJsonSync').and.returnValue({
@@ -484,7 +484,7 @@ describe('skyux new command', () => {
             `skyux-spa-${spaName}/tmp/package.json`,
             {
               dependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
-              peerDependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
+              peerDependencies: { foo: 'latest', bar: '1.0.0' },
               devDependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
               name: `blackbaud-skyux-spa-${spaName}`,
               description: `Single-page-application (SPA) for skyux-spa-${spaName}`,

@@ -156,8 +156,8 @@ describe('skyux CLI', () => {
 
     it('should accept unknown command', () => {
       cli({ _: ['unknownCommand'] });
-      expect(logger.info).toHaveBeenCalledWith(`SKY UX processing command unknownCommand`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules found for unknownCommand`);
+      expect(logger.info).toHaveBeenCalledWith(`SKY UX processing command 'unknownCommand'`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found containing the command 'unknownCommand' - please check your syntax (use the 'help' command for more information).`);
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
   }
@@ -169,8 +169,8 @@ describe('skyux CLI', () => {
 
     it('should fail and log an error', () => {
       cli({ _: ['serve'] });
-      expect(logger.info).toHaveBeenCalledWith(`SKY UX processing command serve`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules found for serve`);
+      expect(logger.info).toHaveBeenCalledWith(`SKY UX processing command 'serve'`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found containing the command 'serve' - please check your syntax (use the 'help' command for more information).`);
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
 
@@ -186,7 +186,7 @@ describe('skyux CLI', () => {
       spyOn(fs, 'existsSync').and.returnValue(false);
 
       cli({ _: ['unknownCommand'] });
-      expect(logger.error).toHaveBeenCalledWith(`Have you ran 'npm install'?`);
+      expect(logger.error).toHaveBeenCalledWith(`The 'node_modules' folder was not found - have you ran 'npm install'?`);
     });
 
     it('should not log an special errors if in skyux-spa dir and node_modules exists', () => {
@@ -195,7 +195,7 @@ describe('skyux CLI', () => {
 
       cli({ _: ['unknownCommand'] });
       expect(logger.error).not.toHaveBeenCalledWith(`Are you in a SKY UX SPA directory?`);
-      expect(logger.error).not.toHaveBeenCalledWith(`Have you ran 'npm install'?`);
+      expect(logger.error).not.toHaveBeenCalledWith(`The 'node_modules' folder was not found - have you ran 'npm install'?`);
     })
 
     sharedTests();
@@ -293,7 +293,7 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.error).toHaveBeenCalledWith(`No modules found for ${customCommand}`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found containing the command '${customCommand}' - please check your syntax (use the 'help' command for more information).`);
     });
 
     it('should handle an error when requiring a malformed module', () => {

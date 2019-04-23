@@ -90,12 +90,12 @@ function invokeCommandError(command, isInternalCommand) {
   }
 
   const cwd = process.cwd();
-  logger.error(`No modules found for ${command}`);
+  logger.error(`No modules were found containing the command '${command}' - please check your syntax (use the 'help' command for more information).`);
 
   if (cwd.indexOf('skyux-spa') === -1) {
     logger.error(`Are you in a SKY UX SPA directory?`);
   } else if (!fs.existsSync('./node_modules')) {
-    logger.error(`Have you ran 'npm install'?`);
+    logger.error(`The 'node_modules' folder was not found - have you ran 'npm install'?`);
   }
 
   process.exit(1);
@@ -161,7 +161,7 @@ function processArgv(argv) {
   let command = getCommand(argv);
   let isInternalCommand = true;
 
-  logger.info(`SKY UX processing command ${command}`);
+  logger.info(`SKY UX processing command '${command}'`);
 
   switch (command) {
     case 'version':

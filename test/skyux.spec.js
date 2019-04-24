@@ -157,7 +157,7 @@ describe('skyux CLI', () => {
     it('should accept unknown command', () => {
       cli({ _: ['unknownCommand'] });
       expect(logger.info).toHaveBeenCalledWith(`SKY UX is processing the 'unknownCommand' command.`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules were found that contain the 'unknownCommand' command. Please check your syntax. For more information, use the 'help' command.`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the 'unknownCommand' command. Please check your syntax. For more information, use the 'help' command.`);
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
   }
@@ -170,7 +170,7 @@ describe('skyux CLI', () => {
     it('should fail and log an error', () => {
       cli({ _: ['serve'] });
       expect(logger.info).toHaveBeenCalledWith(`SKY UX is processing the 'serve' command.`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules were found that contain the 'serve' command. Please check your syntax. For more information, use the 'help' command.`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the 'serve' command. Please check your syntax. For more information, use the 'help' command.`);
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
 
@@ -293,7 +293,7 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.error).toHaveBeenCalledWith(`No modules were found that contain the '${customCommand}' command. Please check your syntax. For more information, use the 'help' command.`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the '${customCommand}' command. Please check your syntax. For more information, use the 'help' command.`);
     });
 
     it('should handle an error when requiring a malformed module', () => {

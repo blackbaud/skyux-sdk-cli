@@ -90,7 +90,7 @@ function invokeCommandError(command, isInternalCommand) {
   }
 
   const cwd = process.cwd();
-  logger.error(`No modules were found that contain the '${command}' command. Please check your syntax. For more information, use the 'help' command.`);
+  logger.error(`No modules were found that handle the '${command}' command. Please check your syntax. For more information, use the 'help' command.`);
 
   if (cwd.indexOf('skyux-spa') === -1) {
     logger.error(`Are you in a SKY UX SPA directory?`);

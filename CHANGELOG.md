@@ -1,6 +1,6 @@
 # 3.0.3 (2019-04-22)
 
-- Use better logger messages when no modules were found for a given command, or when the node_modules folder was not found.
+- Expand messages for when modules are not found for commands or when the node_modules folder is not found. [#24](https://github.com/blackbaud/skyux-sdk-cli/pull/24)
 
 # 3.0.2 (2019-04-11)
 

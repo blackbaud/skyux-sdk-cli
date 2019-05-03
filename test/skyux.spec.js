@@ -238,10 +238,10 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed '${customCommand}' to 2 modules:`)
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed the '${customCommand}' command to 2 modules:`)
       expect(logger.verbose).toHaveBeenCalledWith(`local-module-name, non-scoped-global-module-name`);
     });
 
@@ -275,10 +275,10 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed '${customCommand}' to 1 module:`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed the '${customCommand}' command to 1 module:`);
       expect(logger.verbose).toHaveBeenCalledWith(`local-module-name`);
     });
 
@@ -337,12 +337,12 @@ describe('skyux CLI', () => {
     it('should log path', () => {
       cli({ _: ['customCommand'] });
 
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name.`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module at scoped-global-module/package.json.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the ommand to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module at scoped-global-module/package.json.`);
     });
 
   });
@@ -391,7 +391,7 @@ describe('skyux CLI', () => {
 
     cli({ _: ['customCommand'] });
 
-    expect(logger.verbose).toHaveBeenCalledWith('Passing command to duplicate-module-name at local-module/package.json.');
+    expect(logger.verbose).toHaveBeenCalledWith('Passing the command to duplicate-module-name at local-module/package.json.');
     expect(logger.verbose).toHaveBeenCalledWith(
       'Multiple instances were found. Skipping passing the command to duplicate-module-name at local-module/package.json.'
     );

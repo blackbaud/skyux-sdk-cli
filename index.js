@@ -22,7 +22,7 @@ function getGlobs() {
     const legacyPattern = path.join(dir, '*/skyux-builder*/package.json');
     const newPattern = path.join(dir, '@skyux-sdk/builder*/package.json');
 
-    logger.verbose(`Looking for modules in ${legacyPattern} and ${newPattern}`);
+    logger.verbose(`Looking for modules in ${legacyPattern} and ${newPattern}.`);
 
     globs = globs.concat([
       ...glob.sync(legacyPattern),
@@ -53,16 +53,16 @@ function getModulesAnswered(command, argv, globs) {
       module = require(dirName);
       pkgJson = require(pkg);
     } catch (err) {
-      logger.verbose(`Error loading module: ${pkg}`);
+      logger.verbose(`Error loading ${pkg}.`);
     }
 
     if (module && typeof module.runCommand === 'function') {
       const pkgName = pkgJson.name || dirName;
 
       if (modulesCalled[pkgName]) {
-        logger.verbose(`Multiple instances found. Skipping passing command to ${pkgName} at ${pkg}.`);
+        logger.verbose(`Multiple instances were found. Skipping passing the command to ${pkgName} at ${pkg}.`);
       } else {
-        logger.verbose(`Passing command to ${pkgName} at ${pkg}.`);
+        logger.verbose(`Passing the command to ${pkgName} at ${pkg}.`);
 
         modulesCalled[pkgName] = true;
         if (module.runCommand(command, argv)) {
@@ -90,12 +90,12 @@ function invokeCommandError(command, isInternalCommand) {
   }
 
   const cwd = process.cwd();
-  logger.error(`No modules found for ${command}`);
+  logger.error(`No modules were found that handle the '${command}' command. Please check your syntax. For more information, use the 'help' command.`);
 
   if (cwd.indexOf('skyux-spa') === -1) {
     logger.error(`Are you in a SKY UX SPA directory?`);
   } else if (!fs.existsSync('./node_modules')) {
-    logger.error(`Have you ran 'npm install'?`);
+    logger.error(`The 'node_modules' folder was not found. Did you run 'npm install'?`);
   }
 
   process.exit(1);
@@ -126,7 +126,7 @@ function invokeCommand(command, argv, isInternalCommand) {
   const modulesAnsweredPlural = modulesAnsweredLength === 1 ? 'module' : 'modules';
 
   logger.verbose(
-    `Successfully passed ${command} to ${modulesAnsweredLength} ${modulesAnsweredPlural}:`
+    `Successfully passed the '${command}' command to ${modulesAnsweredLength} ${modulesAnsweredPlural}:`
   );
   logger.verbose(modulesAnswered.join(', '));
 }
@@ -161,7 +161,7 @@ function processArgv(argv) {
   let command = getCommand(argv);
   let isInternalCommand = true;
 
-  logger.info(`SKY UX processing command ${command}`);
+  logger.info(`SKY UX is processing the '${command}' command.`);
 
   switch (command) {
     case 'version':

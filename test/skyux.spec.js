@@ -156,8 +156,8 @@ describe('skyux CLI', () => {
 
     it('should accept unknown command', () => {
       cli({ _: ['unknownCommand'] });
-      expect(logger.info).toHaveBeenCalledWith(`SKY UX processing command unknownCommand`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules found for unknownCommand`);
+      expect(logger.info).toHaveBeenCalledWith(`SKY UX is processing the 'unknownCommand' command.`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the 'unknownCommand' command. Please check your syntax. For more information, use the 'help' command.`);
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
   }
@@ -169,8 +169,8 @@ describe('skyux CLI', () => {
 
     it('should fail and log an error', () => {
       cli({ _: ['serve'] });
-      expect(logger.info).toHaveBeenCalledWith(`SKY UX processing command serve`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules found for serve`);
+      expect(logger.info).toHaveBeenCalledWith(`SKY UX is processing the 'serve' command.`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the 'serve' command. Please check your syntax. For more information, use the 'help' command.`);
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
 
@@ -186,7 +186,7 @@ describe('skyux CLI', () => {
       spyOn(fs, 'existsSync').and.returnValue(false);
 
       cli({ _: ['unknownCommand'] });
-      expect(logger.error).toHaveBeenCalledWith(`Have you ran 'npm install'?`);
+      expect(logger.error).toHaveBeenCalledWith(`The 'node_modules' folder was not found. Did you run 'npm install'?`);
     });
 
     it('should not log an special errors if in skyux-spa dir and node_modules exists', () => {
@@ -195,7 +195,7 @@ describe('skyux CLI', () => {
 
       cli({ _: ['unknownCommand'] });
       expect(logger.error).not.toHaveBeenCalledWith(`Are you in a SKY UX SPA directory?`);
-      expect(logger.error).not.toHaveBeenCalledWith(`Have you ran 'npm install'?`);
+      expect(logger.error).not.toHaveBeenCalledWith(`The 'node_modules' folder was not found. Did you run 'npm install'?`);
     })
 
     sharedTests();
@@ -238,10 +238,10 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed ${customCommand} to 2 modules:`)
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed the '${customCommand}' command to 2 modules:`)
       expect(logger.verbose).toHaveBeenCalledWith(`local-module-name, non-scoped-global-module-name`);
     });
 
@@ -275,10 +275,10 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed ${customCommand} to 1 module:`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed the '${customCommand}' command to 1 module:`);
       expect(logger.verbose).toHaveBeenCalledWith(`local-module-name`);
     });
 
@@ -293,7 +293,7 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.error).toHaveBeenCalledWith(`No modules found for ${customCommand}`);
+      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the '${customCommand}' command. Please check your syntax. For more information, use the 'help' command.`);
     });
 
     it('should handle an error when requiring a malformed module', () => {
@@ -309,7 +309,7 @@ describe('skyux CLI', () => {
       cli({ _: [customCommand] });
 
       expect(logger.verbose).toHaveBeenCalledWith(
-        `Error loading module: non-scoped-global-module/package.json`
+        `Error loading non-scoped-global-module/package.json.`
       );
 
     });
@@ -337,12 +337,12 @@ describe('skyux CLI', () => {
     it('should log path', () => {
       cli({ _: ['customCommand'] });
 
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to non-scoped-global-module-name.`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to local-module at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to non-scoped-global-module at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing command to scoped-global-module at scoped-global-module/package.json.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the ommand to local-module-name at local-module/package.json.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module at local-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module at non-scoped-global-module/package.json.`);
+      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module at scoped-global-module/package.json.`);
     });
 
   });
@@ -391,9 +391,9 @@ describe('skyux CLI', () => {
 
     cli({ _: ['customCommand'] });
 
-    expect(logger.verbose).toHaveBeenCalledWith('Passing command to duplicate-module-name at local-module/package.json.');
+    expect(logger.verbose).toHaveBeenCalledWith('Passing the command to duplicate-module-name at local-module/package.json.');
     expect(logger.verbose).toHaveBeenCalledWith(
-      'Multiple instances found. Skipping passing command to duplicate-module-name at local-module/package.json.'
+      'Multiple instances were found. Skipping passing the command to duplicate-module-name at local-module/package.json.'
     );
   });
 

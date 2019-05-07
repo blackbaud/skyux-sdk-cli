@@ -1,6 +1,6 @@
 {
   "name": "@skyux-sdk/cli",
-  "version": "3.0.1",
+  "version": "3.0.3",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -35,7 +35,7 @@
     "update-notifier": "2.5.0"
   },
   "devDependencies": {
-    "eslint": "5.12.1",
+    "eslint": "5.16.0",
     "jasmine": "2.99.0",
     "mock-require": "3.0.3",
     "nyc": "13.3.0",

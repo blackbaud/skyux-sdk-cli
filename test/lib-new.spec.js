@@ -425,7 +425,7 @@ describe('skyux new command', () => {
   });
 
   it('should handle errors when running git checkout', (done) => {
-    spawnGitCheckout('ignore', done);
+    spawnGitCheckout('pipe', done);
   });
 
   it('should pass stdio: inherit to spawn when logLevel is verbose', (done) => {

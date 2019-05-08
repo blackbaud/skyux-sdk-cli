@@ -1,5 +1,6 @@
-# 3.0.3 (2019-05-03)
+# 3.1.0 (2019-05-08)
 
+- Displaying `npm` warning messages when running `skyux new` and `skyux install`. [#25](https://github.com/blackbaud/skyux-sdk-cli/pull/25)
 - Expand messages for when modules are not found for commands or when the node_modules folder is not found. [#24](https://github.com/blackbaud/skyux-sdk-cli/pull/24)
 
 # 3.0.2 (2019-04-11)

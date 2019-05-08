@@ -13,7 +13,7 @@ describe('npm install library', () => {
 
     spyLoggerPromise = jasmine.createSpyObj('logger', ['succeed','fail']);
     spyOn(logger, 'promise').and.returnValue(spyLoggerPromise);
-
+    spyOn(logger, 'warn');
     spyOn(logger, 'error');
 
     mock('fs-extra', mockFs);
@@ -109,6 +109,29 @@ describe('npm install library', () => {
       expect(spyLoggerPromise.succeed).toHaveBeenCalled();
       done();
     });
+  });
+
+  it('should log npm warnings from stdout and stderr', (done) => {
+    const output = `
+npm WARN warning should show
+npm something else that does not show
+npm WARN another warning
+`;
+    getPromiseFromSpawn(0, output).then(() => {
+      expect(logger.warn).toHaveBeenCalledWith(
+        '\nYou may need to address the following warnings:\n'
+      );
+      expect(logger.warn).toHaveBeenCalledWith(
+        'npm WARN warning should show'
+      );
+      expect(logger.warn).toHaveBeenCalledWith(
+        'npm WARN another warning'
+      );
+      expect(logger.warn).toHaveBeenCalledWith(
+        '\n'
+      );
+      done();
+    })
   });
 
 });

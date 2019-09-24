@@ -176,6 +176,9 @@ function processArgv(argv) {
     case 'install':
       require('./lib/install')(argv);
       break;
+    case 'certs':
+      require('./lib/certs')(argv);
+      break;
     default:
       isInternalCommand = false;
   }

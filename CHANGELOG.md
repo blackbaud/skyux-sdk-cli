@@ -1,3 +1,7 @@
+# 3.2.0 (2019-10-01)
+
+- Ported `upgrade` command from https://github.com/blackbaud/skyux-sdk-builder-plugin-migrate.
+
 # 3.1.0 (2019-05-08)
 
 - Added ability to display `npm` warning messages when running `skyux new` and `skyux install`. [#25](https://github.com/blackbaud/skyux-sdk-cli/pull/25)

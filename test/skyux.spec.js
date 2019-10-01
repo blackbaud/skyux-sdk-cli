@@ -160,6 +160,17 @@ describe('skyux CLI', () => {
       expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the 'unknownCommand' command. Please check your syntax. For more information, use the 'help' command.`);
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
+
+    it('should accept known command upgrade', () => {
+      let called = false;
+      mock('../lib/upgrade', () => {
+        called = true;
+      });
+
+      cli({ _: ['upgrade'] });
+      expect(called).toEqual(true);
+      expect(spyProcessExit).not.toHaveBeenCalled();
+    });
   }
 
   describe('when missing modules', () => {

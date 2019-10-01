@@ -176,6 +176,9 @@ function processArgv(argv) {
     case 'install':
       require('./lib/install')(argv);
       break;
+    case 'upgrade':
+      require('./lib/upgrade')(argv);
+      break;
     default:
       isInternalCommand = false;
   }

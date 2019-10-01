@@ -3,6 +3,7 @@ const mock = require('mock-require');
 describe('Upgrade', () => {
   let jsonUtilsMock;
   let loggerMock;
+  let latestVersionMock;
   let cleanupMock;
   let upgrade;
 
@@ -16,11 +17,25 @@ describe('Upgrade', () => {
       info: jasmine.createSpy('info')
     };
 
+    latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
+      switch (packageName) {
+        case '@foo/bar':
+          return '12.2.5';
+        case '@foo/baz':
+          return '4.5.6';
+        case 'typescript':
+          return '2.2';
+        case 'zone.js':
+          return '0.9.0';
+      }
+    });
+
     cleanupMock = {
       deleteDependencies: jasmine.createSpy('deleteDependencies')
     };
 
     mock('@blackbaud/skyux-logger', loggerMock);
+    mock('latest-version', latestVersionMock);
 
     mock('../lib/json-utils', jsonUtilsMock);
     mock('../lib/cleanup', cleanupMock);
@@ -45,6 +60,20 @@ describe('Upgrade', () => {
     });
 
     await upgrade();
+
+    expect(latestVersionMock).toHaveBeenCalledWith(
+      '@foo/bar',
+      {
+        version: '12'
+      }
+    );
+
+    expect(latestVersionMock).toHaveBeenCalledWith(
+      '@foo/baz',
+      {
+        version: '4'
+      }
+    );
 
     expect(jsonUtilsMock.writeJson).toHaveBeenCalledWith(
       'package.json',
@@ -116,6 +145,13 @@ describe('Upgrade', () => {
     });
 
     await upgrade();
+
+    expect(latestVersionMock).toHaveBeenCalledWith(
+      '@foo/bar',
+      {
+        version: '12'
+      }
+    );
 
     expect(jsonUtilsMock.writeJson).toHaveBeenCalledWith(
       'package.json',

@@ -28,6 +28,9 @@ serve
 test
   Runs any unit tests in the src/app folder.
 
+upgrade
+  Updates to the latest minor versions of all your dependencies.
+
 version
   Returns the version of SKY UX CLI.
 

@@ -2,10 +2,21 @@ const mock = require('mock-require');
 
 describe('App dependencies', () => {
   let appDependencies;
+  let latestVersionMock;
   let getPackageJsonMock;
   let packageMapMock;
 
   beforeEach(() => {
+    latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
+      switch (packageName) {
+        case '@foo/bar':
+          return '12.2.5';
+        case '@foo/baz':
+          return '4.5.6';
+      }
+      return '9.8.7';
+    });
+
     getPackageJsonMock = jasmine.createSpy('getPackageJson');
 
     packageMapMock = {
@@ -16,6 +27,7 @@ describe('App dependencies', () => {
       })
     };
 
+    mock('latest-version', latestVersionMock);
     mock('package-json', getPackageJsonMock);
     mock('../lib/package-map', packageMapMock);
 
@@ -50,6 +62,20 @@ describe('App dependencies', () => {
         '@foo/baz': '4.5.6',
         'from-branch': 'foo/bar#branch'
       });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        '@foo/bar',
+        {
+          version: '12'
+        }
+      );
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        '@foo/baz',
+        {
+          version: '4'
+        }
+      );
     });
 
     it('should handle missing dependencies section', async () => {
@@ -65,19 +91,47 @@ describe('App dependencies', () => {
         'prerelease-foo': '1.0.0-rc.0'
       });
 
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'prerelease-foo',
+        {
+          version: '^1.0.0-rc.0'
+        }
+      );
+
       await appDependencies.upgradeDependencies({
         'prerelease-foo': '1.0.0-alpha.0'
       });
 
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'prerelease-foo',
+        {
+          version: '^1.0.0-alpha.0'
+        }
+      );
+
       await appDependencies.upgradeDependencies({
         'prerelease-foo': '1.0.0-beta.0'
       });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'prerelease-foo',
+        {
+          version: '^1.0.0-beta.0'
+        }
+      );
     });
 
     it('should handle "latest" versions', async () => {
       await appDependencies.upgradeDependencies({
         'prerelease-foo': 'latest'
       });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'prerelease-foo',
+        {
+          version: '9'
+        }
+      );
     });
 
   });

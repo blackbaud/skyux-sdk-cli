@@ -1,7 +1,10 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const glob = require('glob');
 const logger = require('@blackbaud/skyux-logger');
+
+const sslRootDefault = path.resolve(`${os.homedir()}/.skyux/certs/`);
 
 /**
  * Returns results of glob.sync from specified directory and our glob pattern.
@@ -158,10 +161,13 @@ function getCommand(argv) {
  * @param [Object] argv
  */
 function processArgv(argv) {
-  let command = getCommand(argv);
+  const command = getCommand(argv);
   let isInternalCommand = true;
 
   logger.info(`SKY UX is processing the '${command}' command.`);
+
+  // sslRoot is required by builder
+  argv.sslRoot = argv.sslRoot || sslRootDefault;
 
   switch (command) {
     case 'version':

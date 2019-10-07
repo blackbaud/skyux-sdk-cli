@@ -23,7 +23,8 @@ describe('skyux CLI', () => {
 
     mock('path', {
       dirname: (dir) => dir.replace('/package.json', ''),
-      join: (dir, pattern) => `${dir}/${pattern}`
+      join: (dir, pattern) => `${dir}/${pattern}`,
+      resolve: () => {}
     });
 
     if (noNameProperty) {
@@ -150,6 +151,17 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: ['install'] });
+      expect(called).toEqual(true);
+      expect(spyProcessExit).not.toHaveBeenCalled();
+    });
+
+    it('should accept known command certs', () => {
+      let called = false;
+      mock('../lib/certs', () => {
+        called = true;
+      });
+
+      cli({ _: ['certs'] });
       expect(called).toEqual(true);
       expect(spyProcessExit).not.toHaveBeenCalled();
     });
@@ -353,7 +365,8 @@ describe('skyux CLI', () => {
 
     mock('path', {
       dirname: (dir) => dir.replace('/package.json', ''),
-      join: (dir, pattern) => `${dir}/${pattern}`
+      join: (dir, pattern) => `${dir}/${pattern}`,
+      resolve: () => {}
     });
 
     mock('local-module/package.json', {
@@ -402,7 +415,8 @@ describe('skyux CLI', () => {
     mock('path', {
       join: (dir, pattern) => {
         patternsCalled.push(pattern);
-      }
+      },
+      resolve: () => {}
     });
 
     mock('glob', {

@@ -52,9 +52,13 @@ describe('skyux new command', () => {
     spyLogger.promise.and.returnValue(spyLoggerPromise);
     mock('@blackbaud/skyux-logger', spyLogger);
 
-    mock('git-clone', (url, path, cb) => {
+    mock('../lib/utils/clone', (url) => {
       gitCloneUrls.push(url);
-      cb(customError);
+      if (customError) {
+        return Promise.reject(customError);
+      } else {
+        return Promise.resolve();
+      }
     });
 
     emitter = new EventEmitter();
@@ -74,7 +78,7 @@ describe('skyux new command', () => {
     // it will hide any debugging information (console.log) you have in the spec file.
     spyOn(process.stdout, 'write');
 
-    mock('../lib/npm-install', function () {
+    mock('../lib/utils/npm-install', function () {
       return Promise.resolve();
     });
 

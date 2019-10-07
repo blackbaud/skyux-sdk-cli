@@ -31,7 +31,7 @@ describe('npm install library', () => {
       return jasmine.createSpyObj('spawn', ['on']);
     });
 
-    const npmInstall = mock.reRequire('../lib/npm-install');
+    const npmInstall = mock.reRequire('../lib/utils/npm-install');
 
     npmInstall(settings);
 
@@ -45,7 +45,7 @@ describe('npm install library', () => {
     spySpawn.stderr = spySpawnStderr;
     mock('cross-spawn', () => spySpawn);
 
-    const npmInstall = mock.reRequire('../lib/npm-install');
+    const npmInstall = mock.reRequire('../lib/utils/npm-install');
     const npmInstallPromise = npmInstall();
 
     if (customError) {

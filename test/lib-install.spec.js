@@ -39,7 +39,7 @@ describe('skyux install command', () => {
 
     npmInstallSpy = jasmine.createSpy('npmInstall');
 
-    mock('../lib/npm-install', npmInstallSpy);
+    mock('../lib/utils/npm-install', npmInstallSpy);
   });
 
   afterEach(() => {

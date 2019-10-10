@@ -1,1 +1,1 @@
-The "skyux certs" command contains several actions around certificate management. Available actions are clean, clone, install, trust, uninstall, and untrust. https://developer.blackbaud.com/skyux/learn/reference/cli-commands/generate
+The "skyux certs" command contains several actions around certificate management. Available actions are clean, clone, install, trust, uninstall, and untrust. https://developer.blackbaud.com/skyux/learn/reference/cli-commands/certs

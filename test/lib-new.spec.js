@@ -401,7 +401,7 @@ describe('skyux new command', () => {
       sendLine('some-spa-repo', () => {
         skyuxNew.then(() => {
           expect(spyLogger.error).toHaveBeenCalledWith(
-            'skyux new only works with empty repositories.'
+            'The command `skyux new` only works with empty repositories.'
           );
           done();
         });

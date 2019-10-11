@@ -3,6 +3,7 @@ const os = require('os');
 const path = require('path');
 const glob = require('glob');
 const logger = require('@blackbaud/skyux-logger');
+const certUtils = require('./lib/utils/cert-utils');
 
 const sslRootDefault = path.resolve(`${os.homedir()}/.skyux/certs/`);
 
@@ -154,6 +155,23 @@ function getCommand(argv) {
   return command;
 }
 
+function validateCert(command, argv) {
+  switch (command) {
+    case 'serve':
+    case 'e2e':
+      return certUtils.validate(argv);
+
+    case 'build':
+      if (argv.s || argv.serve) {
+        return certUtils.validate(argv);
+      }
+    break;
+
+    default:
+      return true;
+  }
+}
+
 /**
  * Processes an argv object.
  * Reads package.json if it exists.
@@ -166,8 +184,15 @@ function processArgv(argv) {
 
   logger.info(`SKY UX is processing the '${command}' command.`);
 
-  // sslRoot is required by builder
-  argv.sslRoot = argv.sslRoot || sslRootDefault;
+  // sslCert and sslKey are required by builder
+  argv.sslCert = certUtils.getCertPath(argv);
+  argv.sslKey = certUtils.getKeyPath(argv);
+
+  // Validate cert for specific scenarios
+  if (!validateCert(command, argv)) {
+    logger.warn(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
+    logger.warn(`You may process, but \`skyux ${command}\` may not function properly.`)
+  }
 
   switch (command) {
     case 'version':

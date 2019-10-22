@@ -1,11 +1,8 @@
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const glob = require('glob');
 const logger = require('@blackbaud/skyux-logger');
 const certUtils = require('./lib/utils/cert-utils');
-
-const sslRootDefault = path.resolve(`${os.homedir()}/.skyux/certs/`);
 
 /**
  * Returns results of glob.sync from specified directory and our glob pattern.
@@ -166,10 +163,9 @@ function validateCert(command, argv) {
         return certUtils.validate(argv);
       }
     break;
-
-    default:
-      return true;
   }
+
+  return true;
 }
 
 /**
@@ -191,7 +187,7 @@ function processArgv(argv) {
   // Validate cert for specific scenarios
   if (!validateCert(command, argv)) {
     logger.warn(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
-    logger.warn(`You may process, but \`skyux ${command}\` may not function properly.`)
+    logger.warn(`You may proceed, but \`skyux ${command}\` may not function properly.`)
   }
 
   switch (command) {

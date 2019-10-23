@@ -21,7 +21,12 @@ describe('cert utils', () => {
   }
 
   function spyOnFS() {
-    const spyFS = jasmine.createSpyObj('fs-extra', ['existsSync', 'ensureDirSync', 'writeFileSync']);
+    const spyFS = jasmine.createSpyObj('fs-extra', [
+      'existsSync',
+      'ensureDirSync',
+      'removeSync',
+      'writeFileSync'
+    ]);
     mock('fs-extra', spyFS);
     return spyFS;
   }
@@ -37,6 +42,7 @@ describe('cert utils', () => {
       'getCertName',
       'getCertPath',
       'getKeyPath',
+      'remove',
       'validate'
     ];
 
@@ -160,6 +166,20 @@ describe('cert utils', () => {
     expect(spyFS.ensureDirSync).toHaveBeenCalledWith(argv.sslCert);
     expect(spyFS.ensureDirSync).toHaveBeenCalledWith(argv.sslKey);
     expect(logger.info).toHaveBeenCalledWith(`Successfully generated ${argv.sslCert} and ${argv.sslKey}.`);
+  });
+
+  it('should remove the certificate and key', () => {
+    const spyFS = spyOnFS();
+    const certUtils = getUtils();
+
+    const argv = {
+      sslCert: 'custom-cert',
+      sslKey: 'custom-key'
+    };
+
+    certUtils.remove(argv);
+    expect(spyFS.removeSync).toHaveBeenCalledWith(argv.sslCert);
+    expect(spyFS.removeSync).toHaveBeenCalledWith(argv.sslKey);
   });
 
 });

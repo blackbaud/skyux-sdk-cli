@@ -11,10 +11,11 @@ describe('skyux certs command', () => {
   function spyOnCertUtils() {
     const spyCertUtils = jasmine.createSpyObj('certUtils', [
       'generate',
-      'validate',
       'getCertName',
       'getCertPath',
-      'getKeyPath'
+      'getKeyPath',
+      'remove',
+      'validate'
     ]);
     mock('../lib/utils/cert-utils', spyCertUtils);
     return spyCertUtils;
@@ -51,6 +52,9 @@ describe('skyux certs command', () => {
     const spies = await setupPlatformTest(action, platform);
     if (action === 'trust') {
       expect(spies.spyCertUtils.generate).toHaveBeenCalled();
+    }
+    if (action === 'untrust') {
+      expect(spies.spyCertUtils.remove).toHaveBeenCalled();
     }
     expect(spies.spySpawn).toHaveBeenCalled();
   }

@@ -25,8 +25,13 @@ describe('skyux certs command', () => {
     return mock.reRequire('../lib/certs');
   }
 
-  async function setupPlatformTest(action, platform) {
+  async function setupPlatformTest(action, platform, includeNoPause) {
     const argv = { _: ['certs', action]};
+
+    // minimist converts --no-pause to pause: false
+    if (includeNoPause) {
+      argv.pause = false;
+    }
 
     const spySpawn = jasmine.createSpy('spawn');
     spySpawn.and.callFake(() => Promise.resolve());
@@ -48,8 +53,8 @@ describe('skyux certs command', () => {
     };
   }
 
-  async function runPlatformTest(action, platform) {
-    const spies = await setupPlatformTest(action, platform);
+  async function runPlatformTest(action, platform, includeNoPause) {
+    const spies = await setupPlatformTest(action, platform, includeNoPause);
     if (action === 'trust') {
       expect(spies.spyCertUtils.generate).toHaveBeenCalled();
     }
@@ -57,6 +62,7 @@ describe('skyux certs command', () => {
       expect(spies.spyCertUtils.remove).toHaveBeenCalled();
     }
     expect(spies.spySpawn).toHaveBeenCalled();
+    return spies;
   }
 
   function runActionTests(action) {
@@ -69,7 +75,13 @@ describe('skyux certs command', () => {
     });
   
     it('should handle the Windows platform', async () => {
-      await runPlatformTest(action, 'Windows_NT');
+      const spies = await runPlatformTest(action, 'Windows_NT');
+      expect(spies.spySpawn.calls.argsFor(0)[1].indexOf('PAUSE')).not.toEqual(-1);
+    });
+
+    it('should handle the Windows platform (with --no-pause)', async () => {
+      const spies = await runPlatformTest(action, 'Windows_NT', true);
+      expect(spies.spySpawn.calls.argsFor(0)[1].indexOf('PAUSE')).toEqual(-1);
     });
 
     it('should handle an unknown platform', async () => {
@@ -115,5 +127,5 @@ describe('skyux certs command', () => {
     
     lib(argv);
     expect(logger.error).toHaveBeenCalledWith(`Command exited with error: ${err}`);
-  })
+  });
 });

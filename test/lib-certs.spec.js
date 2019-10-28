@@ -55,10 +55,10 @@ describe('skyux certs command', () => {
 
   async function runPlatformTest(action, platform, includeNoPause) {
     const spies = await setupPlatformTest(action, platform, includeNoPause);
-    if (action === 'trust') {
+    if (action === 'install') {
       expect(spies.spyCertUtils.generate).toHaveBeenCalled();
     }
-    if (action === 'untrust') {
+    if (action === 'uninstall') {
       expect(spies.spyCertUtils.remove).toHaveBeenCalled();
     }
     expect(spies.spySpawn).toHaveBeenCalled();
@@ -92,12 +92,21 @@ describe('skyux certs command', () => {
     });
   }
 
-  describe('trust action', () => {
-    runActionTests('trust');
+  describe('install action', () => {
+    runActionTests('install');
   });
 
-  describe('untrust action', () => {
-    runActionTests('untrust');
+  describe('uninstall action', () => {
+    runActionTests('uninstall');
+  });
+
+  it('should handle the generate action', () => {
+    const argv = { _: ['certs', 'generate']};
+    const spyCertUtils = spyOnCertUtils();
+    const lib = getLib();
+    
+    lib(argv);
+    expect(spyCertUtils.generate).toHaveBeenCalledWith(argv);    
   });
 
   it('should handle the validate action', () => {
@@ -113,7 +122,7 @@ describe('skyux certs command', () => {
     const lib = getLib();
     lib({ _: ['certs', 'asdf']});
     expect(logger.warn).toHaveBeenCalledWith(`Unknown action for the certs command.`);
-    expect(logger.warn).toHaveBeenCalledWith(`Available actions are trust, untrust, and validate.`);
+    expect(logger.warn).toHaveBeenCalledWith(`Available actions are install and uninstall.`);
   });
 
   it('should handle an error', () => {

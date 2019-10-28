@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const logger = require('@blackbaud/skyux-logger');
+const certUtils = require('./lib/utils/cert-utils');
 
 /**
  * Returns results of glob.sync from specified directory and our glob pattern.
@@ -151,6 +152,22 @@ function getCommand(argv) {
   return command;
 }
 
+function validateCert(command, argv) {
+  switch (command) {
+    case 'serve':
+    case 'e2e':
+      return certUtils.validate(argv);
+
+    case 'build':
+      if (argv.s || argv.serve) {
+        return certUtils.validate(argv);
+      }
+    break;
+  }
+
+  return true;
+}
+
 /**
  * Processes an argv object.
  * Reads package.json if it exists.
@@ -158,10 +175,21 @@ function getCommand(argv) {
  * @param [Object] argv
  */
 function processArgv(argv) {
-  let command = getCommand(argv);
+  const command = getCommand(argv);
   let isInternalCommand = true;
 
   logger.info(`SKY UX is processing the '${command}' command.`);
+
+  // sslCert and sslKey are required by builder
+  argv.sslCert = certUtils.getCertPath(argv);
+  argv.sslKey = certUtils.getKeyPath(argv);
+
+  // Validate cert for specific scenarios
+  if (!validateCert(command, argv)) {
+    logger.warn(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
+    logger.warn(`You may proceed, but \`skyux ${command}\` may not function properly.`)
+    logger.warn('Please install the latest SKY UX CLI and run `skyux certs install`.');
+  }
 
   switch (command) {
     case 'version':
@@ -175,6 +203,9 @@ function processArgv(argv) {
       break;
     case 'install':
       require('./lib/install')(argv);
+      break;
+    case 'certs':
+      require('./lib/certs')(argv);
       break;
     default:
       isInternalCommand = false;

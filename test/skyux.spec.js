@@ -11,6 +11,7 @@ describe('skyux CLI', () => {
     spyOn(logger, 'verbose');
     spyOn(logger, 'info');
     spyOn(logger, 'error');
+    spyOn(logger, 'warn');
   })
 
   afterEach(() => {
@@ -23,7 +24,8 @@ describe('skyux CLI', () => {
 
     mock('path', {
       dirname: (dir) => dir.replace('/package.json', ''),
-      join: (dir, pattern) => `${dir}/${pattern}`
+      join: (dir, pattern) => `${dir}/${pattern}`,
+      resolve: () => {}
     });
 
     if (noNameProperty) {
@@ -150,6 +152,17 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: ['install'] });
+      expect(called).toEqual(true);
+      expect(spyProcessExit).not.toHaveBeenCalled();
+    });
+
+    it('should accept known command certs', () => {
+      let called = false;
+      mock('../lib/certs', () => {
+        called = true;
+      });
+
+      cli({ _: ['certs'] });
       expect(called).toEqual(true);
       expect(spyProcessExit).not.toHaveBeenCalled();
     });
@@ -353,7 +366,8 @@ describe('skyux CLI', () => {
 
     mock('path', {
       dirname: (dir) => dir.replace('/package.json', ''),
-      join: (dir, pattern) => `${dir}/${pattern}`
+      join: (dir, pattern) => `${dir}/${pattern}`,
+      resolve: () => {}
     });
 
     mock('local-module/package.json', {
@@ -402,7 +416,8 @@ describe('skyux CLI', () => {
     mock('path', {
       join: (dir, pattern) => {
         patternsCalled.push(pattern);
-      }
+      },
+      resolve: () => {}
     });
 
     mock('glob', {
@@ -415,6 +430,54 @@ describe('skyux CLI', () => {
 
     expect(patternsCalled.includes('*/skyux-builder*/package.json')).toEqual(true);
     expect(patternsCalled.includes('@skyux-sdk/builder*/package.json')).toEqual(true);
+  });
+
+  it('should validate the cert for serve, e2e, and build (if also serving)', () => {
+    const certUtilsSpy = jasmine.createSpyObj('certUtils', ['validate', 'getCertPath', 'getKeyPath']);
+
+    mock('../lib/utils/cert-utils', certUtilsSpy);
+    mock('glob', {
+      sync: () => []
+    });
+
+    certUtilsSpy.validate.and.returnValue(false);
+
+    const argvs = [
+      { _: ['serve'] },
+      { _: ['e2e'] },
+      { _: ['build'], s: true },
+      { _: ['build'], serve: true },
+    ];
+
+    argvs.forEach(argv => {
+      cli(argv);
+      expect(certUtilsSpy.validate).toHaveBeenCalledWith(argv);
+      expect(logger.warn).toHaveBeenCalledWith(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
+      expect(logger.warn).toHaveBeenCalledWith(`You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`);
+      certUtilsSpy.validate.calls.reset();
+    });
+  });
+
+  it('should not validate the cert for test or build (without also serving)', () => {
+    const certUtilsSpy = jasmine.createSpyObj('certUtils', ['validate', 'getCertPath', 'getKeyPath']);
+
+    mock('../lib/utils/cert-utils', certUtilsSpy);
+    mock('glob', {
+      sync: () => []
+    });
+
+    const argvs = [
+      { _: ['test'] },
+      { _: ['build'] },
+    ];
+
+    argvs.forEach(argv => {
+      cli(argv);
+      expect(certUtilsSpy.validate).not.toHaveBeenCalled();
+      expect(logger.warn).not.toHaveBeenCalledWith(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
+      expect(logger.warn).not.toHaveBeenCalledWith(`You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`);
+      certUtilsSpy.validate.calls.reset();
+    });
   });
 
 });

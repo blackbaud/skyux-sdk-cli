@@ -5,7 +5,7 @@ build-public-library
   Bundles components into an NPM module.
 
 certs
-  Actions around certificate management including `trust`, `untrust`, and `validate`.
+  Actions around certificate management including `install`, `uninstall`.
 
 e2e
   Runs any end-to-end tests in the e2e folder.

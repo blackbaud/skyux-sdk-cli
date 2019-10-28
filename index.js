@@ -188,7 +188,7 @@ function processArgv(argv) {
   if (!validateCert(command, argv)) {
     logger.warn(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
     logger.warn(`You may proceed, but \`skyux ${command}\` may not function properly.`)
-    logger.warn('Please install the latest SKY UX CLI and run `skyux certs trust`.');
+    logger.warn('Please install the latest SKY UX CLI and run `skyux certs install`.');
   }
 
   switch (command) {

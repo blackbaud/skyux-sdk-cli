@@ -180,15 +180,18 @@ function processArgv(argv) {
 
   logger.info(`SKY UX is processing the '${command}' command.`);
 
-  // sslCert and sslKey are required by builder
-  argv.sslCert = certUtils.getCertPath(argv);
-  argv.sslKey = certUtils.getKeyPath(argv);
+  // Don't validate custom sslCert and sslKey
+  if (!argv.sslCert && !argv.sslKey) {
 
-  // Validate cert for specific scenarios
-  if (!validateCert(command, argv)) {
-    logger.warn(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
-    logger.warn(`You may proceed, but \`skyux ${command}\` may not function properly.`)
-    logger.warn('Please install the latest SKY UX CLI and run `skyux certs install`.');
+    argv.sslCert = certUtils.getCertPath();
+    argv.sslKey = certUtils.getKeyPath();
+
+    // Validate cert for specific scenarios
+    if (!validateCert(command, argv)) {
+      logger.warn(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
+      logger.warn(`You may proceed, but \`skyux ${command}\` may not function properly.`)
+      logger.warn('Please install the latest SKY UX CLI and run `skyux certs install`.');
+    }
   }
 
   switch (command) {

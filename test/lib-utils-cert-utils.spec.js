@@ -39,7 +39,9 @@ describe('cert utils', () => {
     const certUtils = getUtils();
     const methods = [
       'generate',
+      'getCertCommonName',
       'getCertName',
+      'getKeyName',
       'getCertPath',
       'getKeyPath',
       'remove',
@@ -51,63 +53,55 @@ describe('cert utils', () => {
 
   it('should return the common certificate name', () => {
     const certUtils = mock.reRequire('../lib/utils/cert-utils');
-    expect(certUtils.getCertName()).toBe('SKYUX-Developer-Certificate');
+    expect(certUtils.getCertCommonName()).toBe('SKYUX-Developer-Certificate');
+  });
+
+  it('should return the cert name', () => {
+    const certUtils = mock.reRequire('../lib/utils/cert-utils');
+    expect(certUtils.getCertName()).toBe('skyux-server.crt');
+  });
+
+  it('should return the key name', () => {
+    const certUtils = mock.reRequire('../lib/utils/cert-utils');
+    expect(certUtils.getKeyName()).toBe('skyux-server.key');
   });
 
   it('should return the default cert path and key path', () => {
-    const sslCert = 'custom-ssl-cert-path';
-    const sslKey = 'custom-ssl-key-path';
-
-    const certUtils = getUtils();
-    expect(certUtils.getCertPath({ sslCert })).toBe(sslCert);
-    expect(certUtils.getKeyPath({ sslKey })).toBe(sslKey);
-  });
-
-  it('should override the default cert path and key path', () => {
+    const fakeHomeDir = 'my-homedir';
+    const fakeCertDir = `${fakeHomeDir}/.skyux/certs/`;
     const spyOS = spyOnOS();
+    spyOS.homedir.and.returnValue(fakeHomeDir)
+
     const spyPath = spyOnPath();
 
-    const customHomeDir = 'my-custom-dir';
-    const certName = 'skyux-server.pem';
-    const keyName = 'skyux-server.key';
-
-    const customCertRootPath = `${customHomeDir}/.skyux/certs/`;
-    spyOS.homedir.and.returnValue(customHomeDir);
-    spyPath.resolve.and.callFake(p => p);
+    spyPath.dirname.and.callFake(p => p);
     spyPath.join.and.callFake((...p) => p.join('/'));
+    spyPath.resolve.and.callFake(p => p);
 
     const certUtils = getUtils();
-    const certPath = certUtils.getCertPath({});
-    const keyPath = certUtils.getKeyPath({});
-
-    expect(spyPath.resolve).toHaveBeenCalledWith(customCertRootPath);
-    expect(spyPath.join).toHaveBeenCalledWith(customCertRootPath, certName);
-    expect(spyPath.join).toHaveBeenCalledWith(customCertRootPath, keyName);
-    expect(certPath).toBe(`${customCertRootPath}/${certName}`);
-    expect(keyPath).toBe(`${customCertRootPath}/${keyName}`);
+    expect(certUtils.getCertPath()).toBe(`${fakeCertDir}/skyux-server.crt`);
+    expect(certUtils.getKeyPath()).toBe(`${fakeCertDir}/skyux-server.key`);
   });
 
   describe('validate() method', () => {
     it('should return false if certPath does not exist', () => {
-      const sslCert = 'custom-cert-path';
       const spyFS = spyOnFS();
       spyFS.existsSync.and.returnValue(false);
       const certUtils = getUtils();
 
-      expect(certUtils.validate({ sslCert })).toBe(false);
-      expect(logger.error).toHaveBeenCalledWith(`Error locating certificate: ${sslCert}`);
+      expect(certUtils.validate()).toBe(false);
+      expect(logger.error.calls.argsFor(0)[0].indexOf(`Error locating certificate:`)).toBe(0);
     });
 
     it('should return false if keyPath does not exist', () => {
-      const sslKey = 'custom-key-path';
       const spyFS = spyOnFS();
 
       // Get past the cert check
-      spyFS.existsSync.and.callFake(p => p !== sslKey);
+      spyFS.existsSync.and.callFake(p => p.indexOf('.key') === -1);
       const certUtils = getUtils();
 
-      expect(certUtils.validate({ sslKey })).toBe(false);
-      expect(logger.error).toHaveBeenCalledWith(`Error locating key: ${sslKey}`);
+      expect(certUtils.validate()).toBe(false);
+      expect(logger.error.calls.argsFor(0)[0].indexOf(`Error locating key:`)).toBe(0);
     });
 
     it('should return true if certPath and keyPath both exist', () => {
@@ -115,20 +109,24 @@ describe('cert utils', () => {
       spyFS.existsSync.and.returnValue(true);
       const certUtils = getUtils();
 
-      expect(certUtils.validate({ })).toBe(true);
+      expect(certUtils.validate()).toBe(true);
       expect(logger.error).not.toHaveBeenCalled();
     });
   });
 
   it('should generate a certificate', () => {
-    const argv = {
-      sslCert: 'custom-cert-path',
-      sslKey: 'custom-key-path'
-    };
+
+    const fakeHomeDir = 'my-homedir';
+    const fakeCertDir = `${fakeHomeDir}/.skyux/certs/`;
+    const spyOS = spyOnOS();
+    spyOS.homedir.and.returnValue(fakeHomeDir)
 
     const spyFS = spyOnFS();
     const spyPath = spyOnPath();
+
     spyPath.dirname.and.callFake(p => p);
+    spyPath.join.and.callFake((...p) => p.join('/'));
+    spyPath.resolve.and.callFake(p => p);
 
     mock('node-forge', {
       pki: {
@@ -159,27 +157,25 @@ describe('cert utils', () => {
     });
 
     const certUtils = getUtils();
-    certUtils.generate(argv);
+    certUtils.generate();
 
-    expect(spyPath.dirname).toHaveBeenCalledWith(argv.sslCert);
-    expect(spyPath.dirname).toHaveBeenCalledWith(argv.sslKey);
-    expect(spyFS.ensureDirSync).toHaveBeenCalledWith(argv.sslCert);
-    expect(spyFS.ensureDirSync).toHaveBeenCalledWith(argv.sslKey);
-    expect(logger.info).toHaveBeenCalledWith(`Successfully generated ${argv.sslCert} and ${argv.sslKey}.`);
+    expect(spyFS.ensureDirSync).toHaveBeenCalledWith(fakeCertDir);
+    expect(spyFS.writeFileSync.calls.argsFor(0)[0]).toContain('skyux-server.crt');
+    expect(spyFS.writeFileSync.calls.argsFor(1)[0]).toContain('skyux-server.key');
+    expect(logger.info).toHaveBeenCalledWith(`Successfully generated ${fakeCertDir}/skyux-server.crt and ${fakeCertDir}/skyux-server.key.`);
   });
 
   it('should remove the certificate and key', () => {
+    const spyPath = spyOnPath();
+
+    const fakeDefaultPath = 'fake-path';
+    spyPath.resolve.and.returnValue(fakeDefaultPath);
+
     const spyFS = spyOnFS();
     const certUtils = getUtils();
+    certUtils.remove();
 
-    const argv = {
-      sslCert: 'custom-cert',
-      sslKey: 'custom-key'
-    };
-
-    certUtils.remove(argv);
-    expect(spyFS.removeSync).toHaveBeenCalledWith(argv.sslCert);
-    expect(spyFS.removeSync).toHaveBeenCalledWith(argv.sslKey);
+    expect(spyFS.removeSync).toHaveBeenCalledWith(fakeDefaultPath);
   });
 
 });

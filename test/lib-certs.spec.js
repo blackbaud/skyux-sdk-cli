@@ -11,7 +11,9 @@ describe('skyux certs command', () => {
   function spyOnCertUtils() {
     const spyCertUtils = jasmine.createSpyObj('certUtils', [
       'generate',
+      'getCertCommonName',
       'getCertName',
+      'getKeyName',
       'getCertPath',
       'getKeyPath',
       'remove',
@@ -106,7 +108,7 @@ describe('skyux certs command', () => {
     const lib = getLib();
     
     lib(argv);
-    expect(spyCertUtils.generate).toHaveBeenCalledWith(argv);    
+    expect(spyCertUtils.generate).toHaveBeenCalled();    
   });
 
   it('should handle the validate action', () => {
@@ -115,7 +117,7 @@ describe('skyux certs command', () => {
     const lib = getLib();
     
     lib(argv);
-    expect(spyCertUtils.validate).toHaveBeenCalledWith(argv);
+    expect(spyCertUtils.validate).toHaveBeenCalled();
   });
 
   it('should handle an unknown action', () => {

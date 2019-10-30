@@ -19,6 +19,7 @@ describe('skyux certs command', () => {
       'remove',
       'validate'
     ]);
+    spyCertUtils.validate.and.returnValue(true);
     mock('../lib/utils/cert-utils', spyCertUtils);
     return spyCertUtils;
   }
@@ -138,7 +139,7 @@ describe('skyux certs command', () => {
 
       // Handles the uninstall action
       setup.spyCertUtils.remove.and.throwError(err);
-      
+
       await setup.lib(setup.argv);
       expect(logger.error).toHaveBeenCalledWith(
         `Unable to ${action} the SKY UX certificate.`
@@ -152,6 +153,13 @@ describe('skyux certs command', () => {
 
   describe('uninstall action', () => {
     runActionTests('uninstall');
+  });
+
+  it('should not call uninstall when executing install if validate is false', async () => {
+    const setup = setupPlatformTest('install', 'Windows_NT');
+    setup.spyCertUtils.validate.and.returnValue(false);
+    await setup.lib(setup.argv);
+    expect(setup.spyCertUtils.remove).not.toHaveBeenCalled();
   });
 
   it('should handle the generate action', () => {

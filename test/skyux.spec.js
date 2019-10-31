@@ -480,4 +480,23 @@ describe('skyux CLI', () => {
     });
   });
 
+  it('should not validate the cert if --sslCert and --sslKey are passed in', () => {
+    const certUtilsSpy = jasmine.createSpyObj('certUtils', ['validate', 'getCertPath', 'getKeyPath']);
+
+    mock('../lib/utils/cert-utils', certUtilsSpy);
+    mock('glob', {
+      sync: () => []
+    });
+
+    // minimist converts --sslCert and --sslKey to properties
+    const argv = {
+      _: ['serve'],
+      sslCert: 'custom-cert',
+      sslKey: 'custom-key'
+    };
+
+    cli(argv);
+    expect(certUtilsSpy.validate).not.toHaveBeenCalled();
+  });
+
 });

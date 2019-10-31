@@ -1,3 +1,7 @@
+# 3.2.1 (2019-10-31)
+
+- Changed the self-signed certificate's extension to work correctly in Linux. [#41](https://github.com/blackbaud/skyux-sdk-cli/pull/41)
+
 # 3.2.0 (2019-10-28)
 
 - Introduced the `skyux certs` command for certificate generation and management. [#36](https://github.com/blackbaud/skyux-sdk-cli/pull/36)

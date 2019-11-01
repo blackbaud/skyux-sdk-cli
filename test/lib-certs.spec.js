@@ -16,6 +16,8 @@ describe('skyux certs command', () => {
       'getKeyName',
       'getCertPath',
       'getKeyPath',
+      'getLinuxChromeNSSPath',
+      'getLinuxChromeNSSPathExists',
       'remove',
       'validate'
     ]);
@@ -45,7 +47,6 @@ describe('skyux certs command', () => {
     mock('os', spyOS);
 
     const spyCertUtils = spyOnCertUtils();
-
     const lib = getLib();
 
     return {
@@ -64,14 +65,16 @@ describe('skyux certs command', () => {
     if (action === 'install') {
       expect(setup.spyCertUtils.generate).toHaveBeenCalled();
     }
+
     if (action === 'uninstall') {
       expect(setup.spyCertUtils.remove).toHaveBeenCalled();
     }
+
     expect(setup.spySpawn).toHaveBeenCalled();
     return setup;
   }
 
-  function runActionTests(action) {
+  function runActionTests(action, actionMessage) {
     it('should handle the Darwin (mac) platform', async () => {
       await runPlatformTest(action, 'Darwin');
     });
@@ -86,17 +89,37 @@ describe('skyux certs command', () => {
       expect(logger.error).toHaveBeenCalledWith(`Unsuccessful in completing last task: ${new Error(err)}`);
     });
   
-    it('should handle the Linux platform', async () => {
-      await runPlatformTest(action, 'Linux');
+    it('should handle the Linux platform if Chrome is installed', async () => {
+      const setup = setupPlatformTest(action, 'Linux');
+
+      setup.spyCertUtils.getLinuxChromeNSSPathExists.and.returnValue(true);
+
+      await setup.lib(setup.argv);
+
+      expect(logger.info).toHaveBeenCalledWith(
+        `Automatically ${actionMessage}ing the SKY UX certificate at the NSS Chrome level.`
+      );
+    });
+
+    it('should handle the Linux platform if Chrome is not installed', async () => {
+      const setup = setupPlatformTest(action, 'Linux');
+
+      setup.spyCertUtils.getLinuxChromeNSSPathExists.and.returnValue(false);
+
+      await setup.lib(setup.argv);
+      expect(logger.info).toHaveBeenCalledWith(
+        `Skipping automatically ${actionMessage}ing the SKY UX certificate at the NSS Chrome level.`
+      );
     });
 
     it('should handle an error on the Linux platform', async () => {
       const err = 'custom-error';
       const setup = setupPlatformTest(action, 'Linux');
-      
-      setup.spySpawn.and.throwError(err);
-      await setup.lib(setup.argv)
 
+      setup.spyCertUtils.getLinuxChromeNSSPathExists.and.returnValue(true);
+      setup.spySpawn.and.throwError(err);
+
+      await setup.lib(setup.argv);
       expect(logger.error).toHaveBeenCalledWith(`Unsuccessful in completing last task: ${new Error(err)}`);
     });
   
@@ -125,7 +148,7 @@ describe('skyux certs command', () => {
       await setup.lib(setup.argv);
 
       expect(logger.error).toHaveBeenCalledWith(
-        `Unable to automatically ${action} based on your OS.`
+        `Unsupported platform. You will need to manually ${action} the certificate.`
       )
     });
 
@@ -148,18 +171,28 @@ describe('skyux certs command', () => {
   }
 
   describe('install action', () => {
-    runActionTests('install');
+    runActionTests('install', 'trust');
+
+    it('should not call uninstall when executing install if validate is false', async () => {
+      const setup = setupPlatformTest('install', 'Windows_NT');
+      setup.spyCertUtils.validate.and.returnValue(false);
+      await setup.lib(setup.argv);
+      expect(setup.spyCertUtils.remove).not.toHaveBeenCalled();
+    });
+
+    it('should handle the Windows platform with spaces', async () => {
+      const setup = setupPlatformTest('install', 'Windows_NT');
+      const customCertPath = 'path with spaces';
+      setup.spyCertUtils.getCertPath.and.returnValue(customCertPath);
+      setup.spyCertUtils.validate.and.returnValue(false);
+  
+      await setup.lib(setup.argv);
+      expect(setup.spySpawn.calls.argsFor(0)[1]).toContain(`"""${customCertPath}"""`);
+    });
   });
 
   describe('uninstall action', () => {
-    runActionTests('uninstall');
-  });
-
-  it('should not call uninstall when executing install if validate is false', async () => {
-    const setup = setupPlatformTest('install', 'Windows_NT');
-    setup.spyCertUtils.validate.and.returnValue(false);
-    await setup.lib(setup.argv);
-    expect(setup.spyCertUtils.remove).not.toHaveBeenCalled();
+    runActionTests('uninstall', 'untrust');
   });
 
   it('should handle the generate action', () => {

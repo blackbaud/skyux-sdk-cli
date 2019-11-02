@@ -86,7 +86,9 @@ describe('skyux certs command', () => {
       setup.spySpawn.and.throwError(err);
       await setup.lib(setup.argv)
 
-      expect(logger.error).toHaveBeenCalledWith(`Unsuccessful in completing last task: ${new Error(err)}`);
+      expect(logger.error).toHaveBeenCalledWith(
+        `Unuccessfully ${actionMessage}ed the SKY UX certificate at the OS level. ${new Error(err)}`
+      );
     });
   
     it('should handle the Linux platform if Chrome is installed', async () => {
@@ -126,7 +128,7 @@ describe('skyux certs command', () => {
 
       await setup.lib(setup.argv);
       expect(logger.info).toHaveBeenCalledWith(
-        `Skipping automatically ${actionMessage}ing the SKY UX certificate at the NSS Chrome level.`
+        `Skipped ${actionMessage}ing the SKY UX certificate at the NSS Chrome level.`
       );
     });
 
@@ -138,7 +140,9 @@ describe('skyux certs command', () => {
       setup.spySpawn.and.throwError(err);
 
       await setup.lib(setup.argv);
-      expect(logger.error).toHaveBeenCalledWith(`Unsuccessful in completing last task: ${new Error(err)}`);
+      expect(logger.error).toHaveBeenCalledWith(
+        `Unuccessfully ${actionMessage}ed the SKY UX certificate at the OS level. ${new Error(err)}`
+      );
     });
   
     it('should handle the Windows platform', async () => {
@@ -153,7 +157,9 @@ describe('skyux certs command', () => {
       setup.spySpawn.and.throwError(err);
       await setup.lib(setup.argv)
 
-      expect(logger.error).toHaveBeenCalledWith(`Unsuccessful in completing last task: ${new Error(err)}`);
+      expect(logger.error).toHaveBeenCalledWith(
+        `Unuccessfully ${actionMessage}ed the SKY UX certificate at the OS level. ${new Error(err)}`
+      );
     });
 
     it('should handle the Windows platform (with --no-pause)', async () => {

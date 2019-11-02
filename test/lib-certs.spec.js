@@ -101,6 +101,24 @@ describe('skyux certs command', () => {
       );
     });
 
+    it('should handle an error on the Linux platform if Chrome is installed', async () => {
+      const setup = setupPlatformTest(action, 'Linux');
+
+      setup.spyCertUtils.getLinuxChromeNSSPathExists.and.returnValue(true);
+      setup.spySpawn.and.callFake(cmd => {
+        if (cmd === 'certutil') {
+          throw 'fake-certutil-error';
+        }
+        return Promise.resolve();
+      });
+
+      await setup.lib(setup.argv);
+
+      expect(logger.info).toHaveBeenCalledWith(
+        `Automatically ${actionMessage}ing the SKY UX certificate at the NSS Chrome level.`
+      );
+    });
+
     it('should handle the Linux platform if Chrome is not installed', async () => {
       const setup = setupPlatformTest(action, 'Linux');
 

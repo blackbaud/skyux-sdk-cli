@@ -1,6 +1,6 @@
 # 3.2.2 (2019-11-04)
 
-- Fixed bug to correctly handle Windows paths with spaces when running `skyux certs install`.  [#45](https://github.com/blackbaud/skyux-sdk-cli/pull/45)
+- Fixed a bug to correctly handle Windows paths that include spaces when running `skyux certs install`.  [#45](https://github.com/blackbaud/skyux-sdk-cli/pull/45)
 
 # 3.2.1 (2019-10-31)
 
@@ -12,8 +12,8 @@
 
 # 3.1.0 (2019-05-08)
 
-- Added ability to display `npm` warning messages when running `skyux new` and `skyux install`. [#25](https://github.com/blackbaud/skyux-sdk-cli/pull/25)
-- Expanded messages for when modules are not found for commands or when node_modules folder is not found. [#24](https://github.com/blackbaud/skyux-sdk-cli/pull/24)
+- Added the ability to display `npm` warning messages when running `skyux new` and `skyux install`. [#25](https://github.com/blackbaud/skyux-sdk-cli/pull/25)
+- Expanded messages for when modules are not found for commands or when the node_modules folder is not found. [#24](https://github.com/blackbaud/skyux-sdk-cli/pull/24)
 
 # 3.0.2 (2019-04-11)
 
@@ -21,7 +21,7 @@
 
 # 3.0.1 (2019-04-09)
 
-- Fixed bug to correctly update dependencies and set name and description when running `skyux new`. [#17](https://github.com/blackbaud/skyux-sdk-cli/pull/17)
+- Fixed a bug to correctly update dependencies and set the name and description when running `skyux new`. [#17](https://github.com/blackbaud/skyux-sdk-cli/pull/17)
 
 # 3.0.0 (2019-03-13)
 

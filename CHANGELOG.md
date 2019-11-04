@@ -1,3 +1,7 @@
+# 3.2.2 (2019-11-04)
+
+- Fixed bug to correctly handle Windows paths with spaces when running `skyux certs install`.  [#45](https://github.com/blackbaud/skyux-sdk-cli/pull/45)
+
 # 3.2.1 (2019-10-31)
 
 - Changed the self-signed certificate's extension to work correctly in Linux. [#41](https://github.com/blackbaud/skyux-sdk-cli/pull/41)

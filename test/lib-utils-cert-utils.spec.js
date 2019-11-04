@@ -15,7 +15,11 @@ describe('cert utils', () => {
   }
 
   function spyOnPath() {
-    const spyPath = jasmine.createSpyObj('path', ['resolve', 'join', 'dirname']);
+    const spyPath = jasmine.createSpyObj('path', ['resolve', 'join', 'dirname', 'indexOf']);
+    spyPath.dirname.and.callFake(p => p);
+    spyPath.join.and.callFake((...p) => p.join('/'));
+    spyPath.resolve.and.callFake(p => p);
+
     mock('path', spyPath);
     return spyPath;
   }
@@ -44,6 +48,8 @@ describe('cert utils', () => {
       'getKeyName',
       'getCertPath',
       'getKeyPath',
+      'getLinuxChromeNSSPath',
+      'getLinuxChromeNSSPathExists',
       'remove',
       'validate'
     ];
@@ -72,15 +78,31 @@ describe('cert utils', () => {
     const spyOS = spyOnOS();
     spyOS.homedir.and.returnValue(fakeHomeDir)
 
-    const spyPath = spyOnPath();
-
-    spyPath.dirname.and.callFake(p => p);
-    spyPath.join.and.callFake((...p) => p.join('/'));
-    spyPath.resolve.and.callFake(p => p);
+    spyOnPath();
 
     const certUtils = getUtils();
     expect(certUtils.getCertPath()).toBe(`${fakeCertDir}/skyux-server.crt`);
     expect(certUtils.getKeyPath()).toBe(`${fakeCertDir}/skyux-server.key`);
+  });
+
+  it('should return the Linux Chrome NSS Path', () => {
+    const fakeHomeDir = 'my-custom-homedir';
+    const spyOS = spyOnOS();
+    spyOS.homedir.and.returnValue(fakeHomeDir);
+
+    const fakeLinuxChromeNSSPath = `${fakeHomeDir}/.pki/nssdb`;
+    const spyPath = spyOnPath();
+    spyPath.resolve.and.returnValue(fakeLinuxChromeNSSPath);
+
+    const certUtils = getUtils();
+    expect(certUtils.getLinuxChromeNSSPath()).toBe(fakeLinuxChromeNSSPath);
+  });
+
+  it('should return whether the Linux Chrome NSS Path exists', () => {
+    const spyFS = spyOnFS();
+    spyFS.existsSync.and.returnValue(false);
+    const certUtils = getUtils();
+    expect(certUtils.getLinuxChromeNSSPathExists()).toBe(false);
   });
 
   describe('validate() method', () => {

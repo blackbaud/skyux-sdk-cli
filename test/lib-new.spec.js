@@ -1,5 +1,6 @@
 const mock = require('mock-require');
 const EventEmitter = require('events').EventEmitter;
+const path = require('path');
 
 const sendLine = (line, cb) => {
   setImmediate(() => {
@@ -223,7 +224,7 @@ describe('skyux new command', () => {
             `Creating a new SPA named 'skyux-lib-${libName}'.`
           );
           expect(spy).toHaveBeenCalledWith(
-            `skyux-lib-${libName}/tmp/package.json`,
+            path.join(`skyux-lib-${libName}`, `tmp`, `package.json`),
             {
               dependencies: {},
               peerDependencies: {},
@@ -485,7 +486,7 @@ describe('skyux new command', () => {
 
         skyuxNew.then(() => {
           expect(spy).toHaveBeenCalledWith(
-            `skyux-spa-${spaName}/tmp/package.json`,
+            path.join(`skyux-spa-${spaName}`, `tmp`, `package.json`),
             {
               dependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
               peerDependencies: { foo: 'latest', bar: '1.0.0' },

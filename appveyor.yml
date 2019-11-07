@@ -3,7 +3,7 @@ branches:
     - master
 
 environment:
-  nodejs_version: "12"
+  nodejs_version: "10"
 
 install:
   - choco install googlechrome --ignore-checksums
@@ -13,7 +13,8 @@ install:
 test_script:
   - node --version
   - npm --version
-  - npm test
+  - npm run lint
+  - nyc jasmine --config=jasmine.json
 
 # Don't actually build.
 build: off

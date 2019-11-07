@@ -3,7 +3,7 @@ branches:
     - master
 
 environment:
-  nodejs_version: "10"
+  nodejs_version: "12"
 
 install:
   - choco install googlechrome --ignore-checksums

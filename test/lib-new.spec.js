@@ -333,7 +333,7 @@ describe('skyux new command', () => {
           peerDependencies: { foo: 'latest', bar: '1.0.0' },
           devDependencies: { foo: 'foo-MOCKED-LATEST', bar: 'bar-MOCKED-LATEST' },
           name: `blackbaud-skyux-spa-${name}`,
-          description: `Single-page-application (SPA) for skyux-spa-${name}`,
+          description: `A single-page application (SPA) named skyux-spa-${name}`,
           repository: {
             type: 'git',
             url: repo
@@ -357,13 +357,13 @@ describe('skyux new command', () => {
         template: 'library'
       });
       expect(spies.spyFs.writeJson.calls.argsFor(0)[1].description).toBe(
-        `Library for skyux-lib-${name}`
+        `A library named skyux-lib-${name}`
       );
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
-        `Creating a new Library named 'skyux-lib-${name}'.`
+        `Creating a library named 'skyux-lib-${name}'...`
       );
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
-        `Library created in directory skyux-lib-${name}`
+        `Created a library in directory skyux-lib-${name}`
       );
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
         'Change into that directory and run `skyux serve -l local` to begin.'

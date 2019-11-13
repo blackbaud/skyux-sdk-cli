@@ -1,47 +1,15 @@
 const mock = require('mock-require');
-const EventEmitter = require('events').EventEmitter;
-
-const sendLine = (line, cb) => {
-  setImmediate(() => {
-    process.stdin.emit('data', line + '\n');
-    cb();
-  });
-};
+const path = require('path');
 
 describe('skyux new command', () => {
-  let customError = '';
-  let emitter;
-  let versionsRequested;
-  let gitCloneUrls;
-  let spyLogger;
-  let spyLoggerPromise;
-  let mockFs;
 
-  beforeEach(() => {
-    mockFs = {
-      copySync() {},
-      existsSync() {
-        return false;
-      },
-      readdirSync() {
-        return [
-          '.git',
-          'README.md',
-          '.gitignore'
-        ];
-      },
-      readJsonSync() {
-        return {};
-      },
-      removeSync() {},
-      writeJson() {},
-      writeJsonSync() {}
-    };
+  afterEach(() => {
+    mock.stopAll();
+  });
 
-    gitCloneUrls = [];
-
-    spyLoggerPromise = jasmine.createSpyObj('getLoggerResponse', ['succeed', 'fail']);
-    spyLogger = jasmine.createSpyObj('logger', [
+  function spyOnLogger() {
+    const spyLoggerPromise = jasmine.createSpyObj('getLoggerResponse', ['succeed', 'fail']);
+    const spyLogger = jasmine.createSpyObj('logger', [
       'info',
       'warn',
       'error',
@@ -51,459 +19,355 @@ describe('skyux new command', () => {
 
     spyLogger.promise.and.returnValue(spyLoggerPromise);
     mock('@blackbaud/skyux-logger', spyLogger);
+    return {
+      spyLogger,
+      spyLoggerPromise
+    };
+  }
 
-    mock('../lib/utils/clone', (url) => {
-      gitCloneUrls.push(url);
-      if (customError) {
-        return Promise.reject(customError);
-      } else {
-        return Promise.resolve();
+  function spyOnPromptly(name, url) {
+    const spyPromptly = jasmine.createSpyObj('promptly', ['prompt']);
+
+    spyPromptly.prompt.and.callFake((message, options) => {
+      let value = name;
+
+      if (message.indexOf('URL') > -1) {
+        value = url;
       }
+
+      if (options.validator) {
+        value = options.validator(value);
+      }
+
+      return Promise.resolve(value);
     });
 
-    emitter = new EventEmitter();
-    mock('cross-spawn', (cmd, args, settings) => {
-      emitter.emit('spawnCalled', cmd, args, settings);
-      return emitter;
-    });
-
-    versionsRequested = {};
-    mock('latest-version', (dep, options) => {
-      versionsRequested[dep] = options;
-      return Promise.resolve(`${dep}-LATEST`);
-    });
-
-    // Keeps the logs clean from promptly
-    // WARNING: While it may keep the logs clean, unless you add `.and.callThrough()`
-    // it will hide any debugging information (console.log) you have in the spec file.
-    spyOn(process.stdout, 'write');
-
-    mock('../lib/utils/npm-install', function () {
-      return Promise.resolve();
-    });
-
-    mock('fs-extra', mockFs);
-
-    customError = null;
-  });
-
-  afterEach(() => {
-    mock.stopAll();
-  });
-
-  function spyOnPrompt() {
-    const prompt = jasmine.createSpy('prompt').and.callFake(() => Promise.resolve());
-    mock('promptly', { prompt });
-    return prompt;
+    mock('promptly', spyPromptly);
+    return spyPromptly.prompt;
   }
 
-  // Cloning the template is a perfect scenario to test the entire custom logger setup.
-  // It has info, error messages, and success messages.
-  function cloneTest(cb) {
-    spyOnPrompt();
-
-    const customTemplateName = 'valid-template-name';
-    const skyuxNew = mock.reRequire('../lib/new')({
-      template: customTemplateName
-    });
-
-    sendLine('some-spa-name', () => {
-      sendLine('', () => {
-        skyuxNew.then(() => cb(customTemplateName));
-      });
-    });
+  function spyOnSpawn() {
+    const spySpawn = jasmine.createSpyObj('spawn', ['spawnWithOptions']);
+    mock('../lib/utils/spawn', spySpawn);
+    return spySpawn;
   }
 
-  function spawnGitCheckout(stdio, done) {
-    const skyuxNew = mock.reRequire('../lib/new')({});
-
-    sendLine('some-spa-name', () => {
-      sendLine('some-spa-name', () => {
-        emitter.on('spawnCalled', (command, args, settings) => {
-          exitChildSpawn(1);
-
-          skyuxNew.then(() => {
-            expect(command).toEqual('git');
-            expect(args).toEqual([
-              'checkout',
-              '-b',
-              'initial-commit'
-            ]);
-            expect(settings.stdio).toBe(stdio);
-            expect(spyLogger.promise).toHaveBeenCalledWith('Switching to branch initial-commit.');
-            expect(spyLoggerPromise.fail).toHaveBeenCalled();
-            done();
-          });
-
-          exitChildSpawn();
-        });
-      });
-    });
+  function spyOnClone() {
+    const spyClone = jasmine.createSpy('clone');
+    mock('../lib/utils/clone', spyClone);
+    return spyClone;
   }
 
-  function exitChildSpawn(exitCode = 0) {
-    // Trigger child process to finish.
-    setImmediate(() => {
-      emitter.emit('exit', exitCode);
-    });
+  function spyOnFs() {
+    const spyFs = jasmine.createSpyObj(
+      'fs-extra', 
+      ['readdirSync', 'removeSync', 'copySync', 'readJsonSync', 'writeJson', 'existsSync']
+    )
+    mock('fs-extra', spyFs);
+    return spyFs;
   }
 
-  it('should ask for a SPA name and url', (done) => {
-    const prompt = spyOnPrompt();
+  function spyOnLatestVersion() {
+    const spyLatestVersion = jasmine.createSpy('latest-version');
+    mock('latest-version', spyLatestVersion);
+    return spyLatestVersion;
+  }
 
-    mock.reRequire('../lib/new')({});
+  function spyOnNpmInstall() {
+    const spyNpmInstall = jasmine.createSpy('npm-install');
+    mock('../lib/utils/npm-install', spyNpmInstall);
+    return spyNpmInstall;
+  }
 
-    sendLine('some-spa-name', () => {
-      sendLine('', () => {
-        expect(prompt.calls.argsFor(0)).toContain(
-          'What is the root directory for your SPA? (example: my-spa-name)'
-        );
-        expect(prompt.calls.argsFor(1)).toContain(
-          'What is the URL to your repo? (leave this blank if you don\'t know)'
-        );
-        done();
-      });
-    });
-  });
+  function getSpies(name, repo) {
+    const spyClone = spyOnClone();
+    const spyFs = spyOnFs();
+    const spyLatestVersion = spyOnLatestVersion();
+    const spyLoggers = spyOnLogger();
+    const spyNpmInstall = spyOnNpmInstall();
+    const spyPrompt = spyOnPromptly(name, repo);
+    const spySpawn = spyOnSpawn();
 
-  it('should use the template flag as a GitHub repo name if it does not contain a colon', (done) => {
-    cloneTest((customTemplateName) => {
-      expect(spyLoggerPromise.succeed).toHaveBeenCalledWith(
-        `${customTemplateName} template successfully cloned.`
+    return {
+      spyClone,
+      spyFs,
+      spyLatestVersion,
+      spyLogger: spyLoggers.spyLogger,
+      spyLoggerPromise: spyLoggers.spyLoggerPromise,
+      spyNpmInstall,
+      spyPrompt,
+      spySpawn
+    };
+  }
+
+  function getLib() {
+    return mock.reRequire('../lib/new');
+  }
+
+  describe('SPA name', () => {
+    it('should ask for a SPA name and url', async () => {
+      const spies = getSpies('name', '');
+      await getLib()({});
+      expect(spies.spyPrompt.calls.argsFor(0)[0]).toBe(
+        'What is the root directory for your SPA? (example: my-spa-name)'
       );
-      done();
-    });
-  });
-
-  it('should handle an error cloning a custom template', (done) => {
-    customError = 'TEMPLATE_ERROR_2';
-    spyOn(mockFs, 'existsSync').and.returnValue(false);
-
-    cloneTest(() => {
-      expect(spyLoggerPromise.fail).toHaveBeenCalledWith(
-        'Template not found at location, https://github.com/blackbaud/skyux-sdk-template-valid-template-name.'
+      expect(spies.spyPrompt.calls.argsFor(1)[0]).toBe(
+        'What is the URL to your repo? (leave this blank if you don\'t know)'
       );
-      done();
-    });
-  });
-
-  it('should use the template flag as a Git URL if it contains a colon', (done) => {
-    spyOnPrompt();
-
-    const customTemplateName = 'https://vsts.com/my-repo.git';
-    const skyuxNew = mock.reRequire('../lib/new')({
-      template: customTemplateName
     });
 
-    sendLine('some-spa-name', () => {
-      sendLine('', () => {
-        skyuxNew.then(() => {
-          expect(spyLoggerPromise.succeed).toHaveBeenCalledWith(
-            `${customTemplateName} template successfully cloned.`
-          );
-          done();
-        });
-      });
-    });
-  });
-
-  it('should name the package with a specific prefix depending on the template', (done) => {
-    const spy = spyOn(mockFs, 'writeJson').and.callThrough();
-
-    const libName = 'some-lib-name';
-    const libTemplateName = 'library';
-    const skyuxNew = mock.reRequire('../lib/new')({
-      template: libTemplateName
+    it('should catch a SPA directory that already exists', async () => {
+      const spies = getSpies('already-exists', '');
+      spies.spyFs.existsSync.and.returnValue(true);
+      await getLib()({});
+      expect(spies.spyLogger.error).toHaveBeenCalledWith(
+        'SPA directory already exists.'
+      );
     });
 
-    sendLine(libName, () => {
-      sendLine('', () => {
-        skyuxNew.then(() => {
-          expect(spyLogger.info).toHaveBeenCalledWith(
-            `Creating a new SPA named 'skyux-lib-${libName}'.`
-          );
-          expect(spy).toHaveBeenCalledWith(
-            `skyux-lib-${libName}/tmp/package.json`,
-            {
-              dependencies: {},
-              peerDependencies: {},
-              devDependencies: {},
-              name: `blackbaud-skyux-lib-${libName}`,
-              description: `Library for skyux-lib-${libName}`,
-              repository: {
-                type: 'git',
-                url: ''
-              }
-            },
-            { spaces: 2 }
-          );
-          done();
-        });
-      });
-    });
-  });
-
-  it('should clone the default template if template flag is used without a name', (done) => {
-    spyOnPrompt();
-    const skyuxNew = mock.reRequire('../lib/new')({
-      template: true
-    });
-    sendLine('some-spa-name', () => {
-      sendLine('', () => {
-        skyuxNew.then(() => {
-          expect(spyLoggerPromise.succeed).toHaveBeenCalledWith('default template successfully cloned.');
-          done();
-        });
-      });
-    });
-  });
-
-  it('should clone the default template if custom template not provided', (done) => {
-    spyOnPrompt();
-    const skyuxNew = mock.reRequire('../lib/new')({});
-    sendLine('some-spa-name', () => {
-      sendLine('', () => {
-        skyuxNew.then(() => {
-          expect(spyLoggerPromise.succeed).toHaveBeenCalledWith('default template successfully cloned.');
-          done();
-        });
-      });
-    });
-  });
-
-  it('should use -t flag as an alias for --template', (done) => {
-    spyOnPrompt();
-
-    const customTemplateName = 'valid-template-name';
-    const skyuxNew = mock.reRequire('../lib/new')({
-      t: customTemplateName
-    });
-
-    sendLine('some-spa-name', () => {
-      sendLine('', () => {
-        skyuxNew.then(() => {
-          expect(spyLoggerPromise.succeed).toHaveBeenCalledWith(
-            `${customTemplateName} template successfully cloned.`
-          );
-          done();
-        });
-      });
-    });
-  });
-
-  it('should catch a SPA name with invalid characters', (done) => {
-    mock.reRequire('../lib/new')({});
-
-    sendLine('This Is Invalid', () => {
-      expect(spyLogger.error).toHaveBeenCalledWith(
+    it('should catch a SPA name with invalid characters', async () => {
+      const spies = getSpies('invalid name', '');
+      await getLib()({});
+      expect(spies.spyLogger.error).toHaveBeenCalledWith(
         'SPA root directories may only contain lower-case letters, numbers or dashes.'
       );
-      done();
-    });
-  });
-
-  it('should catch a SPA directory that already exists', (done) => {
-    spyOn(mockFs, 'existsSync').and.returnValue(true);
-    mock.reRequire('../lib/new')({});
-
-    sendLine('some-spa-name', () => {
-      expect(spyLogger.error).toHaveBeenCalledWith('SPA directory already exists.');
-      done();
-    });
-  });
-
-  it('should use the --name argument and handle an error', () => {
-    mock.reRequire('../lib/new')({
-      name: 'This Is Invalid'
     });
 
-    expect(spyLogger.error).toHaveBeenCalledWith(
-      'SPA root directories may only contain lower-case letters, numbers or dashes.'
-    );
-  });
-
-  it('should use the --repo argument', (done) => {
-    const repo = 'my-custom-repo-url';
-    const skyuxNew = mock.reRequire('../lib/new')({
-      repo
-    });
-
-    sendLine('some-spa-name', () => {
-      exitChildSpawn();
-
-      skyuxNew.then(() => {
-        expect(gitCloneUrls.indexOf(repo) > -1).toBe(true);
-        done();
+    it('should use the --name argument and handle an error', async () => {
+      const spies = getSpies('name', '');
+      await getLib()({
+        name: 'invalid name'
       });
+      expect(spies.spyLogger.error).toHaveBeenCalledWith(
+        'SPA root directories may only contain lower-case letters, numbers or dashes.'
+      );
     });
   });
 
-  it('should use the default template if --repo argument is false (--no-repo)', (done) => {
-    spyOnPrompt();
-    const skyuxNew = mock.reRequire('../lib/new')({
-      repo: false
+  describe('SPA repo', () => {
+    it('should use the --repo argument', async () => {
+      const repo = 'https://example.com/custom-repo.git';
+      const spies = getSpies('name', '');
+      await getLib()({ repo });
+      expect(spies.spyClone.calls.argsFor(0)[0]).toBe(repo);
     });
 
-    sendLine('some-spa-name', () => {
-      skyuxNew.then(() => {
-        expect(spyLoggerPromise.succeed).toHaveBeenCalledWith('default template successfully cloned.');
-        done();
+    it('should not prompt for repo if `--no-repo` passed in', async () => {
+      const spies = getSpies('name', '');
+      await getLib()({
+        repo: false // minimist converts `--no-repo` to `repo: false`
       });
+      expect(spies.spyPrompt.calls.any()).not.toBe(
+        'What is the URL to your repo? (leave this blank if you don\'t know)'
+      );
+    });
+
+    it('should handle an error cloning the repo', async () => {
+      const repo = 'https://example.com/custom-repo.git';
+      const error = 'custom-cloning-error';
+      const spies = getSpies('name', repo);
+      spies.spyClone.and.throwError(error);
+      await getLib()({});
+      expect(spies.spyLogger.error).toHaveBeenCalledWith(Error(error));
+    });
+
+    it('should handle a non-empty repo when cloning', async () => {
+      const repo = 'https://example.com/custom-repo.git';
+      const spies = getSpies('name', repo);
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyFs.readdirSync.and.returnValue(['non-empty-repo.txt']);
+      await getLib()({});
+      expect(spies.spyLogger.error).toHaveBeenCalledWith(
+        'The command `skyux new` only works with empty repositories.'
+      );
+    });
+
+    it('should treat `README.md` file and `.git` folder as a non-empty repo when cloning', async () => {
+      const repo = 'https://example.com/custom-repo.git';
+      const spies = getSpies('name', repo);
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyFs.readdirSync.and.returnValue(['README.md', '.git']);
+      await getLib()({});
+      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalled();
+    });
+
+    it('should handle errors when checking out the `initial-commit` branch', async () => {
+      const name = 'my-spa-name';
+      const repo = 'https://example.com/custom-repo.git';
+      const error = 'custom-checkout-error';
+      const spies = getSpies(name, repo);
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyFs.readdirSync.and.returnValue([]);
+      spies.spyFs.readJsonSync.and.returnValue({});
+      spies.spySpawn.spawnWithOptions.and.throwError(error);
+      await getLib()({});
+      expect(spies.spySpawn.spawnWithOptions).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          cwd: `skyux-spa-${name}`,
+          stdio: 'pipe'
+        }),
+        `git`,
+        `checkout`,
+        `-b`,
+        `initial-commit`
+      );
+      expect(spies.spyLoggerPromise.fail).toHaveBeenCalled();
+      expect(spies.spyLogger.error).toHaveBeenCalledWith(Error(error));
     });
   });
 
-  it('should handle an error cloning the default template', (done) => {
-    customError = 'TEMPLATE_ERROR_1';
+  describe('cloning template', () => {
+    it('should use the template flag as a Git URL if it contains a colon', async () => {
+      const template = 'https://example.com/custom-template.git';
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      await getLib()({ template });
+      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
+        `${template} template successfully cloned.`
+      );
+    });
 
-    spyOn(mockFs, 'existsSync').and.returnValue(false);
-
-    const skyuxNew = mock.reRequire('../lib/new')({});
-
-    sendLine('some-spa-name', () => {
-      sendLine('', () => {
-        skyuxNew.then(() => {
-          expect(spyLogger.error).toHaveBeenCalledWith('TEMPLATE_ERROR_1');
-          done();
-        });
+    it('should clone use the alias `t`', async () => {
+      const template = 'custom-template';
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      await getLib()({ 
+        t: template
       });
+      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
+        `${template} template successfully cloned.`
+      );
     });
-  });
 
-  it('should handle an error cloning the repo', (done) => {
-    customError = 'CUSTOM-ERROR2';
-
-    spyOn(mockFs, 'existsSync').and.returnValue(false);
-
-    const skyuxNew = mock.reRequire('../lib/new')({});
-
-    sendLine('some-spa-name', () => {
-      sendLine('some-spa-repo', () => {
-        skyuxNew.then(() => {
-          expect(spyLogger.error).toHaveBeenCalledWith('CUSTOM-ERROR2');
-          done();
-        });
+    it('should handle an error cloning a template', async () => {
+      const template = 'custom-template';
+      const error = 'custom-cloning-error';
+      const spies = getSpies('name', '');
+      spies.spyClone.and.throwError(error);
+      await getLib()({ template });
+      expect(spies.spyLoggerPromise.fail).toHaveBeenCalledWith(
+        `Template not found at location, https://github.com/blackbaud/skyux-sdk-template-${template}.`
+      );
+    });
+  
+    it('should clone the default template if template flag is used without a name', async () => {
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      await getLib()({
+        template: {
+          url: 'does-not-matter'
+        }
       });
+      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
+        `default template successfully cloned.`
+      );
+    });
+  
+    it('should clone the default template if custom template not provided', async () => {
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      await getLib()({});
+      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
+        `default template successfully cloned.`
+      );
+    });
+
+    it('should handle errors when cleaning the template', async () => {
+      const error = 'custom-cleanup-error';
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyFs.readJsonSync.and.returnValue({});
+      spies.spyFs.removeSync.and.throwError(error);
+      await getLib()({});
+      expect(spies.spyLogger.info).toHaveBeenCalledWith(
+        'Template cleanup failed.'
+      );
     });
   });
 
-  it('should handle a non-empty repo when cloning', (done) => {
-    spyOn(mockFs, 'existsSync').and.returnValue(false);
-    spyOn(mockFs, 'readdirSync').and.returnValue([
-      '.git',
-      'README.md',
-      '.gitignore',
-      'repo-not-empty'
-    ]);
+  describe('miscellaneous', () => {
+    it('should pass stdio: inherit to spawn when logLevel is verbose', async () => {
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyFs.readJsonSync.and.returnValue({});
+      spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
+      spies.spyLogger.logLevel = 'verbose';
+      await getLib()({});
+      expect(spies.spyNpmInstall).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          stdio: 'inherit'
+        })
+      );
+    });
 
-    const skyuxNew = mock.reRequire('../lib/new')({});
+    it('should update package dependencies & devDeps but not peerDeps', async () => {
+      const name = 'custom-spa';
+      const repo = 'https://example.com/custom-repo.git';
 
-    sendLine('some-spa-name', () => {
-      sendLine('some-spa-repo', () => {
-        skyuxNew.then(() => {
-          expect(spyLogger.error).toHaveBeenCalledWith(
-            'The command `skyux new` only works with empty repositories.'
-          );
-          done();
-        });
+      const spies = getSpies(name, repo);
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
+      spies.spyFs.readdirSync.and.returnValue([]);
+      spies.spyLatestVersion.and.callFake(dep => Promise.resolve(`${dep}-MOCKED-LATEST`));
+      spies.spyFs.readJsonSync.and.returnValue({
+        dependencies: {
+          foo: 'latest',
+          bar: '1.0.0'
+        },
+        devDependencies: {
+          foo: 'latest',
+          bar: '1.0.0'
+        },
+        peerDependencies: {
+          foo: 'latest',
+          bar: '1.0.0'
+        }
       });
+      await getLib()({});
+
+      const [ writeJsonPath, writeJsonData, writeJsonOptions ] = spies.spyFs.writeJson.calls.argsFor(0);
+      expect(writeJsonPath).toEqual(path.join(`skyux-spa-${name}`, `tmp`, `package.json`));
+      expect(writeJsonData).toEqual(
+        jasmine.objectContaining({
+          dependencies: { foo: 'foo-MOCKED-LATEST', bar: 'bar-MOCKED-LATEST' },
+          peerDependencies: { foo: 'latest', bar: '1.0.0' },
+          devDependencies: { foo: 'foo-MOCKED-LATEST', bar: 'bar-MOCKED-LATEST' },
+          name: `blackbaud-skyux-spa-${name}`,
+          description: `A single-page application (SPA) named skyux-spa-${name}`,
+          repository: {
+            type: 'git',
+            url: repo
+          }
+        })
+      );
+      expect(writeJsonOptions).toEqual(
+        jasmine.objectContaining({
+          spaces: 2
+        })
+      );
     });
-  });
 
-  it('should ignore .git and README.md files when cloning and run npm install', (done) => {
-    spyOn(mockFs, 'existsSync').and.returnValue(false);
-
-    const skyuxNew = mock.reRequire('../lib/new')({});
-
-    sendLine('some-spa-name', () => {
-      sendLine('some-spa-repo', () => {
-        exitChildSpawn();
-
-        skyuxNew.then(() => {
-          expect(spyLogger.info).toHaveBeenCalledWith(
-            'Change into that directory and run "skyux serve" to begin.'
-          );
-          done();
-        });
+    it('should handle libraries', async () => {
+      const name = 'custom-lib';
+      const spies = getSpies(name, '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyFs.readJsonSync.and.returnValue({});
+      spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
+      await getLib()({
+        template: 'library'
       });
-    });
-  });
-
-  it('should handle errors when running git checkout', (done) => {
-    spawnGitCheckout('pipe', done);
-  });
-
-  it('should pass stdio: inherit to spawn when logLevel is verbose', (done) => {
-    spyLogger.logLevel = 'verbose';
-    spawnGitCheckout('inherit', done);
-  });
-
-  it('should handle errors when cleaning the template', (done) => {
-    spyOn(mockFs, 'existsSync').and.returnValue(false);
-    spyOn(mockFs, 'removeSync').and.throwError(
-      new Error('')
-    );
-
-    spyOnPrompt();
-
-    const skyuxNew = mock.reRequire('../lib/new')({});
-
-    sendLine('some-spa-name', () => {
-      sendLine('some-spa-repo', () => {
-        skyuxNew.then(() => {
-          expect(spyLogger.info).toHaveBeenCalledWith('Template cleanup failed.');
-          done();
-        });
-      });
-    });
-  });
-
-  it('should update package dependencies & devDeps but not peerDeps', (done) => {
-    const spy = spyOn(mockFs, 'writeJson').and.callThrough();
-
-    spyOn(mockFs, 'readJsonSync').and.returnValue({
-      dependencies: {
-        'foo': 'latest',
-        'bar': '1.0.0'
-      },
-      devDependencies: {
-        'foo': 'latest',
-        'bar': '1.0.0'
-      },
-      peerDependencies: {
-        'foo': 'latest',
-        'bar': '1.0.0'
-      }
-    });
-
-    const skyuxNew = mock.reRequire('../lib/new')({});
-    const spaName = 'some-spa-name';
-    const spaRepo = 'some-spa-repo';
-
-    sendLine(spaName, () => {
-      sendLine(spaRepo, () => {
-        exitChildSpawn();
-
-        skyuxNew.then(() => {
-          expect(spy).toHaveBeenCalledWith(
-            `skyux-spa-${spaName}/tmp/package.json`,
-            {
-              dependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
-              peerDependencies: { foo: 'latest', bar: '1.0.0' },
-              devDependencies: { foo: 'foo-LATEST', bar: 'bar-LATEST' },
-              name: `blackbaud-skyux-spa-${spaName}`,
-              description: `Single-page-application (SPA) for skyux-spa-${spaName}`,
-              repository: {
-                type: 'git',
-                url: spaRepo
-              }
-            },
-            { spaces: 2 }
-          );
-          expect(versionsRequested['foo']).toEqual({ version: 'latest' });
-          expect(versionsRequested['bar']).toEqual({ version: '1.0.0' });
-          done();
-        });
-      });
+      expect(spies.spyFs.writeJson.calls.argsFor(0)[1].description).toBe(
+        `A library named skyux-lib-${name}`
+      );
+      expect(spies.spyLogger.info).toHaveBeenCalledWith(
+        `Creating a library named 'skyux-lib-${name}'...`
+      );
+      expect(spies.spyLogger.info).toHaveBeenCalledWith(
+        `Created a library in directory skyux-lib-${name}`
+      );
+      expect(spies.spyLogger.info).toHaveBeenCalledWith(
+        'Change into that directory and run `skyux serve -l local` to begin.'
+      );
     });
   });
 });

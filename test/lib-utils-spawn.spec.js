@@ -12,7 +12,7 @@ describe('spawn util', () => {
     return mock.reRequire('../lib/utils/spawn');
   }
 
-  async function setupTest(cbEvent, cbParam) {
+  function setupTest(cbEvent, cbParam) {
     const spyChildProcess = jasmine.createSpyObj('child_process', ['spawn']);
     const spySpawnOn = jasmine.createSpyObj('spawn', ['on']);
 
@@ -24,12 +24,22 @@ describe('spawn util', () => {
       }
     });
 
+    return {
+      spyChildProcess,
+      spySpawnOn
+    };
+  }
+
+  async function runTest(cbEvent, cbParam) {
+    const spies = setupTest(cbEvent, cbParam);
     const spawn = getLib();
-    return await spawn('a', 'b', 'c');
+    await spawn('a', 'b', 'c');
+    return spies;
   }
 
   it('should call spawn and resolve', async () => {
-    await setupTest('exit', 0);
+    await runTest('exit', 0);
+    expect()
     expect(logger.info).toHaveBeenCalledWith(
       'Executing: `a b c`'
     );
@@ -38,7 +48,7 @@ describe('spawn util', () => {
   it('should handle a catastrophic error', async () => {
     const expectedErr = 'custom-error';
     try {
-      await setupTest('error', expectedErr);
+      await runTest('error', expectedErr);
     } catch (err) {
       expect(err).toBe(expectedErr);
       expect(logger.error).toHaveBeenCalledWith(
@@ -49,13 +59,49 @@ describe('spawn util', () => {
 
   it('should handle an graceful error', async () => {
     try {
-      await setupTest('exit', 1);
+      await runTest('exit', 1);
     } catch (code) {
       expect(code).toBe(1);
       expect(logger.error).toHaveBeenCalledWith(
         '\nError executing (code 1): `a b c`'
       );
     }
+  });
+
+  describe('spawnWithOptions', () => {
+    it('should expose spawnWithOptions', async () => {
+      const spawn = getLib();
+      expect(spawn.spawnWithOptions).toBeDefined();
+    });
+  
+    it('should default to `stdio: inherit`', async () => {
+      const spies = setupTest('exit', 0);
+      const spawn = getLib();
+      await spawn('a', 'b', 'c');
+
+      const [ spawnCommand, spawnArgs, spawnOptions ] = spies.spyChildProcess.spawn.calls.argsFor(0);
+      expect(spawnCommand).toEqual('a');
+      expect(spawnArgs).toEqual(['b', 'c']);
+      expect(spawnOptions).toEqual(
+        jasmine.objectContaining({
+          stdio: 'inherit'
+        })
+      );
+    });
+
+    it('should accept custom options', async () => {
+      const options = { custom: true };
+      const spies = setupTest('exit', 0);
+      const spawn = getLib();
+      await spawn.spawnWithOptions(options, 'a', 'b', 'c');
+
+      const [ spawnCommand, spawnArgs, spawnOptions ] = spies.spyChildProcess.spawn.calls.argsFor(0);
+      expect(spawnCommand).toEqual('a');
+      expect(spawnArgs).toEqual(['b', 'c']);
+      expect(spawnOptions).toEqual(
+        jasmine.objectContaining(options)
+      );
+    });
   });
 
 });

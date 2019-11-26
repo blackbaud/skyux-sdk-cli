@@ -433,14 +433,14 @@ describe('skyux CLI', () => {
   });
 
   it('should validate the cert for serve, e2e, and build (if also serving)', () => {
-    const certUtilsSpy = jasmine.createSpyObj('certUtils', ['validate', 'getCertPath', 'getKeyPath']);
+    const spyGenerator = jasmine.createSpyObj('generator', ['validate', 'getCertPath', 'getKeyPath']);
 
-    mock('../lib/utils/cert-utils', certUtilsSpy);
+    mock('../lib/utils/certs/generator', spyGenerator);
     mock('glob', {
       sync: () => []
     });
 
-    certUtilsSpy.validate.and.returnValue(false);
+    spyGenerator.validate.and.returnValue(false);
 
     const argvs = [
       { _: ['serve'] },
@@ -451,17 +451,17 @@ describe('skyux CLI', () => {
 
     argvs.forEach(argv => {
       cli(argv);
-      expect(certUtilsSpy.validate).toHaveBeenCalledWith(argv);
+      expect(spyGenerator.validate).toHaveBeenCalledWith(argv);
       expect(logger.warn).toHaveBeenCalledWith(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
       expect(logger.warn).toHaveBeenCalledWith(`You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`);
-      certUtilsSpy.validate.calls.reset();
+      spyGenerator.validate.calls.reset();
     });
   });
 
   it('should not validate the cert for test or build (without also serving)', () => {
-    const certUtilsSpy = jasmine.createSpyObj('certUtils', ['validate', 'getCertPath', 'getKeyPath']);
+    const spyGenerator = jasmine.createSpyObj('generator', ['validate', 'getCertPath', 'getKeyPath']);
 
-    mock('../lib/utils/cert-utils', certUtilsSpy);
+    mock('../lib/utils/cert-utils', spyGenerator);
     mock('glob', {
       sync: () => []
     });
@@ -473,10 +473,10 @@ describe('skyux CLI', () => {
 
     argvs.forEach(argv => {
       cli(argv);
-      expect(certUtilsSpy.validate).not.toHaveBeenCalled();
+      expect(spyGenerator.validate).not.toHaveBeenCalled();
       expect(logger.warn).not.toHaveBeenCalledWith(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
       expect(logger.warn).not.toHaveBeenCalledWith(`You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`);
-      certUtilsSpy.validate.calls.reset();
+      spyGenerator.validate.calls.reset();
     });
   });
 
@@ -497,6 +497,12 @@ describe('skyux CLI', () => {
 
     cli(argv);
     expect(certUtilsSpy.validate).not.toHaveBeenCalled();
+  });
+
+  it('should catch running install certs instead of certs install', () => {
+    cli({ _: ['install', 'certs']});
+    expect(logger.error).toHaveBeenCalledWith('The `skyux install` command is invalid.');
+    expect(logger.error).toHaveBeenCalledWith('Did you mean to run `skyux certs install` instead?');
   });
 
 });

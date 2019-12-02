@@ -27,7 +27,7 @@ describe('skyux certs command', () => {
   }
 
   function spyOnOS() {
-    const spyOS = jasmine.createSpyObj('os', ['type']);
+    const spyOS = jasmine.createSpyObj('os', ['type', 'homedir']);
     mock('os', spyOS);
     return spyOS;
   }

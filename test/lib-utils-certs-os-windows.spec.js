@@ -85,7 +85,7 @@ describe('cert utils windows', () => {
     expect(spyPath.resolve).toHaveBeenCalledWith(certDirPath, 'skyux-temp-windows-commands.bat');
     expect(spyFS.writeFileSync).toHaveBeenCalledWith(batchResolve, commands.join('\n'));
     expect(spyExecute).toHaveBeenCalledWith(action, 'OS', jasmine.any(Function));
-    expect(spySpawn).toHaveBeenCalledWith(`powershell`, `start-process ${batchResolve} -verb runas`);
+    expect(spySpawn).toHaveBeenCalledWith(`powershell`, `start-process ${batchResolve} -verb runas -wait`);
   }
 
   it('should expose a public API', () => {

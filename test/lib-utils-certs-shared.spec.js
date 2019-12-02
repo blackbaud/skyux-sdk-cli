@@ -43,15 +43,15 @@ describe('cert utils shared', () => {
     const level = 'level';
     const err = 'error';
     const spyCB = jasmine.createSpy('cb').and.returnValue(Promise.reject(err));
-
     const lib = getLib();
-    await lib.execute(action, level, spyCB);
+
+    await expectAsync(lib.execute(action, level, spyCB)).toBeRejectedWith(err);
 
     expect(logger.info).toHaveBeenCalledWith(
       `Automatically ${action}ing the SKY UX certificates at the ${level} level.`
     );
     expect(logger.error).toHaveBeenCalledWith(
-      `Unuccessfully ${action}ed the SKY UX certificates at the ${level} level. ${err}`
+      `Unsuccessfully ${action}ed the SKY UX certificates at the ${level} level. ${err}`
     );
   });
 

@@ -82,10 +82,25 @@ describe('cert utils windows', () => {
       commands.push('PAUSE');
     }
 
-    expect(spyPath.resolve).toHaveBeenCalledWith(certDirPath, 'skyux-temp-windows-commands.bat');
-    expect(spyFS.writeFileSync).toHaveBeenCalledWith(batchResolve, commands.join('\n'));
-    expect(spyExecute).toHaveBeenCalledWith(action, 'OS', jasmine.any(Function));
-    expect(spySpawn).toHaveBeenCalledWith(`powershell`, `start-process ${batchResolve} -verb runas -wait`);
+    return {
+      certDirPath,
+      batchResolve,
+      commands,
+      spyPath,
+      spyFS,
+      spyExecute,
+      spySpawn
+    };
+  }
+
+  async function test(action, argv) {
+    const results = await run(action, argv);
+    
+    expect(results.spyPath.resolve).toHaveBeenCalledWith(results.certDirPath, 'skyux-temp-windows-commands.bat');
+    expect(results.spyFS.writeFileSync).toHaveBeenCalledWith(results.batchResolve, results.commands.join('\n'));
+    expect(results.spyExecute).toHaveBeenCalledWith(action, 'OS', jasmine.any(Function));
+    expect(results.spySpawn).toHaveBeenCalledWith(`powershell`, `start-process ${results.batchResolve} -verb runas -wait`);
+    expect(results.spyFS.removeSync).toHaveBeenCalledWith(results.batchResolve);
   }
 
   it('should expose a public API', () => {
@@ -98,19 +113,31 @@ describe('cert utils windows', () => {
   });
 
   it('should trust at the OS level with PAUSE', async () => {
-    await run('trust', {})
+    await test('trust', {})
   });
 
   it('should trust at the OS level without PAUSE', async () => {
-    await run('trust', { pause: false })
+    await test('trust', { pause: false })
   });
 
   it('should untrust at the OS level with PAUSE', async () => {
-    await run('untrust', {})
+    await test('untrust', {})
   });
 
   it('should untrust at the OS level without PAUSE', async () => {
-    await run('untrust', { pause: false })
+    await test('untrust', { pause: false })
+  });
+
+  it('should always delete the batch file but let the error bubble up', async () => {
+    const err = 'execute-error';
+    const spyFS = spyOnFS();
+    const spyExecute = spyOnExecute();
+
+    spyExecute.and.throwError(err);
+    const lib = getLib();
+
+    await expectAsync(lib.trust({})).toBeRejectedWithError(err);
+    expect(spyFS.removeSync).toHaveBeenCalled();
   });
 
 });

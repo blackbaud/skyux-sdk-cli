@@ -1,6 +1,11 @@
 # 3.3.0 (2019-12-06)
 
-- Introduced dynamically creating and trusting a SKY UX CA.  Updated Windows technique in order to have single UAC prompt.  Added catch for accidentally typing `skyux install certs` instead of `skyux certs install`.  Fixed overall logging for `skyux certs install`. [#52](https://github.com/blackbaud/skyux-sdk-cli/pull/52)
+- Updated certificate management for SKY UX. [#52](https://github.com/blackbaud/skyux-sdk-cli/pull/52)
+  - Introduced the ability to dynamically create and trust a SKY UX certificate authority.
+  - Updated the Windows technique to display a single UAC prompt.
+  - Added a catch for when users accidentally type `skyux install certs` instead of `skyux certs install`.
+  - Fixed the logging for `skyux certs install`.
+
 
 # 3.2.2 (2019-11-04)
 

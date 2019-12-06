@@ -1,4 +1,3 @@
-const fs = require('fs-extra');
 const mock = require('mock-require');
 const EventEmitter = require('events').EventEmitter;
 
@@ -8,12 +7,9 @@ let npmInstallSpy;
 
 describe('skyux install command', () => {
 
-  let spyRemove;
   let spyLoggerPromise;
 
   beforeEach(() => {
-    spyRemove = spyOn(fs, 'remove').and.returnValue(Promise.resolve());
-
     logger = jasmine.createSpyObj(
       'logger',
       [
@@ -46,11 +42,19 @@ describe('skyux install command', () => {
     mock.stopAll();
   });
 
+  function spyOnFS() {
+    const spyFS = jasmine.createSpyObj('fs-extra', ['remove']);
+    spyFS.remove.and.returnValue(Promise.resolve());
+    mock('fs-extra', spyFS);
+    return spyFS;
+  }
+
   it('should delete node_modules and run npm install', (done) => {
+    const spyFS = spyOnFS();
     const install = mock.reRequire('../lib/install');
 
     install().then(() => {
-      expect(spyRemove).toHaveBeenCalled();
+      expect(spyFS.remove).toHaveBeenCalled();
       expect(npmInstallSpy).toHaveBeenCalledWith({});
 
       done();
@@ -59,6 +63,7 @@ describe('skyux install command', () => {
 
   it('should pass stdio: inherit to spawn when logLevel is verbose', (done) => {
     logger.logLevel = 'verbose';
+    spyOnFS();
     const install = mock.reRequire('../lib/install');
 
     install().then(() => {
@@ -72,11 +77,12 @@ describe('skyux install command', () => {
   });
 
   it('should delete node_modules, package-lock.json, and run npm install', (done) => {
+    const spyFS = spyOnFS();
     const install = mock.reRequire('../lib/install');
 
     install().then(() => {
-      expect(spyRemove).toHaveBeenCalledWith('node_modules');
-      expect(spyRemove).toHaveBeenCalledWith('package-lock.json');
+      expect(spyFS.remove).toHaveBeenCalledWith('node_modules');
+      expect(spyFS.remove).toHaveBeenCalledWith('package-lock.json');
       expect(npmInstallSpy).toHaveBeenCalledWith({});
 
       done();
@@ -84,6 +90,7 @@ describe('skyux install command', () => {
   });
 
   it('should handle successfully deleting node_modules', (done) => {
+    spyOnFS();
     const install = mock.reRequire('../lib/install');
     install().then(() => {
       expect(spyLoggerPromise.succeed).toHaveBeenCalled();
@@ -93,9 +100,10 @@ describe('skyux install command', () => {
 
   it('should handle unsuccessfully deleting node_modules', (done) => {
     const err = 'custom-error';
+    const spyFS = spyOnFS();
     const install = mock.reRequire('../lib/install');
 
-    spyRemove.and.returnValue(Promise.reject(err))
+    spyFS.remove.and.returnValue(Promise.reject(err))
     install().then(() => {
       expect(spyLoggerPromise.fail).toHaveBeenCalled();
       expect(logger.error).toHaveBeenCalledWith(err);

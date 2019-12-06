@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const logger = require('@blackbaud/skyux-logger');
-const certUtils = require('./lib/utils/cert-utils');
+const generator = require('./lib/utils/certs/generator');
 
 /**
  * Returns results of glob.sync from specified directory and our glob pattern.
@@ -156,11 +156,11 @@ function validateCert(command, argv) {
   switch (command) {
     case 'serve':
     case 'e2e':
-      return certUtils.validate(argv);
+      return generator.validate(argv);
 
     case 'build':
       if (argv.s || argv.serve) {
-        return certUtils.validate(argv);
+        return generator.validate(argv);
       }
     break;
   }
@@ -183,8 +183,8 @@ function processArgv(argv) {
   // Don't validate custom sslCert and sslKey
   if (!argv.sslCert && !argv.sslKey) {
 
-    argv.sslCert = certUtils.getCertPath();
-    argv.sslKey = certUtils.getKeyPath();
+    argv.sslCert = generator.getCertPath();
+    argv.sslKey = generator.getKeyPath();
 
     // Validate cert for specific scenarios
     if (!validateCert(command, argv)) {
@@ -192,6 +192,14 @@ function processArgv(argv) {
       logger.warn(`You may proceed, but \`skyux ${command}\` may not function properly.`)
       logger.warn('Please install the latest SKY UX CLI and run `skyux certs install`.');
     }
+  }
+
+  // Catch skyux install certs when they meant skyux certs install
+  const [ isInstall, isCerts ] = argv['_'];
+  if (isInstall === 'install' && isCerts === 'certs') {
+    logger.error('The `skyux install` command is invalid.');
+    logger.error('Did you mean to run `skyux certs install` instead?');
+    return;
   }
 
   switch (command) {

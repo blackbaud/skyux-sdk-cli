@@ -1,3 +1,7 @@
+# 3.3.0 (2019-12-06)
+
+- Introduced dynamically creating and trusting a SKY UX CA.  Updated Windows technique in order to have single UAC prompt.  Added catch for accidentally typing `skyux install certs` instead of `skyux certs install`.  Fixed overall logging for `skyux certs install`. [#52](https://github.com/blackbaud/skyux-sdk-cli/pull/52)
+
 # 3.2.2 (2019-11-04)
 
 - Fixed a bug to correctly handle Windows paths that include spaces when running `skyux certs install`.  [#45](https://github.com/blackbaud/skyux-sdk-cli/pull/45)

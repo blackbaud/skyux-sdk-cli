@@ -13,7 +13,7 @@ describe('JSON utils', () => {
 
     mock('fs-extra', fsExtraMock);
 
-    jsonUtils = mock.reRequire('../lib/json-utils');
+    jsonUtils = mock.reRequire('../lib/utils/json-utils');
   });
 
   afterEach(() => {

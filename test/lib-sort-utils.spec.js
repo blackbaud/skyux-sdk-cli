@@ -1,4 +1,4 @@
-const sortUtils = require('../lib/sort-utils');
+const sortUtils = require('../lib/utils/sort-utils');
 
 describe('Sort utils', () => {
 

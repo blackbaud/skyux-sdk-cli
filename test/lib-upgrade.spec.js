@@ -37,7 +37,7 @@ describe('Upgrade', () => {
     mock('@blackbaud/skyux-logger', loggerMock);
     mock('latest-version', latestVersionMock);
 
-    mock('../lib/json-utils', jsonUtilsMock);
+    mock('../lib/utils/json-utils', jsonUtilsMock);
     mock('../lib/cleanup', cleanupMock);
 
     mock.reRequire('../lib/app-dependencies');

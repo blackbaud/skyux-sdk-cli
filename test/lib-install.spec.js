@@ -7,22 +7,12 @@ let npmInstallSpy;
 
 describe('skyux install command', () => {
 
-  let spyLoggerPromise;
+  let cleanupMock;
 
   beforeEach(() => {
-    logger = jasmine.createSpyObj(
-      'logger',
-      [
-        'info',
-        'warn',
-        'error',
-        'verbose',
-        'promise'
-      ]
-    );
-
-    spyLoggerPromise = jasmine.createSpyObj('promise', ['fail', 'succeed']);
-    logger.promise.and.returnValue(spyLoggerPromise);
+    logger = {
+      error: jasmine.createSpy('error')
+    }
 
     mock('@blackbaud/skyux-logger', logger);
 
@@ -36,79 +26,48 @@ describe('skyux install command', () => {
     npmInstallSpy = jasmine.createSpy('npmInstall');
 
     mock('../lib/utils/npm-install', npmInstallSpy);
+
+    cleanupMock = {
+      deleteDependencies: jasmine.createSpy('deleteDependencies')
+    };
+    mock('../lib/cleanup', cleanupMock);
   });
 
   afterEach(() => {
     mock.stopAll();
   });
 
-  function spyOnFS() {
-    const spyFS = jasmine.createSpyObj('fs-extra', ['remove']);
-    spyFS.remove.and.returnValue(Promise.resolve());
-    mock('fs-extra', spyFS);
-    return spyFS;
-  }
-
-  it('should delete node_modules and run npm install', (done) => {
-    const spyFS = spyOnFS();
-    const install = mock.reRequire('../lib/install');
-
-    install().then(() => {
-      expect(spyFS.remove).toHaveBeenCalled();
-      expect(npmInstallSpy).toHaveBeenCalledWith({});
-
-      done();
-    });
-  });
-
-  it('should pass stdio: inherit to spawn when logLevel is verbose', (done) => {
+  it('should pass stdio: inherit to spawn when logLevel is verbose', async () => {
     logger.logLevel = 'verbose';
-    spyOnFS();
     const install = mock.reRequire('../lib/install');
 
-    install().then(() => {
-      expect(npmInstallSpy).toHaveBeenCalledWith({
-        stdio: 'inherit'
-      });
-
-      done();
-    });
-
-  });
-
-  it('should delete node_modules, package-lock.json, and run npm install', (done) => {
-    const spyFS = spyOnFS();
-    const install = mock.reRequire('../lib/install');
-
-    install().then(() => {
-      expect(spyFS.remove).toHaveBeenCalledWith('node_modules');
-      expect(spyFS.remove).toHaveBeenCalledWith('package-lock.json');
-      expect(npmInstallSpy).toHaveBeenCalledWith({});
-
-      done();
+    await install();
+    expect(npmInstallSpy).toHaveBeenCalledWith({
+      stdio: 'inherit'
     });
   });
 
-  it('should handle successfully deleting node_modules', (done) => {
-    spyOnFS();
+  it('should delete node_modules, package-lock.json, and run npm install', async () => {
     const install = mock.reRequire('../lib/install');
-    install().then(() => {
-      expect(spyLoggerPromise.succeed).toHaveBeenCalled();
-      done();
-    });
+
+    await install();
+    expect(cleanupMock.deleteDependencies).toHaveBeenCalledTimes(1);
+    expect(npmInstallSpy).toHaveBeenCalledWith({});
   });
 
-  it('should handle unsuccessfully deleting node_modules', (done) => {
+  it('should handle successfully deleting node_modules', async () => {
+    const install = mock.reRequire('../lib/install');
+    await install();
+    expect(logger.error).not.toHaveBeenCalled();
+  });
+
+  it('should handle unsuccessfully deleting node_modules', async () => {
     const err = 'custom-error';
-    const spyFS = spyOnFS();
     const install = mock.reRequire('../lib/install');
 
-    spyFS.remove.and.returnValue(Promise.reject(err))
-    install().then(() => {
-      expect(spyLoggerPromise.fail).toHaveBeenCalled();
-      expect(logger.error).toHaveBeenCalledWith(err);
-      done();
-    });
+    cleanupMock.deleteDependencies.and.returnValue(Promise.reject(err));
+    await install();
+    expect(logger.error).toHaveBeenCalledWith(err);
   });
 
 });

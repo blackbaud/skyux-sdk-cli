@@ -1,6 +1,6 @@
 # 3.4.0 (2020-01-22)
 
-- Migrated `skyux upgrade` command from SKY UX migration plugin to CLI. [#35](https://github.com/blackbaud/skyux-sdk-cli/pull/35) Thanks [@Blackbaud-MatthewMiles](https://github.com/Blackbaud-MatthewMiles)!
+- Migrated the `skyux upgrade` command from the SKY UX migration plugin to the CLI. [#35](https://github.com/blackbaud/skyux-sdk-cli/pull/35) Thanks [@Blackbaud-MatthewMiles](https://github.com/Blackbaud-MatthewMiles)!
 - Upgraded dependencies to the latest versions. [#54](https://github.com/blackbaud/skyux-sdk-cli/pull/54)
 
 # 3.3.0 (2019-12-06)

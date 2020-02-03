@@ -151,7 +151,7 @@ describe('cert utils linux', () => {
     expect(results.spyPath.resolve).toHaveBeenCalledWith(`${results.homeDir}/.pki/nssdb`);
     expect(results.spyExecute).toHaveBeenCalledWith('trust', 'NSS Chrome', jasmine.any(Function));
     expect(results.spySpawn).toHaveBeenCalledWith(
-      `certutil`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-A`, `-t`, `P`, `-n`, results.certAuthCommonName, `-i`, results.certPath
+      `certutil`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-A`, `-t`, `C`, `-n`, results.certAuthCommonName, `-i`, results.certAuthPath
     );
   });
 

@@ -82,7 +82,7 @@ describe('cert utils linux', () => {
     };
   }
 
-  async function setupForNSS(action) {
+  async function setupForNSS() {
     const homeDir = 'home-dir';
     const linuxChromeNSSPath = 'nssdb';
     const certAuthCommonName = 'cert-auth-common-name';
@@ -106,9 +106,6 @@ describe('cert utils linux', () => {
     spyGenerator.getCertCommonName.and.returnValue(certCommonName);
     spyExecute.and.callFake((command, level, cb) => level === 'NSS Chrome' ? cb() : Promise.resolve());
 
-    const lib = getLib();
-    await lib[action]();
-
     return {
       homeDir,
       linuxChromeNSSPath,
@@ -123,6 +120,17 @@ describe('cert utils linux', () => {
       spyExecute,
       spySpawn
     };
+  }
+
+  async function runForNSS(action) {
+    const lib = getLib();
+    return await lib[action]();
+  }
+
+  async function testForNSS(action) {
+    const spies = await setupForNSS();
+    spies.results = await runForNSS(action);
+    return spies;
   }
 
   it('should expose a public API', () => {
@@ -147,11 +155,11 @@ describe('cert utils linux', () => {
   });
 
   it('should trust at the NSS level', async () => {
-    const results = await setupForNSS('trust');
+    const results = await testForNSS('trust');
     expect(results.spyPath.resolve).toHaveBeenCalledWith(`${results.homeDir}/.pki/nssdb`);
     expect(results.spyExecute).toHaveBeenCalledWith('trust', 'NSS Chrome', jasmine.any(Function));
     expect(results.spySpawn).toHaveBeenCalledWith(
-      `certutil`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-A`, `-t`, `P`, `-n`, results.certAuthCommonName, `-i`, results.certPath
+      `certutil`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-A`, `-t`, `C`, `-n`, results.certAuthCommonName, `-i`, results.certAuthPath
     );
   });
 
@@ -173,13 +181,35 @@ describe('cert utils linux', () => {
   });
 
   it('should untrust at the NSS level', async () => {
-    const results = await setupForNSS('untrust');
+    const results = await testForNSS('untrust');
     expect(results.spyExecute).toHaveBeenCalledWith('untrust', 'NSS Chrome', jasmine.any(Function));
     expect(results.spySpawn).toHaveBeenCalledWith(
       `certutil`, `-D`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-n`, results.certCommonName
     );
     expect(results.spySpawn).toHaveBeenCalledWith(
       `certutil`, `-D`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-n`, results.certAuthCommonName
+    );
+  });
+
+  it('should untrust at the NSS level and handle the old certificate not existing', async () => {
+    const spies = await setupForNSS();
+
+    // Emulate not finding the old certificate
+    spies.spySpawn.and.callFake(async (...args) => {
+      return args[args.length - 1] === spies.certCommonName ? Promise.reject() : Promise.resolve();
+    });
+
+    await runForNSS('untrust');
+
+    expect(spies.spyExecute).toHaveBeenCalledWith('untrust', 'NSS Chrome', jasmine.any(Function));
+    expect(spies.spySpawn).toHaveBeenCalledWith(
+      `certutil`, `-D`, `-d`, `sql:${spies.linuxChromeNSSPath}`, `-n`, spies.certCommonName
+    );
+    expect(spies.spySpawn).toHaveBeenCalledWith(
+      `certutil`, `-D`, `-d`, `sql:${spies.linuxChromeNSSPath}`, `-n`, spies.certAuthCommonName
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      'Certificate from old technique did not exist. OK to proceed and ignore previous error.'
     );
   });
 

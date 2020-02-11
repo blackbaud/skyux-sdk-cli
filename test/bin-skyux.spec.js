@@ -38,7 +38,7 @@ describe('skyux bin', () => {
     mock.stopAll();
   });
 
-  it('should pass package.json to update-notifier', () => {
+  it('should pass package.json to update-notifier and set isGlobal', () => {
     const pkg = {
       name: 'Test-Package',
       version: 'Test-Version'
@@ -48,6 +48,7 @@ describe('skyux bin', () => {
     require('../bin/skyux');
 
     expect(notifierArgs.pkg()).toEqual(pkg);
+    expect(notifyArgs.isGlobal).toEqual(true);
     expect(notifyArgs.defer).toEqual(false);
     expect(cliArgs).toEqual(cliExpectedArgs);
   });

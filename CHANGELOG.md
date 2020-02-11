@@ -1,3 +1,7 @@
+# 3.4.2 (2020-02-11)
+
+- Fixed message displayed for upgrading to latest version. [#61](https://github.com/blackbaud/skyux-sdk-cli/pull/61)
+
 # 3.4.1 (2020-02-05)
 
 - Fixed an issue that generated invalid certificates for Chrome on Linux. [#58](https://github.com/blackbaud/skyux-sdk-cli/pull/58)

@@ -8,5 +8,5 @@ const cli = require('../index');
 const pkg = require('../package.json');
 const notifier = updateNotifier({ pkg: pkg });
 
-notifier.notify({ defer: false });
+notifier.notify({ defer: false, isGlobal: true });
 cli(minimist(process.argv.slice(2)));

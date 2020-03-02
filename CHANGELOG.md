@@ -1,3 +1,7 @@
+# 3.4.3 (2020-03-02)
+
+- Switched from `minimist` to `rc` to get both command line arg processing and rc file processing
+
 # 3.4.2 (2020-02-11)
 
 - Fixed the message that prompts users to upgrade to the latest version. [#61](https://github.com/blackbaud/skyux-sdk-cli/pull/61)

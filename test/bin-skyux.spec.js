@@ -16,7 +16,7 @@ describe('skyux bin', () => {
     notifyArgs = null;
     cliArgs = null;
 
-    mock('minimist', () => {
+    mock('rc', () => {
       return cliExpectedArgs;
     });
 

@@ -17,16 +17,14 @@ describe('Upgrade', () => {
       info: jasmine.createSpy('info')
     };
 
-    latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
+    latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName, options) => {
       switch (packageName) {
         case '@foo/bar':
           return '12.2.5';
         case '@foo/baz':
           return '4.5.6';
-        case 'typescript':
-          return '2.2';
-        case 'zone.js':
-          return '0.9.0';
+        default:
+          return options.version;
       }
     });
 
@@ -64,14 +62,14 @@ describe('Upgrade', () => {
     expect(latestVersionMock).toHaveBeenCalledWith(
       '@foo/bar',
       {
-        version: '12'
+        version: '^12.2.3'
       }
     );
 
     expect(latestVersionMock).toHaveBeenCalledWith(
       '@foo/baz',
       {
-        version: '4'
+        version: '^4.5.6'
       }
     );
 
@@ -91,7 +89,7 @@ describe('Upgrade', () => {
     expect(cleanupMock.deleteDependencies).toHaveBeenCalled();
   });
 
-  it('should not upgrade TypeScript', async () => {
+  it('should use a specific range for TypeScript', async () => {
     jsonUtilsMock.readJson.and.returnValue({
       devDependencies: {
         'typescript': '2.1'
@@ -104,17 +102,17 @@ describe('Upgrade', () => {
       'package.json',
       {
         devDependencies: {
-          'typescript': '2.1'
+          'typescript': '~3.6.4'
         }
       }
     );
 
     expect(loggerMock.info).toHaveBeenCalledWith(
-      jasmine.stringMatching(/This project includes a reference to/)
+      jasmine.stringMatching(/because TypeScript does not support semantic versioning/)
     );
   });
 
-  it('should not upgrade zone.js', async () => {
+  it('should use a specific range for zone.js', async () => {
     jsonUtilsMock.readJson.and.returnValue({
       dependencies: {
         'zone.js': '0.8.29'
@@ -127,13 +125,36 @@ describe('Upgrade', () => {
       'package.json',
       {
         dependencies: {
-          'zone.js': '0.8.29'
+          'zone.js': '~0.10.2'
         }
       }
     );
 
     expect(loggerMock.info).toHaveBeenCalledWith(
-      jasmine.stringMatching(/This project includes a reference to/)
+      jasmine.stringMatching(/because Angular requires a specific minor version/)
+    );
+  });
+
+  it('should use a specific range for ts-node', async () => {
+    jsonUtilsMock.readJson.and.returnValue({
+      dependencies: {
+        'ts-node': '1.2.0'
+      }
+    });
+
+    await upgrade();
+
+    expect(jsonUtilsMock.writeJson).toHaveBeenCalledWith(
+      'package.json',
+      {
+        dependencies: {
+          'ts-node': '~8.6.0'
+        }
+      }
+    );
+
+    expect(loggerMock.info).toHaveBeenCalledWith(
+      jasmine.stringMatching(/because Angular requires a specific minor version/)
     );
   });
 
@@ -149,7 +170,7 @@ describe('Upgrade', () => {
     expect(latestVersionMock).toHaveBeenCalledWith(
       '@foo/bar',
       {
-        version: '12'
+        version: '^12.2.3'
       }
     );
 

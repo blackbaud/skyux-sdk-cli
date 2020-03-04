@@ -5,6 +5,10 @@ describe('Cleanup', () => {
   let cleanup;
 
   beforeEach(() => {
+    mock('@blackbaud/skyux-logger', {
+      info() {}
+    });
+
     fsExtraMock = {
       exists: jasmine.createSpy('exists'),
       unlink: jasmine.createSpy('unlink'),

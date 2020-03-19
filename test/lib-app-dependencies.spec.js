@@ -20,6 +20,12 @@ describe('App dependencies', () => {
           return '4.5.6';
         case 'from-branch':
           return 'foo/bar#branch';
+        case 'foo':
+          return '11.7.0';
+        case 'bar':
+          return '1.1.3';
+        case 'baz':
+          return '7.5.0';
         default:
           return '9.8.7';
       }
@@ -50,8 +56,13 @@ describe('App dependencies', () => {
   describe('upgradeDependencies() method', () => {
 
     it('should upgrade dependencies', async () => {
+
+      // The utility should respect existing version ranges or convert hard-versions to ranges.
       const dependencies = {
-        '@foo/bar': '12.2.3'
+        '@foo/bar': '12.2.3',
+        'foo': '^11.0.0',
+        'bar': '~1.1.1',
+        'baz': 'latest'
       };
 
       const devDependencies = {
@@ -62,7 +73,10 @@ describe('App dependencies', () => {
       await appDependencies.upgradeDependencies(dependencies);
 
       expect(dependencies).toEqual({
-        '@foo/bar': '12.2.5'
+        '@foo/bar': '12.2.5',
+        'foo': '11.7.0',
+        'bar': '1.1.3',
+        'baz': '7.5.0'
       });
 
       await appDependencies.upgradeDependencies(devDependencies);
@@ -72,19 +86,25 @@ describe('App dependencies', () => {
         'from-branch': 'foo/bar#branch'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        '@foo/bar',
-        {
-          version: '^12.2.3'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('@foo/bar', {
+        version: '^12.2.3'
+      });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        '@foo/baz',
-        {
-          version: '^4.5.6'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('@foo/baz', {
+        version: '^4.5.6'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('foo', {
+        version: '^11.0.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('bar', {
+        version: '~1.1.1'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('baz', {
+        version: 'latest'
+      });
     });
 
     it('should handle missing dependencies section', async () => {

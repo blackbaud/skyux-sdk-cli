@@ -26,6 +26,8 @@ describe('App dependencies', () => {
           return '1.1.3';
         case 'baz':
           return '7.5.0';
+        case 'sample':
+          return '2.0.1';
         default:
           return '9.8.7';
       }
@@ -62,7 +64,8 @@ describe('App dependencies', () => {
         '@foo/bar': '12.2.3',
         'foo': '^11.0.0',
         'bar': '~1.1.1',
-        'baz': 'latest'
+        'baz': 'latest',
+        'sample': '1 || ^2'
       };
 
       const devDependencies = {
@@ -76,7 +79,8 @@ describe('App dependencies', () => {
         '@foo/bar': '12.2.5',
         'foo': '11.7.0',
         'bar': '1.1.3',
-        'baz': '7.5.0'
+        'baz': '7.5.0',
+        'sample': '2.0.1'
       });
 
       await appDependencies.upgradeDependencies(devDependencies);
@@ -95,15 +99,19 @@ describe('App dependencies', () => {
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith('foo', {
-        version: '^11.0.0'
+        version: '>=11.0.0 <12.0.0'
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith('bar', {
-        version: '~1.1.1'
+        version: '>=1.1.1 <1.2.0'
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith('baz', {
         version: 'latest'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('sample', {
+        version: '>=1.0.0 <2.0.0||>=2.0.0 <3.0.0'
       });
     });
 

@@ -34,6 +34,7 @@
     "node-forge": "0.9.1",
     "package-json": "6.5.0",
     "promptly": "3.0.3",
+    "semver": "7.1.3",
     "update-notifier": "4.0.0"
   },
   "devDependencies": {

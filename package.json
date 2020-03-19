@@ -30,11 +30,11 @@
     "git-clone": "0.1.0",
     "glob": "7.1.6",
     "latest-version": "5.1.0",
-    "minimist": "1.2.0",
+    "minimist": "^1.2.5",
     "node-forge": "0.9.1",
+    "package-json": "6.5.0",
     "promptly": "3.0.3",
-    "update-notifier": "4.0.0",
-    "package-json": "6.5.0"
+    "update-notifier": "4.0.0"
   },
   "devDependencies": {
     "eslint": "6.8.0",

@@ -5,16 +5,32 @@ describe('App dependencies', () => {
   let latestVersionMock;
   let getPackageJsonMock;
   let packageMapMock;
+  let loggerMock;
 
   beforeEach(() => {
+    loggerMock = {
+      info() {}
+    };
+
     latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
       switch (packageName) {
         case '@foo/bar':
           return '12.2.5';
         case '@foo/baz':
           return '4.5.6';
+        case 'from-branch':
+          return 'foo/bar#branch';
+        case 'foo':
+          return '11.7.0';
+        case 'bar':
+          return '1.1.3';
+        case 'baz':
+          return '7.5.0';
+        case 'sample':
+          return '2.0.1';
+        default:
+          return '9.8.7';
       }
-      return '9.8.7';
     });
 
     getPackageJsonMock = jasmine.createSpy('getPackageJson');
@@ -27,6 +43,7 @@ describe('App dependencies', () => {
       })
     };
 
+    mock('@blackbaud/skyux-logger', loggerMock);
     mock('latest-version', latestVersionMock);
     mock('package-json', getPackageJsonMock);
     mock('../lib/package-map', packageMapMock);
@@ -41,8 +58,14 @@ describe('App dependencies', () => {
   describe('upgradeDependencies() method', () => {
 
     it('should upgrade dependencies', async () => {
+
+      // The utility should respect existing version ranges or convert hard-versions to ranges.
       const dependencies = {
-        '@foo/bar': '12.2.3'
+        '@foo/bar': '12.2.3',
+        'foo': '^11.0.0',
+        'bar': '~1.1.1',
+        'baz': 'latest',
+        'sample': '1 || ^2'
       };
 
       const devDependencies = {
@@ -53,7 +76,11 @@ describe('App dependencies', () => {
       await appDependencies.upgradeDependencies(dependencies);
 
       expect(dependencies).toEqual({
-        '@foo/bar': '12.2.5'
+        '@foo/bar': '12.2.5',
+        'foo': '11.7.0',
+        'bar': '1.1.3',
+        'baz': '7.5.0',
+        'sample': '2.0.1'
       });
 
       await appDependencies.upgradeDependencies(devDependencies);
@@ -63,19 +90,29 @@ describe('App dependencies', () => {
         'from-branch': 'foo/bar#branch'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        '@foo/bar',
-        {
-          version: '12'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('@foo/bar', {
+        version: '^12.2.3'
+      });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        '@foo/baz',
-        {
-          version: '4'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('@foo/baz', {
+        version: '^4.5.6'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('foo', {
+        version: '>=11.0.0 <12.0.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('bar', {
+        version: '>=1.1.1 <1.2.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('baz', {
+        version: 'latest'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith('sample', {
+        version: '>=1.0.0 <2.0.0||>=2.0.0 <3.0.0'
+      });
     });
 
     it('should handle missing dependencies section', async () => {
@@ -123,13 +160,13 @@ describe('App dependencies', () => {
 
     it('should handle "latest" versions', async () => {
       await appDependencies.upgradeDependencies({
-        'prerelease-foo': 'latest'
+        'latest-foo': 'latest'
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith(
-        'prerelease-foo',
+        'latest-foo',
         {
-          version: '9'
+          version: 'latest'
         }
       );
     });
@@ -144,8 +181,11 @@ describe('App dependencies', () => {
           case '@skyux/indicators':
             return {
               name: '@skyux/indicators',
+              version: '3.0.0',
               peerDependencies: {
-                '@blackbaud/skyux-lib-foo': '^9.8.0'
+                '@blackbaud/skyux-lib-foo': '^9.8.0',
+                'non-blackbaud-peer': '~0.8.0',
+                'tslib': '^1.0.0'
               }
             };
           case '@blackbaud/skyux-lib-foo':
@@ -174,6 +214,8 @@ describe('App dependencies', () => {
         '@skyux/indicators': '9.8.7'
       };
 
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
       await appDependencies.addSkyPeerDependencies(dependencies);
 
       expect(dependencies).toEqual(
@@ -182,6 +224,22 @@ describe('App dependencies', () => {
           '@blackbaud/skyux-lib-foo': '9.8.7',
           '@skyux/indicators': '9.8.7'
         })
+      );
+
+      // Missing peers that are not SKY UX packages shouldn't be added.
+      expect(dependencies).not.toEqual(jasmine.objectContaining({
+        'non-blackbaud-peer': '~0.8.0'
+      }));
+      expect(loggerSpy).toHaveBeenCalledWith(
+        `non-blackbaud-peer@~0.8.0 --> peer of @skyux/indicators@3.0.0`
+      );
+
+      // Package tslib should not be added to the warning log since it'll be a common missing peer.
+      expect(dependencies).not.toEqual(jasmine.objectContaining({
+        'tslib': '^1.0.0'
+      }));
+      expect(loggerSpy).not.toHaveBeenCalledWith(
+        `tslib@^1.0.0 --> peer of @skyux/indicators@3.0.0`
       );
     });
 

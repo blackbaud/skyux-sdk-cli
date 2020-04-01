@@ -9,7 +9,9 @@ describe('App dependencies', () => {
 
   beforeEach(() => {
     loggerMock = {
-      info() {}
+      error() {},
+      info() {},
+      warn() {}
     };
 
     latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
@@ -113,6 +115,10 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith('sample', {
         version: '>=1.0.0 <2.0.0||>=2.0.0 <3.0.0'
       });
+
+      expect(latestVersionMock).not.toHaveBeenCalledWith('from-branch', {
+        version: 'foo/bar#branch'
+      });
     });
 
     it('should handle missing dependencies section', async () => {
@@ -168,6 +174,63 @@ describe('App dependencies', () => {
         {
           version: 'latest'
         }
+      );
+    });
+
+    it('should use a specific range for TypeScript', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'typescript': '2.1.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'typescript',
+        {
+          version: '~3.6.4'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because TypeScript does not support semantic versioning/)
+      );
+    });
+
+    it('should use a specific range for zone.js', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'zone.js': '1.1.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'zone.js',
+        {
+          version: '~0.10.2'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific minor version/)
+      );
+    });
+
+    it('should use a specific range for ts-node', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'ts-node': '1.0.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'ts-node',
+        {
+          version: '~8.6.0'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific minor version/)
       );
     });
 

@@ -37,12 +37,22 @@ describe('skyux install command', () => {
     mock.stopAll();
   });
 
+  it('should pass stdio: inherit to spawn when logLevel is verbose', async () => {
+    logger.logLevel = 'verbose';
+    const install = mock.reRequire('../lib/install');
+
+    await install();
+    expect(npmInstallSpy).toHaveBeenCalledWith({
+      stdio: 'inherit'
+    });
+  });
+
   it('should delete node_modules, package-lock.json, and run npm install', async () => {
     const install = mock.reRequire('../lib/install');
 
     await install();
     expect(cleanupMock.deleteDependencies).toHaveBeenCalledTimes(1);
-    expect(npmInstallSpy).toHaveBeenCalledWith();
+    expect(npmInstallSpy).toHaveBeenCalledWith({});
   });
 
   it('should handle successfully deleting node_modules', async () => {

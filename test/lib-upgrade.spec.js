@@ -5,6 +5,7 @@ describe('Upgrade', () => {
   let jsonUtilsMock;
   let loggerMock;
   let upgrade;
+  let npmInstallArgs;
   let npmInstallMock;
   let npmInstallCalled;
 
@@ -19,12 +20,15 @@ describe('Upgrade', () => {
       writeJson: jasmine.createSpy('writeJson')
     };
 
+    npmInstallArgs = {};
     npmInstallCalled = false;
-    npmInstallMock = () => {
+    npmInstallMock = function (args) {
+      npmInstallArgs = args;
       npmInstallCalled = true;
     };
 
     loggerMock = {
+      logLevel: undefined,
       error() {},
       info: jasmine.createSpy('info')
     };
@@ -90,6 +94,29 @@ describe('Upgrade', () => {
 
     expect(jsonUtilsMock.writeJson).toHaveBeenCalledWith('package.json', { dependencies });
     expect(npmInstallCalled).toEqual(false);
+
+    done();
+  });
+
+  it('should pass stdio: inherit to spawn when logLevel is verbose', async (done) => {
+    loggerMock.logLevel = 'verbose';
+
+    const dependencies = {
+      '@foo/bar': '12.2.3'
+    };
+
+    jsonUtilsMock.readJson.and.returnValue({
+      dependencies
+    });
+
+    await upgrade({
+      install: true
+    });
+
+    expect(npmInstallCalled).toEqual(true);
+    expect(npmInstallArgs).toEqual({
+      stdio: 'inherit'
+    });
 
     done();
   });

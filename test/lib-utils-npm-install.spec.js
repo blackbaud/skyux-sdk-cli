@@ -91,17 +91,6 @@ describe('npm install library', () => {
     );
   });
 
-  it('should pass stdio: inherit to spawn when logLevel is verbose', async () => {
-    mockLogger.logLevel = 'verbose';
-    const args = getArgsFromSpawn({});
-
-    expect(mockLogger.promise).toHaveBeenCalledWith(
-      'Running npm install. This step can take several minutes.'
-    );
-
-    expect(args.stdio).toEqual('inherit');
-  });
-
   it('should reject with any error caught from npm install', (done) => {
     const error = 'custom error it failed';
     getPromiseFromSpawn(1, error).catch(err => {

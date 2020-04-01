@@ -4,8 +4,10 @@ describe('Upgrade', () => {
   let appDependenciesMock;
   let jsonUtilsMock;
   let loggerMock;
-  let cleanupMock;
   let upgrade;
+  let npmInstallArgs;
+  let npmInstallMock;
+  let npmInstallCalled;
 
   beforeEach(() => {
     appDependenciesMock = {
@@ -18,20 +20,24 @@ describe('Upgrade', () => {
       writeJson: jasmine.createSpy('writeJson')
     };
 
-    loggerMock = {
-      error() {},
-      info: jasmine.createSpy('info')
+    npmInstallArgs = {};
+    npmInstallCalled = false;
+    npmInstallMock = function (args) {
+      npmInstallArgs = args;
+      npmInstallCalled = true;
     };
 
-    cleanupMock = {
-      deleteDependencies: jasmine.createSpy('deleteDependencies')
+    loggerMock = {
+      logLevel: undefined,
+      error() {},
+      info: jasmine.createSpy('info')
     };
 
     mock('@blackbaud/skyux-logger', loggerMock);
 
     mock('../lib/utils/json-utils', jsonUtilsMock);
     mock('../lib/app-dependencies', appDependenciesMock);
-    mock('../lib/cleanup', cleanupMock);
+    mock('../lib/utils/npm-install', npmInstallMock);
 
     upgrade = mock.reRequire('../lib/upgrade');
   });
@@ -58,7 +64,7 @@ describe('Upgrade', () => {
       devDependencies
     });
 
-    await upgrade();
+    await upgrade({});
 
     expect(upgradeDependenciesSpy).toHaveBeenCalledWith(dependencies);
     expect(upgradeDependenciesSpy).toHaveBeenCalledWith(devDependencies);
@@ -68,7 +74,49 @@ describe('Upgrade', () => {
       dependencies,
       devDependencies
     });
-    expect(cleanupMock.deleteDependencies).toHaveBeenCalled();
+    expect(npmInstallCalled).toEqual(true);
+
+    done();
+  });
+
+  it('should not run npm install if --no-install provided', async (done) => {
+    const dependencies = {
+      '@foo/bar': '12.2.3'
+    };
+
+    jsonUtilsMock.readJson.and.returnValue({
+      dependencies
+    });
+
+    await upgrade({
+      install: false
+    });
+
+    expect(jsonUtilsMock.writeJson).toHaveBeenCalledWith('package.json', { dependencies });
+    expect(npmInstallCalled).toEqual(false);
+
+    done();
+  });
+
+  it('should pass stdio: inherit to spawn when logLevel is verbose', async (done) => {
+    loggerMock.logLevel = 'verbose';
+
+    const dependencies = {
+      '@foo/bar': '12.2.3'
+    };
+
+    jsonUtilsMock.readJson.and.returnValue({
+      dependencies
+    });
+
+    await upgrade({
+      install: true
+    });
+
+    expect(npmInstallCalled).toEqual(true);
+    expect(npmInstallArgs).toEqual({
+      stdio: 'inherit'
+    });
 
     done();
   });
@@ -85,7 +133,7 @@ describe('Upgrade', () => {
 
     const loggerSpy = spyOn(loggerMock, 'error').and.callThrough();
 
-    await upgrade();
+    await upgrade({});
 
     expect(loggerSpy).toHaveBeenCalledWith('Error: Something bad happened.');
 

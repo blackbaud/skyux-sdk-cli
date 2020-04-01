@@ -1,8 +1,8 @@
 const mock = require('mock-require');
+const logger = require('@blackbaud/skyux-logger');
 
 describe('npm install library', () => {
   let mockFs;
-  let mockLogger;
   let spyLoggerPromise;
 
   beforeEach(() => {
@@ -12,15 +12,10 @@ describe('npm install library', () => {
     };
 
     spyLoggerPromise = jasmine.createSpyObj('logger', ['succeed','fail']);
+    spyOn(logger, 'promise').and.returnValue(spyLoggerPromise);
+    spyOn(logger, 'warn');
+    spyOn(logger, 'error');
 
-    mockLogger = {
-      logLevel: undefined,
-      promise: jasmine.createSpy('promise').and.returnValue(spyLoggerPromise),
-      error: jasmine.createSpy('error'),
-      warn: jasmine.createSpy('warn')
-    };
-
-    mock('@blackbaud/skyux-logger', mockLogger);
     mock('fs-extra', mockFs);
   });
 
@@ -79,25 +74,23 @@ describe('npm install library', () => {
     })).toEqual({
       stdio: 'foobar'
     });
-    expect(mockLogger.promise).toHaveBeenCalledWith(
+    expect(logger.promise).toHaveBeenCalledWith(
       'Running npm install. This step can take several minutes. Add `--logLevel verbose` for realtime output.'
     );
   });
 
   it('should not log verbose suggestion if stdio is inherit', () => {
     getArgsFromSpawn({ stdio: 'inherit' });
-    expect(mockLogger.promise).toHaveBeenCalledWith(
+    expect(logger.promise).toHaveBeenCalledWith(
       'Running npm install. This step can take several minutes.'
     );
-  });
+  })
 
   it('should reject with any error caught from npm install', (done) => {
     const error = 'custom error it failed';
     getPromiseFromSpawn(1, error).catch(err => {
       expect(err).toEqual(error);
-      expect(mockLogger.promise).toHaveBeenCalledWith(
-        'Running npm install. This step can take several minutes. Add `--logLevel verbose` for realtime output.'
-      );
+      expect(logger.promise).toHaveBeenCalledWith('Running npm install. This step can take several minutes.');
       expect(spyLoggerPromise.fail).toHaveBeenCalled();
       done();
     });
@@ -105,7 +98,7 @@ describe('npm install library', () => {
 
   it('should listen for the exit event and reject if exit code is not 0', (done) => {
     getPromiseFromSpawn(1).catch((err) => {
-      expect(err).toEqual('Unknown error occured. `npm install` has failed. Run `skyux install --logLevel verbose` for more information.');
+      expect(err).toEqual('Unknown error occured. `npm install` has failed.  Run `skyux install --logLevel verbose` for more information.');
       expect(spyLoggerPromise.fail).toHaveBeenCalled();
       done();
     });
@@ -125,16 +118,16 @@ npm something else that does not show
 npm WARN another warning
 `;
     getPromiseFromSpawn(0, output).then(() => {
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         '\nYou may need to address the following warnings:\n'
       );
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         'npm WARN warning should show'
       );
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         'npm WARN another warning'
       );
-      expect(mockLogger.warn).toHaveBeenCalledWith(
+      expect(logger.warn).toHaveBeenCalledWith(
         '\n'
       );
       done();

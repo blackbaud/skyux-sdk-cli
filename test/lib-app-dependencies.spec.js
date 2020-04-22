@@ -101,11 +101,11 @@ describe('App dependencies', () => {
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith('foo', {
-        version: '>=11.0.0 <12.0.0'
+        version: '>=11.0.0 <12.0.0-0'
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith('bar', {
-        version: '>=1.1.1 <1.2.0'
+        version: '>=1.1.1 <1.2.0-0'
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith('baz', {
@@ -113,7 +113,7 @@ describe('App dependencies', () => {
       });
 
       expect(latestVersionMock).toHaveBeenCalledWith('sample', {
-        version: '>=1.0.0 <2.0.0||>=2.0.0 <3.0.0'
+        version: '>=1.0.0 <2.0.0-0||>=2.0.0 <3.0.0-0'
       });
 
       expect(latestVersionMock).not.toHaveBeenCalledWith('from-branch', {

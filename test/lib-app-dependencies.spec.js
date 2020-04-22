@@ -234,6 +234,25 @@ describe('App dependencies', () => {
       );
     });
 
+    it('should use a specific range for Codelyzer', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'codelyzer': '2.1.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'codelyzer',
+        {
+          version: '^5.2.2'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific minor version/)
+      );
+    });
+
   });
 
   describe('addSkyPeerDependencies() method', () => {

@@ -184,6 +184,17 @@ describe('skyux CLI', () => {
       expect(called).toEqual(true);
       expect(spyProcessExit).not.toHaveBeenCalled();
     });
+
+    it('should accept known command migrate', () => {
+      let called = false;
+      mock('../lib/migrate', () => {
+        called = true;
+      });
+
+      cli({ _: ['migrate'] });
+      expect(called).toEqual(true);
+      expect(spyProcessExit).not.toHaveBeenCalled();
+    });
   }
 
   describe('when missing modules', () => {

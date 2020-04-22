@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-const minimist = require('minimist');
+const rc = require('rc');
 const updateNotifier = require('update-notifier');
 
 const cli = require('../index');
@@ -9,4 +9,4 @@ const pkg = require('../package.json');
 const notifier = updateNotifier({ pkg: pkg });
 
 notifier.notify({ defer: false, isGlobal: true });
-cli(minimist(process.argv.slice(2)));
+cli(rc('skyux', {}));

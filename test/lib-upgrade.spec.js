@@ -8,6 +8,7 @@ describe('Upgrade', () => {
   let npmInstallArgs;
   let npmInstallMock;
   let npmInstallCalled;
+  let processExitSpy;
 
   beforeEach(() => {
     appDependenciesMock = {
@@ -32,6 +33,8 @@ describe('Upgrade', () => {
       error() {},
       info: jasmine.createSpy('info')
     };
+
+    processExitSpy = spyOn(process, 'exit');
 
     mock('@blackbaud/skyux-logger', loggerMock);
 
@@ -136,6 +139,7 @@ describe('Upgrade', () => {
     await upgrade({});
 
     expect(loggerSpy).toHaveBeenCalledWith('Error: Something bad happened.');
+    expect(processExitSpy).toHaveBeenCalledWith(1);
 
     done();
   });

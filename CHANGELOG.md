@@ -1,10 +1,16 @@
+# 4.0.0-rc.1 (2020-05-01)
+
+### Bug fixes
+
+- Fixed the `skyux upgrade` command to install specific version ranges for Angular, SKY UX, and TypeScript packages. [#77](https://github.com/blackbaud/skyux-sdk-cli/pull/77)
+
 # 4.0.0-rc.0 (2020-04-01)
 
-## Bug fixes
+### Bug fixes
 
 - Fixed the `skyux upgrade` command to run `npm install` after updating `package.json` instead of deleting the `node_modules` directory and `package-lock.json` file. [#70](https://github.com/blackbaud/skyux-sdk-cli/pull/70)
 
-## Breaking changes
+### Breaking changes
 
 - The `skyux upgrade` command no longer supports Angular versions less than `9.1.0`. [#65](https://github.com/blackbaud/skyux-sdk-cli/pull/65) [#68](https://github.com/blackbaud/skyux-sdk-cli/pull/68)
 

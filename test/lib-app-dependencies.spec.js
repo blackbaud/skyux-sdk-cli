@@ -187,7 +187,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'typescript',
         {
-          version: '~3.6.4'
+          version: '~3.8.3'
         }
       );
 
@@ -225,7 +225,26 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'ts-node',
         {
-          version: '~8.6.0'
+          version: '~8.3.0'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific minor version/)
+      );
+    });
+
+    it('should use a specific range for TSLint', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'tslint': '1.0.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'tslint',
+        {
+          version: '~6.1.0'
         }
       );
 
@@ -249,8 +268,43 @@ describe('App dependencies', () => {
       );
 
       expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because Angular requires a specific minor version/)
+        jasmine.stringMatching(/because Angular requires a specific major version/)
       );
+    });
+
+    it('should use specific ranges for SKY UX and Angular packages', async () => {
+      // Dependencies purposefully listed out of order:
+      await appDependencies.upgradeDependencies({
+        '@skyux-sdk/builder-plugin-skyux': '0.0.1',
+        '@blackbaud/skyux-lib-stache': '0.0.1',
+        '@blackbaud/skyux-lib-code-block': '0.0.1',
+        '@blackbaud/skyux-lib-media': '0.0.1',
+        '@skyux-sdk/testing': '0.0.1',
+        '@skyux/foobar': '0.0.1',
+        '@skyux/auth-client-factory': '2.0.0',
+        '@skyux-sdk/builder': '0.0.1',
+        '@angular/common': '2.0.0',
+        '@skyux-sdk/e2e': '0.0.1',
+        '@skyux-sdk/pact': '0.0.1',
+        '@blackbaud/skyux-lib-clipboard': '0.0.1',
+        '@skyux-sdk/builder-plugin-pact': '0.0.1'
+      });
+
+      expect(latestVersionMock.calls.allArgs()).toEqual([
+        [ '@angular/common', { version: '^9.0.0' } ],
+        [ '@blackbaud/skyux-lib-clipboard', { version: '^2.0.0-rc.0' } ],
+        [ '@blackbaud/skyux-lib-code-block', { version: '^2.0.0-rc.0' } ],
+        [ '@blackbaud/skyux-lib-media', { version: '^2.0.0-rc.0' } ],
+        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/builder', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/e2e', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/pact', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/testing', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux/auth-client-factory', { version: '^2.0.0' } ],
+        [ '@skyux/foobar', { version: '^4.0.0-rc.0' } ]
+      ]);
     });
 
   });

@@ -8,6 +8,10 @@ describe('spawn util', () => {
     spyOn(logger, 'info');
   });
 
+  afterEach(() => {
+    mock.stopAll();
+  });
+
   function getLib() {
     return mock.reRequire('../lib/utils/spawn');
   }
@@ -73,7 +77,7 @@ describe('spawn util', () => {
       const spawn = getLib();
       expect(spawn.spawnWithOptions).toBeDefined();
     });
-  
+
     it('should default to `stdio: inherit`', async () => {
       const spies = setupTest('exit', 0);
       const spawn = getLib();

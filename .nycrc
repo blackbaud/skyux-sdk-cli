@@ -1,4 +1,8 @@
 {
+  "all": true,
+  "include": [
+    "lib/**/*.js"
+  ],
   "exclude": [
     "test"
   ],

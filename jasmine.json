@@ -1,5 +1,5 @@
 {
-  "random": false,
+  "random": true,
   "spec_dir": "test",
   "spec_files": [
     "*.spec.js"

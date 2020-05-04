@@ -20,6 +20,10 @@ describe('clone utility', () => {
     clone = mock.reRequire('../lib/utils/clone');
   });
 
+  afterEach(() => {
+    mock.stopAll();
+  });
+
   it('should pass the url, target, and default branch of master to git-clone', async (done) => {
     const url = 'my-url';
     const target = 'my-target';

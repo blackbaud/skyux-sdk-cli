@@ -4,6 +4,10 @@ const mock = require('mock-require');
 
 describe('cert utils mac', () => {
 
+  afterEach(() => {
+    mock.stopAll();
+  });
+
   function spyOnExecute() {
     const spyExecute = jasmine.createSpy('execute');
     spyExecute.and.callFake((action, level, cb) => cb());

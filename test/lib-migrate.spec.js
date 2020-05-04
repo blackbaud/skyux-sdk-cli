@@ -26,10 +26,6 @@ describe('Migrate', function () {
       verifyLatestVersion: () => Promise.resolve()
     });
 
-    mock('../lib/utils/icons', {
-      migrateIcons: () => Promise.resolve()
-    });
-
     mock('../lib/utils/json-utils', jsonUtilsMock);
 
     mock('../lib/utils/pact', {

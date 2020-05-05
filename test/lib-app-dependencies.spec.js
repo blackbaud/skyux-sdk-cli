@@ -364,6 +364,13 @@ describe('App dependencies', () => {
         })
       );
 
+      // Verify dependencies are in alphabetical order.
+      expect(Object.keys(dependencies)).toEqual([
+        '@blackbaud/skyux-lib-foo',
+        '@skyux/bar',
+        '@skyux/indicators'
+      ]);
+
       // Missing peers that are not SKY UX packages shouldn't be added.
       expect(dependencies).not.toEqual(jasmine.objectContaining({
         'non-blackbaud-peer': '~0.8.0'

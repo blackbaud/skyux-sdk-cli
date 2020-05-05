@@ -1,3 +1,9 @@
+# 4.0.0-rc.3 (2020-05-05)
+
+### Bug fixes
+
+- Fixed the `skyux upgrade` command to list newly-added peer dependencies in alphabetical order. [#78](https://github.com/blackbaud/skyux-sdk-cli/pull/78)
+
 # 4.0.0-rc.2 (2020-05-05)
 
 ### New features

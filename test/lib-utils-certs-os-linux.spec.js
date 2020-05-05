@@ -10,6 +10,10 @@ describe('cert utils linux', () => {
     spyOn(logger, 'error');
   });
 
+  afterEach(() => {
+    mock.stopAll();
+  });
+
   function spyOnOS() {
     const spyOS = jasmine.createSpyObj('os', ['homedir']);
     mock('os', spyOS);

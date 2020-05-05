@@ -26,6 +26,7 @@
   "dependencies": {
     "@blackbaud/skyux-logger": "1.1.2",
     "cross-spawn": "7.0.2",
+    "find-in-files": "0.5.0",
     "fs-extra": "9.0.0",
     "git-clone": "0.1.0",
     "glob": "7.1.6",

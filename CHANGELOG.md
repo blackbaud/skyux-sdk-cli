@@ -1,3 +1,7 @@
+# 3.4.3 (2020-05-13)
+
+- Fixed the `skyux upgrade` command to install specific version ranges of Angular, SKY UX, and TypeScript packages. [#79](https://github.com/blackbaud/skyux-sdk-cli/pull/79)
+
 # 4.0.0-rc.3 (2020-05-05)
 
 ### Bug fixes

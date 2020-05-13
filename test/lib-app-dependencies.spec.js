@@ -15,24 +15,37 @@ describe('App dependencies', () => {
     };
 
     latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
+      let version;
       switch (packageName) {
         case '@foo/bar':
-          return '12.2.5';
+          version = '12.2.5';
+          break;
         case '@foo/baz':
-          return '4.5.6';
+          version = '4.5.6';
+          break;
         case 'from-branch':
-          return 'foo/bar#branch';
+          version = 'foo/bar#branch';
+          break;
         case 'foo':
-          return '11.7.0';
+          version = '11.7.0';
+          break;
         case 'bar':
-          return '1.1.3';
+          version = '1.1.3';
+          break;
         case 'baz':
-          return '7.5.0';
+          version = '7.5.0';
+          break;
         case 'sample':
-          return '2.0.1';
+          version = '2.0.1';
+          break;
+        case 'invalid':
+          return Promise.reject(new Error());
         default:
-          return '9.8.7';
+          version = '9.8.7';
+          break;
       }
+
+      return Promise.resolve(version);
     });
 
     getPackageJsonMock = jasmine.createSpy('getPackageJson');
@@ -177,6 +190,16 @@ describe('App dependencies', () => {
       );
     });
 
+    it('should handle invalid versions', async () => {
+      const loggerSpy = spyOn(loggerMock, 'warn').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'invalid': '1.0.0'
+      });
+
+      expect(loggerSpy).toHaveBeenCalledWith('Warning: Skipped package invalid because it did not provide a valid version or range: "^1.0.0".');
+    });
+
     it('should use a specific range for TypeScript', async () => {
       const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
 
@@ -280,6 +303,7 @@ describe('App dependencies', () => {
         '@blackbaud/skyux-lib-code-block': '0.0.1',
         '@blackbaud/skyux-lib-media': '0.0.1',
         '@skyux-sdk/testing': '0.0.1',
+        '@skyux-sdk/builder-plugin-stache': '0.0.1',
         '@skyux/foobar': '0.0.1',
         '@skyux/auth-client-factory': '2.0.0',
         '@skyux-sdk/builder': '0.0.1',
@@ -301,6 +325,7 @@ describe('App dependencies', () => {
         [ '@skyux-sdk/builder', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],
         [ '@skyux-sdk/e2e', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/pact', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/testing', { version: '^4.0.0-rc.0' } ],

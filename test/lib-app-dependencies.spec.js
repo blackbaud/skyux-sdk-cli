@@ -280,6 +280,7 @@ describe('App dependencies', () => {
         '@blackbaud/skyux-lib-code-block': '0.0.1',
         '@blackbaud/skyux-lib-media': '0.0.1',
         '@skyux-sdk/testing': '0.0.1',
+        '@skyux-sdk/builder-plugin-stache': '0.0.1',
         '@skyux/foobar': '0.0.1',
         '@skyux/auth-client-factory': '2.0.0',
         '@skyux-sdk/builder': '0.0.1',
@@ -287,8 +288,7 @@ describe('App dependencies', () => {
         '@angular/common': '2.0.0',
         '@skyux-sdk/e2e': '0.0.1',
         '@skyux-sdk/pact': '0.0.1',
-        '@blackbaud/skyux-lib-clipboard': '0.0.1',
-        '@skyux-sdk/builder-plugin-pact': '0.0.1'
+        '@blackbaud/skyux-lib-clipboard': '0.0.1'
       });
 
       expect(latestVersionMock.calls.allArgs()).toEqual([
@@ -299,8 +299,8 @@ describe('App dependencies', () => {
         [ '@blackbaud/skyux-lib-restricted-view', { version: '^1.0.0' } ],
         [ '@blackbaud/skyux-lib-stache', { version: '^3.0.0' } ],
         [ '@skyux-sdk/builder', { version: '^3.0.0' } ],
-        [ '@skyux-sdk/builder-plugin-pact', { version: '^3.0.0' } ],
-        [ '@skyux-sdk/builder-plugin-skyux', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/builder-plugin-skyux', { version: '^1.0.0' } ],
+        [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],
         [ '@skyux-sdk/e2e', { version: '^3.0.0' } ],
         [ '@skyux-sdk/pact', { version: '^3.0.0' } ],
         [ '@skyux-sdk/testing', { version: '^3.0.0' } ],

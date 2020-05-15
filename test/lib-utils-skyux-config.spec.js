@@ -170,7 +170,12 @@ describe('SKY UX Config util', function () {
     await util.validateSkyUxConfigJson();
 
     expect(writeSpy.calls.allArgs()).toEqual({
-      $schema: SKYUX_CONFIG_SCHEMA_PATH
+      $schema: SKYUX_CONFIG_SCHEMA_PATH,
+      host: {
+        frameOptions: {
+          none: true
+        }
+      }
     });
   });
 

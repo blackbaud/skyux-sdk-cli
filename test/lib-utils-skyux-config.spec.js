@@ -1,5 +1,7 @@
 const mock = require('mock-require');
 
+const SKYUX_CONFIG_SCHEMA_PATH = './node_modules/@skyux/config/skyuxconfig-schema.json';
+
 describe('SKY UX Config util', function () {
   let loggerMock;
   let globMock;
@@ -157,6 +159,21 @@ describe('SKY UX Config util', function () {
     ]);
   });
 
+  it('should remove deprecated properties', async () => {
+    testSkyUxConfigJson = {
+      skyuxModules: []
+    };
+
+    const util = mock.reRequire('../lib/utils/skyux-config');
+    const writeSpy = spyOn(jsonUtilsMock, 'writeJson').and.callThrough();
+
+    await util.validateSkyUxConfigJson();
+
+    expect(writeSpy.calls.allArgs()).toEqual({
+      $schema: SKYUX_CONFIG_SCHEMA_PATH
+    });
+  });
+
   it('should check skyuxconfig.json files for all commands', async () => {
     testSkyUxConfigJson = {};
 
@@ -172,14 +189,19 @@ describe('SKY UX Config util', function () {
 
     expect(writeSpy.calls.allArgs()).toEqual([
       ['skyuxconfig.json', {
+        $schema: SKYUX_CONFIG_SCHEMA_PATH,
         host: {
           frameOptions: {
             none: true
           }
         }
       }],
-      ['skyuxconfig.serve.json', {}],
-      ['skyuxconfig.pact.json', {}]
+      ['skyuxconfig.serve.json', {
+        $schema: SKYUX_CONFIG_SCHEMA_PATH
+      }],
+      ['skyuxconfig.pact.json', {
+        $schema: SKYUX_CONFIG_SCHEMA_PATH
+      }]
     ]);
   });
 

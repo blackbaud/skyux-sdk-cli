@@ -98,6 +98,19 @@ describe('Migrate', function () {
     done();
   });
 
+  it('should remove the `engines` property from package.json', async (done) => {
+    spyOn(jsonUtilsMock, 'readJson').and.returnValue({
+      engines: {
+        node: '10'
+      }
+    });
+    const writeSpy = spyOn(jsonUtilsMock, 'writeJson').and.callThrough();
+    const migrate = mock.reRequire('../lib/migrate');
+    await migrate({});
+    expect(writeSpy).toHaveBeenCalledWith('package.json', {});
+    done();
+  });
+
   it('should handle missing dependency regions', async (done) => {
     spyOn(jsonUtilsMock, 'readJson').and.returnValue({});
     const writeSpy = spyOn(jsonUtilsMock, 'writeJson').and.callThrough();

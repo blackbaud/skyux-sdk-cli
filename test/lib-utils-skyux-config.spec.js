@@ -169,7 +169,8 @@ describe('SKY UX Config util', function () {
 
     await util.validateSkyUxConfigJson();
 
-    expect(writeSpy.calls.allArgs()).toEqual({
+    const config = writeSpy.calls.allArgs()[0][1];
+    expect(config).toEqual({
       $schema: SKYUX_CONFIG_SCHEMA_PATH,
       host: {
         frameOptions: {

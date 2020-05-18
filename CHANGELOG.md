@@ -1,3 +1,7 @@
+# 4.0.0-rc.5 (2020-05-18)
+
+- Updated the `skyux migrate` command to remove unused or deprecated properties from `package.json` and `skyuxconfig.json` files. [#82](https://github.com/blackbaud/skyux-sdk-cli/pull/82)
+
 # 4.0.0-rc.4 (2020-05-13)
 
 - Fixed the `skyux upgrade` command to skip packages that list invalid version ranges. [#81](https://github.com/blackbaud/skyux-sdk-cli/pull/81)

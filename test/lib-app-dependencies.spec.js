@@ -317,11 +317,11 @@ describe('App dependencies', () => {
 
       expect(latestVersionMock.calls.allArgs()).toEqual([
         [ '@angular/common', { version: '^9.0.0' } ],
-        [ '@blackbaud/skyux-lib-clipboard', { version: '^2.0.0-rc.0' } ],
-        [ '@blackbaud/skyux-lib-code-block', { version: '^2.0.0-rc.0' } ],
-        [ '@blackbaud/skyux-lib-media', { version: '^2.0.0-rc.0' } ],
-        [ '@blackbaud/skyux-lib-restricted-view', { version: '^2.0.0-rc.0' } ],
-        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0-rc.0' } ],
+        [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0' } ],
+        [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0' } ],
+        [ '@blackbaud/skyux-lib-media', { version: '^4.0.0' } ],
+        [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0' } ],
+        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0' } ],
         [ '@skyux-sdk/builder', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],

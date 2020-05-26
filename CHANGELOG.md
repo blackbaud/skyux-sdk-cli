@@ -1,3 +1,7 @@
+# 4.0.0-rc.6 (2020-05-26)
+
+- Updated the `skyux upgrade` command to install the major releases of all `@blackbaud/skyux-lib-*` packages. [#83](https://github.com/blackbaud/skyux-sdk-cli/pull/83)
+
 # 4.0.0-rc.5 (2020-05-18)
 
 - Updated the `skyux migrate` command to remove unused or deprecated properties from `package.json` and `skyuxconfig.json` files. [#82](https://github.com/blackbaud/skyux-sdk-cli/pull/82)

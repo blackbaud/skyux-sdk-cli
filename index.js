@@ -176,10 +176,11 @@ function validateCert(command, argv) {
  * @param [Object] argv
  */
 function processArgv(argv) {
+  const command = getCommand(argv);
 
   // If a local version of SKY UX CLI exists, run it instead.
   const localCliPath = path.resolve('./node_modules/@skyux-sdk/cli');
-  if (fs.existsSync(localCliPath)) {
+  if (command !== 'migrate' && fs.existsSync(localCliPath)) {
     const globalCliVersion = fs.readJsonSync(path.resolve(__dirname, 'package.json')).version;
     const localCliVersion = fs.readJsonSync(path.join(localCliPath, 'package.json')).version;
     if (semver.lt(localCliVersion, globalCliVersion)) {
@@ -190,7 +191,6 @@ function processArgv(argv) {
     }
   }
 
-  const command = getCommand(argv);
   let isInternalCommand = true;
 
   logger.info(`SKY UX is processing the '${command}' command.`);

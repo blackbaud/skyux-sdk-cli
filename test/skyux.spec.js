@@ -568,4 +568,16 @@ describe('skyux CLI', () => {
     );
   });
 
+  it('should not use local version of CLI during `migrate` command', () => {
+    spyOn(fsExtraMock, 'existsSync').and.callFake((filePath) => {
+      return (filePath.indexOf(path.join('@skyux-sdk', 'cli')) > -1);
+    });
+
+    cli({ _: ['migrate'] });
+
+    expect(logger.warn).not.toHaveBeenCalledWith(
+      '\nWARNING: Your global SKY UX CLI version (2.0.0) is greater than your local version (1.0.0). The local version will be used.\n'
+    );
+  });
+
 });

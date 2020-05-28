@@ -1,6 +1,6 @@
 const glob = require('glob');
 const mock = require('mock-require');
-// const path = require('path');
+const path = require('path');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('skyux CLI', () => {
@@ -14,8 +14,6 @@ describe('skyux CLI', () => {
     spyOn(logger, 'info');
     spyOn(logger, 'error');
     spyOn(logger, 'warn');
-
-    // spyOn(path, 'resolve').and.callFake(p => p);
 
     fsExtraMock = {
       existsSync: (filePath) => {
@@ -550,11 +548,11 @@ describe('skyux CLI', () => {
 
   it('should use the local version of the CLI if available', () => {
     spyOn(fsExtraMock, 'existsSync').and.callFake((filePath) => {
-      return (filePath.indexOf('@skyux-sdk/cli') > -1);
+      return (filePath.indexOf(path.join('@skyux-sdk', 'cli')) > -1);
     });
 
     spyOn(fsExtraMock, 'readJsonSync').and.callFake((filePath) => {
-      if (filePath.indexOf('@skyux-sdk/cli') > -1) {
+      if (filePath.indexOf(path.join('@skyux-sdk', 'cli')) > -1) {
         return { version: '1.0.0' };
       } else {
         return { version: '2.0.0' };

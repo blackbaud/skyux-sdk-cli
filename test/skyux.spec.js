@@ -1,10 +1,12 @@
-const fs = require('fs');
 const glob = require('glob');
 const mock = require('mock-require');
+// const path = require('path');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('skyux CLI', () => {
   let spyProcessExit;
+  let fsExtraMock;
+  let semverMock;
 
   beforeEach(() => {
     spyProcessExit = spyOn(process, 'exit');
@@ -12,7 +14,24 @@ describe('skyux CLI', () => {
     spyOn(logger, 'info');
     spyOn(logger, 'error');
     spyOn(logger, 'warn');
-  })
+
+    // spyOn(path, 'resolve').and.callFake(p => p);
+
+    fsExtraMock = {
+      existsSync: (filePath) => {
+        return (filePath === './node_modules');
+      },
+      readJsonSync: () => ({})
+    };
+
+    semverMock = {
+      lt: () => false
+    };
+
+    mock('fs-extra', fsExtraMock);
+    mock('semver', semverMock);
+    mock('../node_modules/@skyux-sdk/cli', () => {});
+  });
 
   afterEach(() => {
     mock.stopAll();
@@ -218,7 +237,7 @@ describe('skyux CLI', () => {
 
     it('should log an error if path contains "skyux-spa" but the "node_modules" dir does not exist', () => {
       spyOn(process, 'cwd').and.returnValue('skyux-spa-dir');
-      spyOn(fs, 'existsSync').and.returnValue(false);
+      spyOn(fsExtraMock, 'existsSync').and.returnValue(false);
 
       cli({ _: ['unknownCommand'] });
       expect(logger.error).toHaveBeenCalledWith(`The 'node_modules' folder was not found. Did you run 'npm install'?`);
@@ -226,7 +245,9 @@ describe('skyux CLI', () => {
 
     it('should not log an special errors if in skyux-spa dir and node_modules exists', () => {
       spyOn(process, 'cwd').and.returnValue('skyux-spa-dir');
-      spyOn(fs, 'existsSync').and.returnValue(true);
+      spyOn(fsExtraMock, 'existsSync').and.callFake((filePath) => {
+        return (filePath === './node_modules');
+      });
 
       cli({ _: ['unknownCommand'] });
       expect(logger.error).not.toHaveBeenCalledWith(`Are you in a SKY UX SPA directory?`);
@@ -525,6 +546,28 @@ describe('skyux CLI', () => {
     cli({ _: ['install', 'certs']});
     expect(logger.error).toHaveBeenCalledWith('The `skyux install` command is invalid.');
     expect(logger.error).toHaveBeenCalledWith('Did you mean to run `skyux certs install` instead?');
+  });
+
+  it('should use the local version of the CLI if available', () => {
+    spyOn(fsExtraMock, 'existsSync').and.callFake((filePath) => {
+      return (filePath.indexOf('@skyux-sdk/cli') > -1);
+    });
+
+    spyOn(fsExtraMock, 'readJsonSync').and.callFake((filePath) => {
+      if (filePath.indexOf('@skyux-sdk/cli') > -1) {
+        return { version: '1.0.0' };
+      } else {
+        return { version: '2.0.0' };
+      }
+    });
+
+    spyOn(semverMock, 'lt').and.returnValue(true);
+
+    cli({ _: ['upgrade'] });
+
+    expect(logger.warn).toHaveBeenCalledWith(
+      '\nWARNING: Your global SKY UX CLI version (2.0.0) is greater than your local version (1.0.0). The local version will be used.\n'
+    );
   });
 
 });

@@ -1,7 +1,8 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const path = require('path');
 const glob = require('glob');
 const logger = require('@blackbaud/skyux-logger');
+const semver = require('semver');
 const generator = require('./lib/utils/certs/generator');
 
 /**
@@ -175,6 +176,20 @@ function validateCert(command, argv) {
  * @param [Object] argv
  */
 function processArgv(argv) {
+
+  // If a local version of SKY UX CLI exists, run it instead.
+  const localCliPath = path.resolve('./node_modules/@skyux-sdk/cli');
+  if (fs.existsSync(localCliPath)) {
+    const globalCliVersion = fs.readJsonSync(path.resolve(__dirname, 'package.json')).version;
+    const localCliVersion = fs.readJsonSync(path.join(localCliPath, 'package.json')).version;
+    if (semver.lt(localCliVersion, globalCliVersion)) {
+      logger.warn(`\nWARNING: Your global SKY UX CLI version (${globalCliVersion}) is greater than your local version (${localCliVersion}). The local version will be used.\n`);
+      const localCli = require(localCliPath);
+      localCli(argv);
+      return;
+    }
+  }
+
   const command = getCommand(argv);
   let isInternalCommand = true;
 

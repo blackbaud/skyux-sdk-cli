@@ -1,3 +1,7 @@
+# 4.0.0-rc.7 (2020-06-05)
+
+- Fixed the `skyux upgrade` command to work with both `@skyux-sdk/builder@^3` and `@skyux-sdk/builder@^4`. [#85](https://github.com/blackbaud/skyux-sdk-cli/pull/85)
+
 # 4.0.0-rc.6 (2020-05-26)
 
 - Updated the `skyux upgrade` command to install the major releases of all `@blackbaud/skyux-lib-*` packages. [#83](https://github.com/blackbaud/skyux-sdk-cli/pull/83)

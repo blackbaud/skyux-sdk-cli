@@ -70,6 +70,7 @@ describe('Migrate', function () {
         '@blackbaud/skyux-lib-help': '*',
         '@blackbaud/skyux-lib-testing': '*',
         '@skyux-sdk/builder-plugin-pact': '*',
+        '@skyux-sdk/builder': '*',
         '@skyux-sdk/pact': '*',
         'bar': '*'
       },
@@ -89,6 +90,7 @@ describe('Migrate', function () {
         'foo': '*'
       },
       devDependencies: {
+        '@skyux-sdk/builder': '^4.0.0-rc.0',
         'bar': '*'
       },
       peerDependencies: {
@@ -108,6 +110,23 @@ describe('Migrate', function () {
     const migrate = mock.reRequire('../lib/migrate');
     await migrate({});
     expect(writeSpy).toHaveBeenCalledWith('package.json', {});
+    done();
+  });
+
+  it('should upgrade the version of `@skyux-sdk/builder` in package.json', async (done) => {
+    spyOn(jsonUtilsMock, 'readJson').and.returnValue({
+      devDependencies: {
+        '@skyux-sdk/builder': '3.0.0'
+      }
+    });
+    const writeSpy = spyOn(jsonUtilsMock, 'writeJson').and.callThrough();
+    const migrate = mock.reRequire('../lib/migrate');
+    await migrate({});
+    expect(writeSpy).toHaveBeenCalledWith('package.json', {
+      devDependencies: {
+        '@skyux-sdk/builder': '^4.0.0-rc.0'
+      }
+    });
     done();
   });
 

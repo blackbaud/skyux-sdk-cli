@@ -1,3 +1,7 @@
+# 4.0.0-rc.8 (2020-06-08)
+
+- Fixed the `skyux new` command to clone the template that is compatible with `@skyux-sdk/builder@^4.0.0-rc.15`. [#87](https://github.com/blackbaud/skyux-sdk-cli/pull/87)
+
 # 4.0.0-rc.7 (2020-06-05)
 
 - Fixed the `skyux upgrade` command to work with both `@skyux-sdk/builder@^3` and `@skyux-sdk/builder@^4`. [#85](https://github.com/blackbaud/skyux-sdk-cli/pull/85)

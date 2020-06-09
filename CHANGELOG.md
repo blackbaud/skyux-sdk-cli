@@ -1,3 +1,9 @@
+# 4.0.0 (2020-06-09)
+
+### New features
+
+- Added the `skyux migrate` command, which aids in migrating SKY UX SPAs and libraries to SKY UX 4. [#74](https://github.com/blackbaud/skyux-sdk-cli/pull/74)
+
 # 4.0.0-rc.9 (2020-06-08)
 
 - Fixed the `skyux upgrade` command to set the correct version of `@skyux-sdk/builder` before the upgrade utility is executed. [#88](https://github.com/blackbaud/skyux-sdk-cli/pull/88)

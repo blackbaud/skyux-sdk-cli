@@ -48,6 +48,7 @@ describe('Upgrade', () => {
     processExitSpy = spyOn(process, 'exit');
 
     mock('@blackbaud/skyux-logger', loggerMock);
+    mock('latest-version', latestVersionMock);
 
     mock('../lib/utils/json-utils', jsonUtilsMock);
     mock('../lib/app-dependencies', appDependenciesMock);

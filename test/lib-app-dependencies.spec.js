@@ -334,6 +334,138 @@ describe('App dependencies', () => {
       ]);
     });
 
+    it('should use a specific range for TypeScript', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'typescript': '2.1.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'typescript',
+        {
+          version: '~3.2.4'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because TypeScript does not support semantic versioning/)
+      );
+    });
+
+    it('should use a specific range for zone.js', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'zone.js': '1.1.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'zone.js',
+        {
+          version: '~0.8.28'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific minor version/)
+      );
+    });
+
+    it('should use a specific range for ts-node', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'ts-node': '1.0.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'ts-node',
+        {
+          version: '~8.3.0'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific minor version/)
+      );
+    });
+
+    it('should use a specific range for TSLint', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'tslint': '1.0.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'tslint',
+        {
+          version: '^5.12.1'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific minor version/)
+      );
+    });
+
+    it('should use a specific range for Codelyzer', async () => {
+      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
+
+      await appDependencies.upgradeDependencies({
+        'codelyzer': '2.1.0'
+      });
+
+      expect(latestVersionMock).toHaveBeenCalledWith(
+        'codelyzer',
+        {
+          version: '^4.5.0'
+        }
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        jasmine.stringMatching(/because Angular requires a specific major version/)
+      );
+    });
+
+    it('should use specific ranges for SKY UX and Angular packages', async () => {
+      // Dependencies purposefully listed out of order:
+      await appDependencies.upgradeDependencies({
+        '@skyux-sdk/builder-plugin-skyux': '0.0.1',
+        '@blackbaud/skyux-lib-stache': '0.0.1',
+        '@blackbaud/skyux-lib-code-block': '0.0.1',
+        '@blackbaud/skyux-lib-media': '0.0.1',
+        '@skyux-sdk/testing': '0.0.1',
+        '@skyux-sdk/builder-plugin-stache': '0.0.1',
+        '@skyux/foobar': '0.0.1',
+        '@skyux/auth-client-factory': '2.0.0',
+        '@skyux-sdk/builder': '0.0.1',
+        '@blackbaud/skyux-lib-restricted-view': '1.0.0',
+        '@angular/common': '2.0.0',
+        '@skyux-sdk/e2e': '0.0.1',
+        '@skyux-sdk/pact': '0.0.1',
+        '@blackbaud/skyux-lib-clipboard': '0.0.1'
+      });
+
+      expect(latestVersionMock.calls.allArgs()).toEqual([
+        [ '@angular/common', { version: '^7.0.0' } ],
+        [ '@blackbaud/skyux-lib-clipboard', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-code-block', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-media', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-restricted-view', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-stache', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/builder', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/builder-plugin-skyux', { version: '^1.0.0' } ],
+        [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],
+        [ '@skyux-sdk/e2e', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/pact', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/testing', { version: '^3.0.0' } ],
+        [ '@skyux/auth-client-factory', { version: '^2.0.0' } ],
+        [ '@skyux/foobar', { version: '^3.0.0' } ]
+      ]);
+    });
+
   });
 
   describe('addSkyPeerDependencies() method', () => {

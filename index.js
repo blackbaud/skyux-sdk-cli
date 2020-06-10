@@ -221,6 +221,9 @@ function processArgv(argv) {
     case 'upgrade':
       require('./lib/upgrade')(argv);
       break;
+    case 'migrate':
+      require('./lib/migrate')(argv);
+      break;
     default:
       isInternalCommand = false;
   }

@@ -8,6 +8,10 @@ describe('cert utils generator', () => {
     spyOn(logger, 'error');
   });
 
+  afterEach(() => {
+    mock.stopAll();
+  });
+
   function spyOnOS() {
     const spyOS = jasmine.createSpyObj('os', ['homedir']);
     mock('os', spyOS);
@@ -73,7 +77,7 @@ describe('cert utils generator', () => {
 
     expect(generator.getCertDirPath()).toBe(fakeCertDir);
     expect(spyPath.resolve).toHaveBeenCalledWith(fakeCertDir);
-  });  
+  });
 
   it('should return the common certificate name', () => {
     const generator = getGenerator();

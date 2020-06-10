@@ -1,6 +1,6 @@
 {
   "name": "@skyux-sdk/cli",
-  "version": "3.4.3",
+  "version": "4.0.0",
   "description": "",
   "main": "index.js",
   "bin": {
@@ -25,7 +25,8 @@
   "homepage": "https://github.com/blackbaud/skyux-sdk-cli#readme",
   "dependencies": {
     "@blackbaud/skyux-logger": "1.1.2",
-    "cross-spawn": "7.0.2",
+    "cross-spawn": "7.0.3",
+    "find-in-files": "0.5.0",
     "fs-extra": "9.0.0",
     "git-clone": "0.1.0",
     "glob": "7.1.6",
@@ -41,7 +42,7 @@
     "eslint": "6.8.0",
     "jasmine": "3.5.0",
     "mock-require": "3.0.3",
-    "nyc": "15.0.0",
+    "nyc": "15.0.1",
     "proxyquire": "2.1.3"
   }
 }

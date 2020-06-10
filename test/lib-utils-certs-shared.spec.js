@@ -10,6 +10,10 @@ describe('cert utils shared', () => {
     spyOn(logger, 'error');
   });
 
+  afterEach(() => {
+    mock.stopAll();
+  });
+
   function getLib() {
     return mock.reRequire('../lib/utils/certs/shared');
   }

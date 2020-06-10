@@ -1,6 +1,6 @@
 const mock = require('mock-require');
 
-describe('App dependencies', () => {
+describe('(v3-compat) App dependencies', () => {
   let appDependencies;
   let latestVersionMock;
   let getPackageJsonMock;
@@ -15,37 +15,24 @@ describe('App dependencies', () => {
     };
 
     latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
-      let version;
       switch (packageName) {
         case '@foo/bar':
-          version = '12.2.5';
-          break;
+          return '12.2.5';
         case '@foo/baz':
-          version = '4.5.6';
-          break;
+          return '4.5.6';
         case 'from-branch':
-          version = 'foo/bar#branch';
-          break;
+          return 'foo/bar#branch';
         case 'foo':
-          version = '11.7.0';
-          break;
+          return '11.7.0';
         case 'bar':
-          version = '1.1.3';
-          break;
+          return '1.1.3';
         case 'baz':
-          version = '7.5.0';
-          break;
+          return '7.5.0';
         case 'sample':
-          version = '2.0.1';
-          break;
-        case 'invalid':
-          return Promise.reject(new Error());
+          return '2.0.1';
         default:
-          version = '9.8.7';
-          break;
+          return '9.8.7';
       }
-
-      return Promise.resolve(version);
     });
 
     getPackageJsonMock = jasmine.createSpy('getPackageJson');
@@ -61,9 +48,9 @@ describe('App dependencies', () => {
     mock('@blackbaud/skyux-logger', loggerMock);
     mock('latest-version', latestVersionMock);
     mock('package-json', getPackageJsonMock);
-    mock('../lib/package-map', packageMapMock);
+    mock('../../lib/package-map', packageMapMock);
 
-    appDependencies = mock.reRequire('../lib/app-dependencies');
+    appDependencies = mock.reRequire('../../lib/v3-compat/app-dependencies');
   });
 
   afterEach(() => {
@@ -190,16 +177,6 @@ describe('App dependencies', () => {
       );
     });
 
-    it('should handle invalid versions', async () => {
-      const loggerSpy = spyOn(loggerMock, 'warn').and.callThrough();
-
-      await appDependencies.upgradeDependencies({
-        'invalid': '1.0.0'
-      });
-
-      expect(loggerSpy).toHaveBeenCalledWith('Warning: Skipped package invalid because it did not provide a valid version or range: "^1.0.0".');
-    });
-
     it('should use a specific range for TypeScript', async () => {
       const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
 
@@ -210,7 +187,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'typescript',
         {
-          version: '~3.8.3'
+          version: '~3.2.4'
         }
       );
 
@@ -229,7 +206,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'zone.js',
         {
-          version: '~0.10.2'
+          version: '~0.8.28'
         }
       );
 
@@ -267,7 +244,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'tslint',
         {
-          version: '~6.1.0'
+          version: '^5.12.1'
         }
       );
 
@@ -286,7 +263,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'codelyzer',
         {
-          version: '^5.2.2'
+          version: '^4.5.0'
         }
       );
 
@@ -311,26 +288,24 @@ describe('App dependencies', () => {
         '@angular/common': '2.0.0',
         '@skyux-sdk/e2e': '0.0.1',
         '@skyux-sdk/pact': '0.0.1',
-        '@blackbaud/skyux-lib-clipboard': '0.0.1',
-        '@skyux-sdk/builder-plugin-pact': '0.0.1'
+        '@blackbaud/skyux-lib-clipboard': '0.0.1'
       });
 
       expect(latestVersionMock.calls.allArgs()).toEqual([
-        [ '@angular/common', { version: '^9.0.0' } ],
-        [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-media', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0' } ],
-        [ '@skyux-sdk/builder', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],
+        [ '@angular/common', { version: '^7.0.0' } ],
+        [ '@blackbaud/skyux-lib-clipboard', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-code-block', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-media', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-restricted-view', { version: '^1.0.0' } ],
+        [ '@blackbaud/skyux-lib-stache', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/builder', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/builder-plugin-skyux', { version: '^1.0.0' } ],
         [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],
-        [ '@skyux-sdk/e2e', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/pact', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/testing', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/e2e', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/pact', { version: '^3.0.0' } ],
+        [ '@skyux-sdk/testing', { version: '^3.0.0' } ],
         [ '@skyux/auth-client-factory', { version: '^2.0.0' } ],
-        [ '@skyux/foobar', { version: '^4.0.0-rc.0' } ]
+        [ '@skyux/foobar', { version: '^3.0.0' } ]
       ]);
     });
 

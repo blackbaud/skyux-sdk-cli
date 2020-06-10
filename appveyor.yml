@@ -1,6 +1,7 @@
 branches:
   only:
     - master
+    - /^rc-.*$/
 
 environment:
   nodejs_version: "10"

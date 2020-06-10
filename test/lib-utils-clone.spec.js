@@ -20,10 +20,14 @@ describe('clone utility', () => {
     clone = mock.reRequire('../lib/utils/clone');
   });
 
+  afterEach(() => {
+    mock.stopAll();
+  });
+
   it('should pass the url, target, and default branch of master to git-clone', async (done) => {
     const url = 'my-url';
     const target = 'my-target';
-    const checkout = 'master';
+    const checkout = '4.x.x';
 
     spyGitClone.and.callFake((a, b, c, callback) => {
       expect(logger.info).toHaveBeenCalledWith(`Cloning ${url}#${checkout} into ${target}`);

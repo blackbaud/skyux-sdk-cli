@@ -2,11 +2,11 @@
 
 ### New features
 
-- Added the `skyux migrate` command, which aids in migrating SKY UX SPAs and libraries to SKY UX 4. [#74](https://github.com/blackbaud/skyux-sdk-cli/pull/74)
+- Added the `skyux migrate` command to help migrate SKY UX SPAs and libraries to SKY UX 4. [#74](https://github.com/blackbaud/skyux-sdk-cli/pull/74)
 
 # 4.0.0-rc.9 (2020-06-08)
 
-- Fixed the `skyux upgrade` command to set the correct version of `@skyux-sdk/builder` before the upgrade utility is executed. [#88](https://github.com/blackbaud/skyux-sdk-cli/pull/88)
+- Fixed the `skyux upgrade` command to set the correct version of `@skyux-sdk/builder` before executing the upgrade utility. [#88](https://github.com/blackbaud/skyux-sdk-cli/pull/88)
 
 # 4.0.0-rc.8 (2020-06-08)
 
@@ -22,7 +22,7 @@
 
 # 4.0.0-rc.5 (2020-05-18)
 
-- Updated the `skyux migrate` command to remove unused or deprecated properties from `package.json` and `skyuxconfig.json` files. [#82](https://github.com/blackbaud/skyux-sdk-cli/pull/82)
+- Updated the `skyux migrate` command to remove unused or deprecated properties from the `package.json` and `skyuxconfig.json` files. [#82](https://github.com/blackbaud/skyux-sdk-cli/pull/82)
 
 # 4.0.0-rc.4 (2020-05-13)
 
@@ -36,13 +36,13 @@
 
 ### Bug fixes
 
-- Fixed the `skyux upgrade` command to list newly-added peer dependencies in alphabetical order. [#78](https://github.com/blackbaud/skyux-sdk-cli/pull/78)
+- Fixed the `skyux upgrade` command to list new peer dependencies in alphabetical order. [#78](https://github.com/blackbaud/skyux-sdk-cli/pull/78)
 
 # 4.0.0-rc.2 (2020-05-05)
 
 ### New features
 
-- Added the `skyux migrate` command, which aids in migrating SKY UX SPAs and libraries to SKY UX 4. [#74](https://github.com/blackbaud/skyux-sdk-cli/pull/74)
+- Added the `skyux migrate` command to help migrate SKY UX SPAs and libraries to SKY UX 4. [#74](https://github.com/blackbaud/skyux-sdk-cli/pull/74)
 
 # 4.0.0-rc.1 (2020-05-01)
 

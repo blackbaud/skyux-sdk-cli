@@ -62,7 +62,8 @@ describe('Migrate', function () {
         'core-js': '*',
         'intl-tel-input': '*',
         'microedge-rxstate': '*',
-        'foo': '*'
+        'foo': '*',
+        'tslib': '*'
       },
       devDependencies: {
         '@angular/http': '*',

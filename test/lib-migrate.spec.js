@@ -71,6 +71,7 @@ describe('Migrate', function () {
         '@blackbaud/skyux-lib-testing': '*',
         '@skyux-sdk/builder-plugin-pact': '*',
         '@skyux-sdk/builder': '*',
+        '@skyux-sdk/cli': '*',
         '@skyux-sdk/pact': '*',
         'bar': '*'
       },

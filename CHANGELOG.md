@@ -1,3 +1,7 @@
+# 4.0.1 (2020-06-11)
+
+- Fixed the `skyux migrate` command to remove `tslib` and `@skyux-sdk/cli` from the `package.json` dependencies. [#90](https://github.com/blackbaud/skyux-sdk-cli/pull/90)
+
 # 4.0.0 (2020-06-10)
 
 ### New features

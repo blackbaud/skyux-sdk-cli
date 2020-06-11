@@ -62,7 +62,8 @@ describe('Migrate', function () {
         'core-js': '*',
         'intl-tel-input': '*',
         'microedge-rxstate': '*',
-        'foo': '*'
+        'foo': '*',
+        'tslib': '*'
       },
       devDependencies: {
         '@angular/http': '*',
@@ -71,6 +72,7 @@ describe('Migrate', function () {
         '@blackbaud/skyux-lib-testing': '*',
         '@skyux-sdk/builder-plugin-pact': '*',
         '@skyux-sdk/builder': '*',
+        '@skyux-sdk/cli': '*',
         '@skyux-sdk/pact': '*',
         'bar': '*'
       },

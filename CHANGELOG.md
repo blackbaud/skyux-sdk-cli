@@ -1,3 +1,9 @@
+# 4.1.0 (2020-06-15)
+
+- Added a friendlier error message to `skyux new` when specifying a template that does not support the current version of SKY UX. [#91](https://github.com/blackbaud/skyux-sdk-cli/pull/91)
+
+- Fixed a bug where running `skyux new` and specifying a repo URL caused a `git checkout` error. [#93](https://github.com/blackbaud/skyux-sdk-cli/pull/93)
+
 # 4.0.1 (2020-06-11)
 
 - Fixed the `skyux migrate` command to remove `tslib` and `@skyux-sdk/cli` from the `package.json` dependencies. [#90](https://github.com/blackbaud/skyux-sdk-cli/pull/90)

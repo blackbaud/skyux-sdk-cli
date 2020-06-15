@@ -67,7 +67,10 @@ describe('clone utility', () => {
     try {
       await clone('', '', {});
     } catch (errThrown) {
-      expect(errThrown).toBe(err);
+      expect(errThrown).toEqual({
+        message: err,
+        branch: '4.x.x'
+      });
       done();
     }
   });

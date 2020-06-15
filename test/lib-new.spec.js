@@ -60,7 +60,7 @@ describe('skyux new command', () => {
 
   function spyOnFs() {
     const spyFs = jasmine.createSpyObj(
-      'fs-extra', 
+      'fs-extra',
       ['readdirSync', 'removeSync', 'copySync', 'readJsonSync', 'writeJson', 'existsSync']
     )
     mock('fs-extra', spyFs);
@@ -168,7 +168,7 @@ describe('skyux new command', () => {
       const spies = getSpies('name', repo);
       spies.spyClone.and.throwError(error);
       await getLib()({});
-      expect(spies.spyLogger.error).toHaveBeenCalledWith(Error(error));
+      expect(spies.spyLogger.error).toHaveBeenCalledWith(error);
     });
 
     it('should handle a non-empty repo when cloning', async () => {
@@ -231,7 +231,7 @@ describe('skyux new command', () => {
       const template = 'custom-template';
       const spies = getSpies('name', '');
       spies.spyClone.and.returnValue(Promise.resolve());
-      await getLib()({ 
+      await getLib()({
         t: template
       });
       expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
@@ -239,17 +239,29 @@ describe('skyux new command', () => {
       );
     });
 
-    it('should handle an error cloning a template', async () => {
+    it('should handle an error cloning a template because of url', async () => {
       const template = 'custom-template';
       const error = 'custom-cloning-error';
       const spies = getSpies('name', '');
-      spies.spyClone.and.throwError(error);
+      spies.spyClone.and.returnValue(Promise.reject({ message: error }));
       await getLib()({ template });
       expect(spies.spyLoggerPromise.fail).toHaveBeenCalledWith(
         `Template not found at location, https://github.com/blackbaud/skyux-sdk-template-${template}.`
       );
     });
-  
+
+    it('should handle an error cloning a template because of current branch', async () => {
+      const branch = '4.x.x';
+      const template = 'custom-template';
+      const error = 'custom-branch-error status 1,';
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.reject({ message: error, branch }));
+      await getLib()({ template });
+      expect(spies.spyLoggerPromise.fail).toHaveBeenCalledWith(
+        `Template found but missing corresponding ${branch} branch. Please consult the template owner or use the '--branch' flag.`
+      );
+    });
+
     it('should clone the default template if template flag is used without a name', async () => {
       const spies = getSpies('name', '');
       spies.spyClone.and.returnValue(Promise.resolve());
@@ -262,7 +274,7 @@ describe('skyux new command', () => {
         `default template successfully cloned.`
       );
     });
-  
+
     it('should clone the default template if custom template not provided', async () => {
       const spies = getSpies('name', '');
       spies.spyClone.and.returnValue(Promise.resolve());

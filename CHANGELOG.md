@@ -1,6 +1,6 @@
 # 4.1.0 (2020-06-15)
 
-- Added a friendlier error message to `skyux new` when specifying a template that does not support the current version of SKY UX. [#91](https://github.com/blackbaud/skyux-sdk-cli/pull/91)
+- Added a descriptive error message to `skyux new` when specifying a template that does not support the current version of SKY UX. [#91](https://github.com/blackbaud/skyux-sdk-cli/pull/91)
 
 - Fixed a bug where running `skyux new` and specifying a repo URL caused a `git checkout` error. [#93](https://github.com/blackbaud/skyux-sdk-cli/pull/93)
 

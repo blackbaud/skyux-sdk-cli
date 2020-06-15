@@ -24,23 +24,6 @@ describe('clone utility', () => {
     mock.stopAll();
   });
 
-  it('should pass the url, target, and default branch of master to git-clone', async (done) => {
-    const url = 'my-url';
-    const target = 'my-target';
-    const checkout = '4.x.x';
-
-    spyGitClone.and.callFake((a, b, c, callback) => {
-      expect(logger.info).toHaveBeenCalledWith(`Cloning ${url}#${checkout} into ${target}`);
-      expect(url).toEqual(a);
-      expect(target).toEqual(b);
-      expect({ checkout }).toEqual(c);
-      callback();
-    });
-
-    await clone(url, target, {});
-    done();
-  });
-
   it('should pass the url, target, and specified branch to git-clone', async (done) => {
     const url = 'my-url';
     const target = 'my-target';
@@ -54,7 +37,7 @@ describe('clone utility', () => {
       callback();
     });
 
-    await clone(url, target, { checkout });
+    await clone(url, target, checkout);
     done();
   });
 
@@ -65,7 +48,7 @@ describe('clone utility', () => {
     });
 
     try {
-      await clone('', '', {});
+      await clone('', '', '4.x.x');
     } catch (errThrown) {
       expect(errThrown).toEqual({
         message: err,

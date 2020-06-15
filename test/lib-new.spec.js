@@ -171,6 +171,14 @@ describe('skyux new command', () => {
       expect(spies.spyLogger.error).toHaveBeenCalledWith(error);
     });
 
+    it('should checkout the repo\'s master branch', async () => {
+      const repo = 'https://example.com/custom-repo.git';
+      const spies = getSpies('name', repo);
+      spies.spyClone.and.returnValue(Promise.resolve());
+      await getLib()({});
+      expect(expect(spies.spyClone.calls.argsFor(0)[2]).toBe('master'));
+    });
+
     it('should handle a non-empty repo when cloning', async () => {
       const repo = 'https://example.com/custom-repo.git';
       const spies = getSpies('name', repo);
@@ -237,6 +245,13 @@ describe('skyux new command', () => {
       expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
         `${template} template successfully cloned.`
       );
+    });
+
+    it('should checkout the repo\'s 4.x.x branch', async () => {
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      await getLib()({});
+      expect(expect(spies.spyClone.calls.argsFor(0)[2]).toBe('4.x.x'));
     });
 
     it('should handle an error cloning a template because of url', async () => {

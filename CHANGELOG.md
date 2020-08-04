@@ -1,3 +1,8 @@
+# 4.2.0 (2020-08-04)
+
+- Updated the CLI to print the full stack trace of any errors encountered. [#98](https://github.com/blackbaud/skyux-sdk-cli/pull/98) (Thanks [@Blackbaud-DiHuynh](https://github.com/Blackbaud-DiHuynh)!)
+- Fixed the `skyux migrate` command to add the `@skyux-sdk/builder-plugin-pact` plugin to the `skyuxconfig.pact.json` file. [#100](https://github.com/blackbaud/skyux-sdk-cli/pull/100)
+
 # 4.1.0 (2020-06-15)
 
 - Added a descriptive error message to `skyux new` when specifying a template that does not support the current version of SKY UX. [#91](https://github.com/blackbaud/skyux-sdk-cli/pull/91)

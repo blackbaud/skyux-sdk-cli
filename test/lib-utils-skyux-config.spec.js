@@ -26,7 +26,7 @@ describe('SKY UX Config util', function () {
     };
 
     pactMock = {
-      configExists: () => Promise.resolve(false)
+      validateConfig: () => Promise.resolve()
     };
 
     mock('@blackbaud/skyux-logger', loggerMock);
@@ -120,43 +120,6 @@ describe('SKY UX Config util', function () {
         foo: 'bar'
       }
     });
-  });
-
-  it('should add pact plugin', async () => {
-    testSkyUxConfigJson = {};
-
-    spyOn(pactMock, 'configExists').and.returnValue(Promise.resolve(true));
-
-    const util = mock.reRequire('../lib/utils/skyux-config');
-    const writeSpy = spyOn(jsonUtilsMock, 'writeJson').and.callThrough();
-
-    await util.validateSkyUxConfigJson();
-
-    const config = writeSpy.calls.allArgs()[0][1];
-    expect(config.plugins).toEqual([
-      '@skyux-sdk/builder-plugin-pact'
-    ]);
-  });
-
-  it('should add pact plugin and leave other plugins untouched', async () => {
-    testSkyUxConfigJson = {
-      plugins: [
-        '@foo/bar'
-      ]
-    };
-
-    spyOn(pactMock, 'configExists').and.returnValue(Promise.resolve(true));
-
-    const util = mock.reRequire('../lib/utils/skyux-config');
-    const writeSpy = spyOn(jsonUtilsMock, 'writeJson').and.callThrough();
-
-    await util.validateSkyUxConfigJson();
-
-    const config = writeSpy.calls.allArgs()[0][1];
-    expect(config.plugins).toEqual([
-      '@foo/bar',
-      '@skyux-sdk/builder-plugin-pact'
-    ]);
   });
 
   it('should remove deprecated properties', async () => {

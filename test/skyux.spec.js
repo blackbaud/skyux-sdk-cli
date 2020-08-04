@@ -343,9 +343,9 @@ describe('skyux CLI', () => {
 
       cli({ _: [customCommand] });
 
-      expect(logger.verbose).toHaveBeenCalledWith(
-        `Error loading non-scoped-global-module/package.json.`
-      );
+      expect(logger.verbose).toHaveBeenCalledWith(jasmine.stringMatching(
+        `Error loading non-scoped-global-module/package.json. Error: Cannot find module 'non-scoped-global-module'`
+      ));
 
     });
 

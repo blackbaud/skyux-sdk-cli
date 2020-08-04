@@ -54,7 +54,7 @@ function getModulesAnswered(command, argv, globs) {
       module = require(dirName);
       pkgJson = require(pkg);
     } catch (err) {
-      logger.verbose(`Error loading ${pkg}.`);
+      logger.verbose(`Error loading ${pkg}. ${err.stack}`);
     }
 
     if (module && typeof module.runCommand === 'function') {

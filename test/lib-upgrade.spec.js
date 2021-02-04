@@ -11,6 +11,8 @@ describe('Upgrade', () => {
   let npmInstallCalled;
   let processExitSpy;
   let latestVersionMock;
+  let npmAuditSpy;
+  let deleteDependenciesSpy;
 
   beforeEach(() => {
     appDependenciesMock = {
@@ -46,6 +48,8 @@ describe('Upgrade', () => {
     };
 
     processExitSpy = spyOn(process, 'exit');
+    npmAuditSpy = jasmine.createSpy('npmAudit');
+    deleteDependenciesSpy = jasmine.createSpy('deleteDependencies');
 
     mock('@blackbaud/skyux-logger', loggerMock);
     mock('latest-version', latestVersionMock);
@@ -54,6 +58,14 @@ describe('Upgrade', () => {
     mock('../lib/app-dependencies', appDependenciesMock);
     mock('../lib/v3-compat/app-dependencies', appDependenciesV3Mock);
     mock('../lib/utils/npm-install', npmInstallMock);
+    mock('../lib/utils/cli-version', {
+      verifyLatestVersion: () => Promise.resolve()
+    });
+
+    mock('../lib/cleanup', {
+      deleteDependencies: deleteDependenciesSpy
+    });
+    mock('../lib/utils/npm-audit', npmAuditSpy);
 
     upgrade = mock.reRequire('../lib/upgrade');
   });
@@ -185,6 +197,45 @@ describe('Upgrade', () => {
 
     expect(upgradeDependenciesV3Spy).toHaveBeenCalled();
 
+    done();
+  });
+
+  it('should run npm audit with --audit flag', async (done) => {
+    jsonUtilsMock.readJson.and.returnValue({
+      dependencies: {},
+      devDependencies: {
+        '@skyux-sdk/builder': '4.0.0'
+      }
+    });
+
+    await upgrade({
+      install: false, // <-- This should be overridden.
+      audit: true
+    });
+
+    expect(npmAuditSpy).toHaveBeenCalled();
+    expect(npmInstallCalled).toBe(true, 'Running an audit should always run install.');
+
+    done();
+  });
+
+  it('should run a clean install with --clean flag', async (done) => {
+    jsonUtilsMock.readJson.and.returnValue({
+      dependencies: {},
+      devDependencies: {
+        '@skyux-sdk/builder': '4.0.0'
+      }
+    });
+
+    await upgrade({
+      install: false, // <-- This should be overridden.
+      audit: false, // <-- This should be overridden.
+      clean: true
+    });
+
+    expect(npmAuditSpy).toHaveBeenCalled();
+    expect(npmInstallCalled).toBe(true, 'Running a clean install should always run install.');
+    expect(deleteDependenciesSpy).toHaveBeenCalled();
     done();
   });
 });

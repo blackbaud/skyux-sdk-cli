@@ -1,3 +1,8 @@
+# 4.3.0 (2021-02-04)
+
+- Added the `--audit` flag to the `skyux upgrade` command which runs a [security vulnerability audit](https://docs.npmjs.com/cli/v6/commands/npm-audit) and attempts to install compatible updates to address them. This step occurs after the initial installation. [#103](https://github.com/blackbaud/skyux-sdk-cli/pull/103)
+- Added the `--clean` flag to the `skyux upgrade` command which deletes the `node_modules` directory and `package-lock.json` file before running a fresh install of all dependencies. This flag also runs a security vulnerability audit after the dependencies are installed. [#103](https://github.com/blackbaud/skyux-sdk-cli/pull/103)
+
 # 4.2.0 (2020-08-04)
 
 - Updated the CLI to print the full stack trace of any errors encountered. [#98](https://github.com/blackbaud/skyux-sdk-cli/pull/98) (Thanks [@Blackbaud-DiHuynh](https://github.com/Blackbaud-DiHuynh)!)

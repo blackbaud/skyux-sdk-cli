@@ -5,7 +5,9 @@ describe('npm audit library', () => {
 
   beforeEach(() => {
     spawnSpy = jasmine.createSpy('spawn');
-    mock('../lib/utils/spawn', spawnSpy);
+    mock('cross-spawn', {
+      sync: spawnSpy
+    });
   });
 
   afterEach(() => {
@@ -15,7 +17,11 @@ describe('npm audit library', () => {
   it('should spawn `npm audit fix`', async () => {
     const npmAudit = mock.reRequire('../lib/utils/npm-audit');
     await npmAudit();
-    expect(spawnSpy).toHaveBeenCalledWith('npm', 'audit', 'fix');
+    expect(spawnSpy).toHaveBeenCalledWith(
+      'npm',
+      ['audit', 'fix'],
+      { stdio: 'inherit' }
+    );
   });
 
 });

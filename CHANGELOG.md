@@ -1,3 +1,7 @@
+# 4.3.1 (2021-02-05)
+
+- Fixed the `skyux upgrade --audit` command to work for Windows machines. [#104](https://github.com/blackbaud/skyux-sdk-cli/pull/104)
+
 # 4.3.0 (2021-02-04)
 
 - Added the `--audit` flag to the `skyux upgrade` command which runs a [security vulnerability audit](https://docs.npmjs.com/cli/v6/commands/npm-audit) and attempts to install compatible updates to address them. This step occurs after the initial installation. [#103](https://github.com/blackbaud/skyux-sdk-cli/pull/103)

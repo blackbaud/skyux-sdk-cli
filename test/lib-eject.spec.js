@@ -25,7 +25,23 @@ describe('Eject', () => {
   // let writeJsonSyncSpy;
 
   let mockRoutesData = {
-    'src/app/about/index.html': '<app-about></app-about>'
+    'src/app/about/index.html': '<app-about></app-about>',
+    'src/app/about/#contact/index.html': '',
+    'src/app/about/#contact/#contributors/index.html': '',
+    'src/app/about/careers/index.html': '',
+    'src/app/users/index.html': '',
+    'src/app/users/_userId/index.html': '',
+    'src/app/users/_userId/locations/index.html': '',
+    'src/app/users/_userId/locations/_locationId/index.html': ''
+  };
+
+  let mockRouteGuardsData = {
+    'src/app/users/index.guard.ts': `@Injectable()
+export class MyRouteGuard implements CanActivate {
+  public canActivate(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+}`
   };
 
   beforeEach(() => {
@@ -47,7 +63,7 @@ describe('Eject', () => {
 
     spawnSpy = jasmine.createSpy('spawnSpy');
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
-    errorSpy = jasmine.createSpy('error');
+    errorSpy = jasmine.createSpy('error').and.callThrough();
     copySyncSpy = jasmine.createSpy('copySync');
     processExitSpy = spyOn(process, 'exit');
     // writeJsonSyncSpy = jasmine.createSpy('writeJsonSync');
@@ -83,10 +99,15 @@ describe('Eject', () => {
         return true;
       },
       readFileSync(file) {
-        file = file.replace(CWD, '');
-        if (/app\.module\.ts$/.test(file)) {
+        if (file === path.join(ejectedProjectPath, 'src/app/app.module.ts')) {
           return '@NgModule({}) export class AppModule {}';
         }
+
+        const foundRouteGuard = Object.keys(mockRouteGuardsData).find(x => x === file);
+        if (foundRouteGuard) {
+          return mockRouteGuardsData[foundRouteGuard];
+        }
+
         return '';
       },
       readJsonSync(file) {
@@ -127,6 +148,8 @@ describe('Eject', () => {
             ];
           case 'src/app/**/index.html':
             return Object.keys(mockRoutesData);
+          case 'src/app/**/index.guard.ts':
+            return Object.keys(mockRouteGuardsData);
         }
 
         return [];
@@ -315,6 +338,11 @@ describe('Eject', () => {
 
   it('should create route components', async () => {
     const eject = mock.reRequire('../lib/eject');
+
+    mockSkyuxConfig.redirects = {
+      foobar: 'about'
+    };
+
     await eject();
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join(ejectedProjectPath, 'src/app/app-routing.module.ts'),
@@ -322,11 +350,28 @@ describe('Eject', () => {
 import { RouterModule, Routes } from '@angular/router';
 
 import { AboutRouteIndexComponent } from './about/index.component';
+import { AboutContactRouteIndexComponent } from './about/#contact/index.component';
+import { AboutContactContributorsRouteIndexComponent } from './about/#contact/#contributors/index.component';
+import { AboutCareersRouteIndexComponent } from './about/careers/index.component';
+import { UsersRouteIndexComponent } from './users/index.component';
+import { UsersUserIdRouteIndexComponent } from './users/_userId/index.component';
+import { UsersUserIdLocationsRouteIndexComponent } from './users/_userId/locations/index.component';
+import { UsersUserIdLocationsLocationIdRouteIndexComponent } from './users/_userId/locations/_locationId/index.component';
 import { NotFoundComponent } from './not-found.component';
-
+import { MyRouteGuard } from './users/index.guard';
 
 const routes: Routes = [
-  { path: '', component: RootRouteIndexComponent, children: [{ path: 'about', component: AboutRouteIndexComponent }] },
+  { path: 'foobar', redirectTo: 'about', pathMatch: 'prefix' },
+  { path: '', component: RootRouteIndexComponent, children: [
+    { path: 'about', component: AboutRouteIndexComponent, children: [
+      { path: 'about/contact', component: AboutContactRouteIndexComponent }
+    ] },
+    { path: 'about/careers', component: AboutCareersRouteIndexComponent },
+    { path: 'users', component: UsersRouteIndexComponent, canActivate: [MyRouteGuard] },
+    { path: 'users/:userId', component: UsersUserIdRouteIndexComponent },
+    { path: 'users/:userId/locations', component: UsersUserIdLocationsRouteIndexComponent },
+    { path: 'users/:userId/locations/:locationId', component: UsersUserIdLocationsLocationIdRouteIndexComponent }
+  ] },
   { path: '**', component: NotFoundComponent }
 ];
 

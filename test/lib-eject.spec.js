@@ -342,12 +342,22 @@ describe('Eject', () => {
     await eject();
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join(ejectedProjectPath, 'src/app/app-routing.module.ts'),
-      `import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+      `import {
+  NgModule
+} from '@angular/core';
 
-import { RootRouteIndexComponent } from './index.component';
-import { NotFoundComponent } from './not-found.component';
+import {
+  RouterModule,
+  Routes
+} from '@angular/router';
 
+import {
+  RootRouteIndexComponent
+} from './index.component';
+
+import {
+  NotFoundComponent
+} from './not-found.component';
 
 const routes: Routes = [
   { path: '', component: RootRouteIndexComponent },
@@ -396,20 +406,58 @@ export class AppRoutingModule { }
 
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join(ejectedProjectPath, 'src/app/app-routing.module.ts'),
-      `import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+      `import {
+  NgModule
+} from '@angular/core';
 
-import { AboutRouteIndexComponent } from './about/index.component';
-import { AboutContactRouteIndexComponent } from './about/#contact/index.component';
-import { AboutContactContributorsRouteIndexComponent } from './about/#contact/#contributors/index.component';
-import { AboutCareersRouteIndexComponent } from './about/careers/index.component';
-import { UsersRouteIndexComponent } from './users/index.component';
-import { UsersUserIdRouteIndexComponent } from './users/_userId/index.component';
-import { UsersUserIdLocationsRouteIndexComponent } from './users/_userId/locations/index.component';
-import { UsersUserIdLocationsLocationIdRouteIndexComponent } from './users/_userId/locations/_locationId/index.component';
-import { RootRouteIndexComponent } from './index.component';
-import { NotFoundComponent } from './not-found.component';
-import { MyRouteGuard } from './users/index.guard';
+import {
+  RouterModule,
+  Routes
+} from '@angular/router';
+
+import {
+  AboutRouteIndexComponent
+} from './about/index.component';
+
+import {
+  AboutContactRouteIndexComponent
+} from './about/#contact/index.component';
+
+import {
+  AboutContactContributorsRouteIndexComponent
+} from './about/#contact/#contributors/index.component';
+
+import {
+  AboutCareersRouteIndexComponent
+} from './about/careers/index.component';
+
+import {
+  UsersRouteIndexComponent
+} from './users/index.component';
+
+import {
+  UsersUserIdRouteIndexComponent
+} from './users/_userId/index.component';
+
+import {
+  UsersUserIdLocationsRouteIndexComponent
+} from './users/_userId/locations/index.component';
+
+import {
+  UsersUserIdLocationsLocationIdRouteIndexComponent
+} from './users/_userId/locations/_locationId/index.component';
+
+import {
+  RootRouteIndexComponent
+} from './index.component';
+
+import {
+  NotFoundComponent
+} from './not-found.component';
+
+import {
+  MyRouteGuard
+} from './users/index.guard';
 
 const routes: Routes = [
   { path: 'foobar', redirectTo: 'about', pathMatch: 'prefix' },
@@ -450,15 +498,41 @@ export class AppRoutingModule { }
     await eject();
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join(ejectedProjectPath, 'src/app/sky-pages.module.ts'),
-      `import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { SkyI18nModule } from '@skyux/i18n';
-import { SkyAppLinkModule } from '@skyux/router';
-import { HomeComponent } from 'src/app/home.component';
-import { RootRouteIndexComponent } from './index.component';
-import { NotFoundComponent } from './not-found.component';
-import { AppExtrasModule } from './app-extras.module';
+      `import {
+  CommonModule
+} from '@angular/common';
+
+import {
+  NgModule
+} from '@angular/core';
+
+import {
+  RouterModule
+} from '@angular/router';
+
+import {
+  SkyI18nModule
+} from '@skyux/i18n';
+
+import {
+  SkyAppLinkModule
+} from '@skyux/router';
+
+import {
+  HomeComponent
+} from 'src/app/home.component';
+
+import {
+  RootRouteIndexComponent
+} from './index.component';
+
+import {
+  NotFoundComponent
+} from './not-found.component';
+
+import {
+  AppExtrasModule
+} from './app-extras.module';
 
 /**
  * @deprecated This module was migrated from SKY UX Builder v.4.

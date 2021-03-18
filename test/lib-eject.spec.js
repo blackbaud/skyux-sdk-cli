@@ -9,6 +9,7 @@ describe('Eject', () => {
 
   let projectDirectoryExists;
   let skyuxConfigExists;
+  let notFoundComponentExists;
 
   let mockSkyuxConfig;
   let actualSkyuxConfig;
@@ -17,40 +18,30 @@ describe('Eject', () => {
   let mockEjectedPackageJson;
   let actualEjectedPackageJson;
 
-  let spawnSpy;
-  let writeFileSyncSpy;
+  let copySyncSpy;
   let errorSpy;
   let processExitSpy;
-  let copySyncSpy;
-  // let writeJsonSyncSpy;
+  let spawnSpy;
+  let writeFileSyncSpy;
 
-  let mockRoutesData = {
-    'src/app/about/index.html': '<app-about></app-about>',
-    'src/app/about/#contact/index.html': '',
-    'src/app/about/#contact/#contributors/index.html': '',
-    'src/app/about/careers/index.html': '',
-    'src/app/users/index.html': '',
-    'src/app/users/_userId/index.html': '',
-    'src/app/users/_userId/locations/index.html': '',
-    'src/app/users/_userId/locations/_locationId/index.html': ''
-  };
-
-  let mockRouteGuardsData = {
-    'src/app/users/index.guard.ts': `@Injectable()
-export class MyRouteGuard implements CanActivate {
-  public canActivate(): Promise<boolean> {
-    return Promise.resolve(false);
-  }
-}`
-  };
+  let mockComponentData;
+  let mockRouteGuardsData;
+  let mockRoutesData;
 
   beforeEach(() => {
+
+    mockRoutesData = {};
+    mockRouteGuardsData = {};
+    mockComponentData = {
+      'src/app/home.component.ts': `@Component({ selector: 'app-home' }) export class HomeComponent {}`
+    };
 
     ejectedProjectName = '';
     ejectedProjectPath = '';
 
     projectDirectoryExists = false;
     skyuxConfigExists = true;
+    notFoundComponentExists = true;
 
     mockSkyuxConfig = {
       name: 'skyux-spa-foobar'
@@ -66,7 +57,6 @@ export class MyRouteGuard implements CanActivate {
     errorSpy = jasmine.createSpy('error').and.callThrough();
     copySyncSpy = jasmine.createSpy('copySync');
     processExitSpy = spyOn(process, 'exit');
-    // writeJsonSyncSpy = jasmine.createSpy('writeJsonSync');
 
     mock('@blackbaud/skyux-logger', {
       error: errorSpy,
@@ -96,6 +86,10 @@ export class MyRouteGuard implements CanActivate {
           return skyuxConfigExists;
         }
 
+        if (file === path.join(CWD, 'src/app/not-found.component.ts')) {
+          return notFoundComponentExists;
+        }
+
         return true;
       },
       readFileSync(file) {
@@ -106,6 +100,11 @@ export class MyRouteGuard implements CanActivate {
         const foundRouteGuard = Object.keys(mockRouteGuardsData).find(x => x === file);
         if (foundRouteGuard) {
           return mockRouteGuardsData[foundRouteGuard];
+        }
+
+        const foundComponent = Object.keys(mockComponentData).find(x => x === file);
+        if (foundComponent) {
+          return mockComponentData[foundComponent];
         }
 
         return '';
@@ -150,6 +149,8 @@ export class MyRouteGuard implements CanActivate {
             return Object.keys(mockRoutesData);
           case 'src/app/**/index.guard.ts':
             return Object.keys(mockRouteGuardsData);
+          case path.join(ejectedProjectPath, 'src/app/**/*.component.ts'):
+            return Object.keys(mockComponentData);
         }
 
         return [];
@@ -336,14 +337,63 @@ export class MyRouteGuard implements CanActivate {
     );
   });
 
-  it('should create route components', async () => {
+  it('should handle migrating SPAs without routes', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/app-routing.module.ts'),
+      `import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+
+import { RootRouteIndexComponent } from './index.component';
+import { NotFoundComponent } from './not-found.component';
+
+
+const routes: Routes = [
+  { path: '', component: RootRouteIndexComponent },
+  { path: '**', component: NotFoundComponent }
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
+`);
+  });
+
+  it('should migrate complex routes', async () => {
     const eject = mock.reRequire('../lib/eject');
 
+    mockRoutesData = {
+      'src/app/about/index.html': '<app-about></app-about>',
+      'src/app/about/#contact/index.html': '',
+      'src/app/about/#contact/#contributors/index.html': '',
+      'src/app/about/careers/index.html': '',
+      'src/app/users/index.html': '',
+      'src/app/users/_userId/index.html': '',
+      'src/app/users/_userId/locations/index.html': '',
+      'src/app/users/_userId/locations/_locationId/index.html': ''
+    };
+
+    mockRouteGuardsData = {
+      'src/app/users/index.guard.ts': `@Injectable()
+  export class MyRouteGuard implements CanActivate {
+    public canActivate(): Promise<boolean> {
+      return Promise.resolve(false);
+    }
+    public canActivateChild() {}
+    public canDeactivate() {}
+  }`
+    };
+
     mockSkyuxConfig.redirects = {
-      foobar: 'about'
+      foobar: 'about',
+      '': 'root'
     };
 
     await eject();
+
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join(ejectedProjectPath, 'src/app/app-routing.module.ts'),
       `import { NgModule } from '@angular/core';
@@ -357,17 +407,19 @@ import { UsersRouteIndexComponent } from './users/index.component';
 import { UsersUserIdRouteIndexComponent } from './users/_userId/index.component';
 import { UsersUserIdLocationsRouteIndexComponent } from './users/_userId/locations/index.component';
 import { UsersUserIdLocationsLocationIdRouteIndexComponent } from './users/_userId/locations/_locationId/index.component';
+import { RootRouteIndexComponent } from './index.component';
 import { NotFoundComponent } from './not-found.component';
 import { MyRouteGuard } from './users/index.guard';
 
 const routes: Routes = [
   { path: 'foobar', redirectTo: 'about', pathMatch: 'prefix' },
+  { path: '', redirectTo: 'root', pathMatch: 'full' },
   { path: '', component: RootRouteIndexComponent, children: [
     { path: 'about', component: AboutRouteIndexComponent, children: [
       { path: 'about/contact', component: AboutContactRouteIndexComponent }
     ] },
     { path: 'about/careers', component: AboutCareersRouteIndexComponent },
-    { path: 'users', component: UsersRouteIndexComponent, canActivate: [MyRouteGuard] },
+    { path: 'users', component: UsersRouteIndexComponent, canActivate: [MyRouteGuard], canActivateChild: [MyRouteGuard], canDeactivate: [MyRouteGuard] },
     { path: 'users/:userId', component: UsersUserIdRouteIndexComponent },
     { path: 'users/:userId/locations', component: UsersUserIdLocationsRouteIndexComponent },
     { path: 'users/:userId/locations/:locationId', component: UsersUserIdLocationsLocationIdRouteIndexComponent }
@@ -384,14 +436,85 @@ export class AppRoutingModule { }
     );
   });
 
-  xit('should modify the app.component.html file', async () => {
+  it('should modify the app.component.html file', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/app.component.html'),
+      `<router-outlet></router-outlet>`
+    );
   });
 
-  xit('should create the SkyPagesModule', async () => {
+  it('should create the SkyPagesModule', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/sky-pages.module.ts'),
+      `import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { SkyI18nModule } from '@skyux/i18n';
+import { SkyAppLinkModule } from '@skyux/router';
+import { HomeComponent } from 'src/app/home.component';
+import { RootRouteIndexComponent } from './index.component';
+import { NotFoundComponent } from './not-found.component';
+import { AppExtrasModule } from './app-extras.module';
+
+/**
+ * @deprecated This module was migrated from SKY UX Builder v.4.
+ * It is highly recommended that this module be factored-out into separate, lazy-loaded feature modules.
+ */
+@NgModule({
+  imports: [
+    AppExtrasModule,
+    CommonModule,
+    RouterModule,
+    SkyAppLinkModule,
+    SkyI18nModule
+  ],
+  declarations: [
+    HomeComponent,
+    NotFoundComponent,
+    RootRouteIndexComponent
+  ],
+  exports: [
+    AppExtrasModule,
+    HomeComponent,
+    NotFoundComponent,
+    RootRouteIndexComponent
+  ]
+})
+export class SkyPagesModule { }
+`
+    );
+  });
+
+  it('should create a NotFoundComponent if not exists', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    notFoundComponentExists = false;
+    await eject();
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/not-found.component.ts'),
+      `import {
+  Component
+} from '@angular/core';
+
+@Component({
+  selector: 'app-not-found',
+  templateUrl: './not-found.component.html'
+})
+export class NotFoundComponent { }
+`
+    );
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/not-found.component.html'),
+      `<iframe
+  src="https://app.blackbaud.com/errors/notfound"
+  style="border:0;height:100vh;width:100%;"
+  [title]="'skyux_page_not_found_iframe_title' | skyAppResources"
+></iframe>
+`
+    );
   });
 
 });

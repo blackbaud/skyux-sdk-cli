@@ -120,13 +120,15 @@ describe('Eject', () => {
           return mockSkyuxConfig;
         }
 
-        console.log('file?', file, path.join(ejectedProjectPath, 'package.json'));
+        console.log('file?', file, path.join(CWD, 'package.json'), path.join(ejectedProjectPath, 'package.json'));
 
         if (file === path.join(ejectedProjectPath, 'package.json')) {
+          console.log('found ejected!', mockEjectedPackageJson);
           return mockEjectedPackageJson;
         }
 
         if (file === path.join(CWD, 'package.json')) {
+          console.log('found!', mockPackageJson);
           return mockPackageJson;
         }
 

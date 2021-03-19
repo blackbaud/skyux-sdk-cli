@@ -58,7 +58,7 @@ export class AppModule { }`;
       './foo.module'
     );
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
-      'src/app/app.module.ts',
+      path.join('src/app/app.module.ts'),
       `import {
   FooModule
 } from './foo.module';
@@ -85,7 +85,7 @@ export class AppModule { }`;
       './foo.module'
     );
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
-      'src/app/app.module.ts',
+      path.join('src/app/app.module.ts'),
       `import {
   FooModule
 } from './foo.module';

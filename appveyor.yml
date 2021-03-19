@@ -1,7 +1,6 @@
 branches:
   only:
     - master
-    - /^5.0.0-.*$/
     - /^rc-.*$/
 
 environment:

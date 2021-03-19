@@ -10,6 +10,7 @@ describe('Eject', () => {
   let projectDirectoryExists;
   let skyuxConfigExists;
   let notFoundComponentExists;
+  let rootIndexHtmlExists;
 
   let mockSkyuxConfig;
   let actualSkyuxConfig;
@@ -42,6 +43,7 @@ describe('Eject', () => {
     projectDirectoryExists = false;
     skyuxConfigExists = true;
     notFoundComponentExists = true;
+    rootIndexHtmlExists = false;
 
     mockSkyuxConfig = {
       name: 'skyux-spa-foobar'
@@ -88,6 +90,10 @@ describe('Eject', () => {
 
         if (file === path.join(CWD, 'src/app/not-found.component.ts')) {
           return notFoundComponentExists;
+        }
+
+        if (file === path.join(CWD, 'src/app/index.html')) {
+          return rootIndexHtmlExists;
         }
 
         return true;
@@ -339,7 +345,13 @@ describe('Eject', () => {
 
   it('should handle migrating SPAs without routes', async () => {
     const eject = mock.reRequire('../lib/eject');
+
+    rootIndexHtmlExists = false;
+    mockRouteGuardsData = {};
+    mockRoutesData = {};
+
     await eject();
+
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join(ejectedProjectPath, 'src/app/app-routing.module.ts'),
       `import {
@@ -375,15 +387,18 @@ export class AppRoutingModule { }
   it('should migrate complex routes', async () => {
     const eject = mock.reRequire('../lib/eject');
 
+    rootIndexHtmlExists = true;
+
     mockRoutesData = {
-      'src/app/about/index.html': '<app-about></app-about>',
-      'src/app/about/#contact/index.html': '',
       'src/app/about/#contact/#contributors/index.html': '',
+      'src/app/about/#contact/#form/index.html': '',
+      'src/app/about/#contact/index.html': '',
       'src/app/about/careers/index.html': '',
-      'src/app/users/index.html': '',
+      'src/app/about/index.html': '<app-about></app-about>',
       'src/app/users/_userId/index.html': '',
+      'src/app/users/_userId/locations/_locationId/index.html': '',
       'src/app/users/_userId/locations/index.html': '',
-      'src/app/users/_userId/locations/_locationId/index.html': ''
+      'src/app/users/index.html': ''
     };
 
     mockRouteGuardsData = {
@@ -398,8 +413,8 @@ export class AppRoutingModule { }
     };
 
     mockSkyuxConfig.redirects = {
-      foobar: 'about',
-      '': 'root'
+      '': 'new-root',
+      foobar: 'about'
     };
 
     await eject();
@@ -416,36 +431,40 @@ import {
 } from '@angular/router';
 
 import {
-  AboutRouteIndexComponent
-} from './about/index.component';
+  AboutContactContributorsRouteIndexComponent
+} from './about/#contact/#contributors/index.component';
+
+import {
+  AboutContactFormRouteIndexComponent
+} from './about/#contact/#form/index.component';
 
 import {
   AboutContactRouteIndexComponent
 } from './about/#contact/index.component';
 
 import {
-  AboutContactContributorsRouteIndexComponent
-} from './about/#contact/#contributors/index.component';
-
-import {
   AboutCareersRouteIndexComponent
 } from './about/careers/index.component';
 
 import {
-  UsersRouteIndexComponent
-} from './users/index.component';
+  AboutRouteIndexComponent
+} from './about/index.component';
 
 import {
   UsersUserIdRouteIndexComponent
 } from './users/_userId/index.component';
 
 import {
+  UsersUserIdLocationsLocationIdRouteIndexComponent
+} from './users/_userId/locations/_locationId/index.component';
+
+import {
   UsersUserIdLocationsRouteIndexComponent
 } from './users/_userId/locations/index.component';
 
 import {
-  UsersUserIdLocationsLocationIdRouteIndexComponent
-} from './users/_userId/locations/_locationId/index.component';
+  UsersRouteIndexComponent
+} from './users/index.component';
 
 import {
   RootRouteIndexComponent
@@ -460,17 +479,20 @@ import {
 } from './users/index.guard';
 
 const routes: Routes = [
+  { path: '', redirectTo: 'new-root', pathMatch: 'full' },
   { path: 'foobar', redirectTo: 'about', pathMatch: 'prefix' },
-  { path: '', redirectTo: 'root', pathMatch: 'full' },
   { path: '', component: RootRouteIndexComponent, children: [
-    { path: 'about', component: AboutRouteIndexComponent, children: [
-      { path: 'about/contact', component: AboutContactRouteIndexComponent }
-    ] },
     { path: 'about/careers', component: AboutCareersRouteIndexComponent },
-    { path: 'users', component: UsersRouteIndexComponent, canActivate: [MyRouteGuard], canActivateChild: [MyRouteGuard], canDeactivate: [MyRouteGuard] },
+    { path: 'about', component: AboutRouteIndexComponent, children: [
+      { path: 'about/contact', component: AboutContactRouteIndexComponent, children: [
+        { path: 'about/contact/form', component: AboutContactFormRouteIndexComponent },
+        { path: 'about/contact/contributors', component: AboutContactContributorsRouteIndexComponent }
+      ] }
+    ] },
     { path: 'users/:userId', component: UsersUserIdRouteIndexComponent },
+    { path: 'users/:userId/locations/:locationId', component: UsersUserIdLocationsLocationIdRouteIndexComponent },
     { path: 'users/:userId/locations', component: UsersUserIdLocationsRouteIndexComponent },
-    { path: 'users/:userId/locations/:locationId', component: UsersUserIdLocationsLocationIdRouteIndexComponent }
+    { path: 'users', component: UsersRouteIndexComponent, canActivate: [MyRouteGuard], canActivateChild: [MyRouteGuard], canDeactivate: [MyRouteGuard] }
   ] },
   { path: '**', component: NotFoundComponent }
 ];

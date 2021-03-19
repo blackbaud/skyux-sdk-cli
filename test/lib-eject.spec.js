@@ -120,6 +120,8 @@ describe('Eject', () => {
           return mockSkyuxConfig;
         }
 
+        console.log('file?', file, path.join(ejectedProjectPath, 'package.json'));
+
         if (file === path.join(ejectedProjectPath, 'package.json')) {
           return mockEjectedPackageJson;
         }
@@ -294,7 +296,7 @@ describe('Eject', () => {
     );
   });
 
-  it('should add SKY UX packages to package.json', async () => {
+  fit('should add SKY UX packages to package.json', async () => {
     const eject = mock.reRequire('../lib/eject');
 
     mockPackageJson = {

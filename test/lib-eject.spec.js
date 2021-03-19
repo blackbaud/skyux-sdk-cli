@@ -135,9 +135,10 @@ describe('Eject', () => {
         if (file.indexOf('skyuxconfig.json') > -1) {
           actualSkyuxConfig = contents;
         }
-        console.log('writeJsonSync:', contents);
+        console.log('writeJsonSync:', contents, file, file.indexOf('package.json') > -1);
         if (file.indexOf('package.json') > -1) {
           actualEjectedPackageJson = contents;
+          console.log('FOUND and return:', actualEjectedPackageJson);
         }
       }
     });
@@ -315,6 +316,9 @@ describe('Eject', () => {
     };
 
     await eject();
+
+    console.log('actual:', actualEjectedPackageJson);
+
     expect(actualEjectedPackageJson).toEqual({
       dependencies: {
         '@angular/core': '11',

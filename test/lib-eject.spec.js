@@ -120,15 +120,11 @@ describe('Eject', () => {
           return mockSkyuxConfig;
         }
 
-        console.log('file?', file, path.join(CWD, 'package.json'), path.join(ejectedProjectPath, 'package.json'));
-
         if (file === path.join(ejectedProjectPath, 'package.json')) {
-          console.log('found ejected!', mockEjectedPackageJson);
           return mockEjectedPackageJson;
         }
 
         if (file === path.join(CWD, 'package.json')) {
-          console.log('found!', mockPackageJson);
           return mockPackageJson;
         }
 
@@ -136,10 +132,10 @@ describe('Eject', () => {
       },
       writeFileSync: writeFileSyncSpy,
       writeJsonSync(file, contents) {
-        file = file.replace(CWD, '');
         if (file.indexOf('skyuxconfig.json') > -1) {
           actualSkyuxConfig = contents;
         }
+        console.log('writeJsonSync:', contents);
         if (file.indexOf('package.json') > -1) {
           actualEjectedPackageJson = contents;
         }

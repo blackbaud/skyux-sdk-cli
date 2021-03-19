@@ -4,7 +4,8 @@
     "lib/**/*.js"
   ],
   "exclude": [
-    "test"
+    "test",
+    "lib/utils/strings.js"
   ],
   "reporter": [
     "lcov",

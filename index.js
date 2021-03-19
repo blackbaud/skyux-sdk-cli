@@ -224,6 +224,9 @@ function processArgv(argv) {
     case 'migrate':
       require('./lib/migrate')(argv);
       break;
+    case 'eject':
+      require('./lib/eject')(argv);
+      break;
     default:
       isInternalCommand = false;
   }

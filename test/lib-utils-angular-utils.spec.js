@@ -1,4 +1,5 @@
 const mock = require('mock-require');
+const path = require('path');
 
 describe('Angular utils', () => {
 
@@ -14,7 +15,7 @@ describe('Angular utils', () => {
 
     mock('fs-extra', {
       readFileSync(file) {
-        if (file === 'src/app/app.module.ts') {
+        if (file === path.join('src/app/app.module.ts')) {
           return defaultAppModuleContent;
         }
 

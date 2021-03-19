@@ -203,7 +203,7 @@ describe('Eject', () => {
     await eject();
     expect(spawnSpy).toHaveBeenCalledWith(
       'ng',
-      ['new', ejectedProjectName, '--routing', '--strict', '--style=scss'],
+      ['new', ejectedProjectName, '--legacy-browsers', '--routing', '--strict', '--style=scss'],
       {
         stdio: 'inherit'
       }

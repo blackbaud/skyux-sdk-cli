@@ -135,10 +135,9 @@ describe('Eject', () => {
         if (file.indexOf('skyuxconfig.json') > -1) {
           actualSkyuxConfig = contents;
         }
-        console.log('writeJsonSync:', contents, file, file.indexOf('package.json') > -1);
+
         if (file.indexOf('package.json') > -1) {
           actualEjectedPackageJson = contents;
-          console.log('FOUND and return:', actualEjectedPackageJson);
         }
       }
     });
@@ -295,9 +294,7 @@ describe('Eject', () => {
     );
   });
 
-  fit('should add SKY UX packages to package.json', async () => {
-    const eject = mock.reRequire('../lib/eject');
-
+  it('should add SKY UX packages to package.json', async () => {
     mockPackageJson = {
       dependencies: {
         '@angular/core': '9',
@@ -315,9 +312,8 @@ describe('Eject', () => {
       }
     };
 
+    const eject = mock.reRequire('../lib/eject');
     await eject();
-
-    console.log('actual:', actualEjectedPackageJson);
 
     expect(actualEjectedPackageJson).toEqual({
       dependencies: {

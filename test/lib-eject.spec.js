@@ -12,6 +12,9 @@ describe('Eject', () => {
   let notFoundComponentExists;
   let rootIndexHtmlExists;
 
+  let mockAngularJson;
+  let actualAngularJson;
+
   let mockSkyuxConfig;
   let actualSkyuxConfig;
 
@@ -45,6 +48,11 @@ describe('Eject', () => {
     notFoundComponentExists = true;
     rootIndexHtmlExists = false;
 
+    mockAngularJson = {
+      projects: {}
+    };
+    actualAngularJson = undefined;
+
     mockSkyuxConfig = {
       name: 'skyuxconfig-name'
     };
@@ -66,6 +74,19 @@ describe('Eject', () => {
     spawnSpy.and.callFake((command, args) => {
       if (command === 'ng' && args[0] === 'new') {
         ejectedProjectName = args[1];
+        mockAngularJson = {
+          projects: {
+            [ejectedProjectName]: {
+              architect: {
+                build: {
+                  options: {
+                    styles: []
+                  }
+                }
+              }
+            }
+          }
+        };
       }
     });
 
@@ -123,6 +144,10 @@ describe('Eject', () => {
         return '';
       },
       readJsonSync(file) {
+        if (file === path.join(ejectedProjectPath, 'angular.json')) {
+          return mockAngularJson;
+        }
+
         if (file === path.join(CWD, 'skyuxconfig.json')) {
           return mockSkyuxConfig;
         }
@@ -139,6 +164,10 @@ describe('Eject', () => {
       },
       writeFileSync: writeFileSyncSpy,
       writeJsonSync(file, contents) {
+        if (file.indexOf('angular.json') > -1) {
+          actualAngularJson = contents;
+        }
+
         if (file.indexOf('skyuxconfig.json') > -1) {
           actualSkyuxConfig = contents;
         }
@@ -248,6 +277,21 @@ describe('Eject', () => {
       `[skyux eject] Error: The '${ejectedProjectPath}' directory already exists. Delete the directory and rerun the "eject" command.`
     );
     expect(processExitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('should migrate skyuxconfig.app.styles', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    mockSkyuxConfig.app = {
+      styles: [
+        'foobar/baz.css',
+        '@skyux/theme/css/sky.css',
+        '@skyux/theme/css/themes/modern/styles.css'
+      ]
+    };
+    await eject();
+    expect(actualAngularJson.projects[ejectedProjectName].architect.build.options.styles).toEqual([
+      'foobar/baz.css'
+    ]);
   });
 
   it('should process basic skyuxconfig.json files', async () => {

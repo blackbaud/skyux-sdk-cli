@@ -255,7 +255,7 @@ describe('Eject', () => {
       'ng',
       [
         'new', 'skyuxconfig-name',
-        '--directory', ejectedProjectPath,
+        `--directory=${path.basename(ejectedProjectPath)}`,
         '--legacy-browsers',
         '--routing',
         '--strict',

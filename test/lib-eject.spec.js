@@ -242,15 +242,24 @@ describe('Eject', () => {
               url: 'script.js'
             }
           }
-        }
+        },
+        theming: {
+          supportedThemes: ['default', 'modern'],
+          theme: 'modern'
+        },
+        invalidProp: {} // <-- should not be included
       },
+      auth: true,
+      help: {},
       host: {
         url: 'https://foo.blackbaud.com/'
       },
+      omnibar: {},
       params: {
         foo: {
           required: true
-        }
+        },
+        bar: true
       },
       codeCoverageThreshold: 'standard',
       invalidProp: {} // <-- should not be included
@@ -267,15 +276,23 @@ describe('Eject', () => {
               url: 'script.js'
             }
           }
+        },
+        theming: {
+          supportedThemes: ['default', 'modern'],
+          theme: 'modern'
         }
       },
+      auth: true,
+      help: {},
       host: {
         url: 'https://foo.blackbaud.com/'
       },
+      omnibar: {},
       params: {
         foo: {
           required: true
-        }
+        },
+        bar: true
       },
       codeCoverageThreshold: 'standard'
     });

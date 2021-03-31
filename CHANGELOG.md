@@ -1,3 +1,7 @@
+# 4.4.0 (2021-03-31)
+
+- Added the experimental `skyux eject` command which converts a SKY UX application into an Angular CLI application. [#107](https://github.com/blackbaud/skyux-sdk-cli/pull/107) [#108](https://github.com/blackbaud/skyux-sdk-cli/pull/108) [#109](https://github.com/blackbaud/skyux-sdk-cli/pull/109)
+
 # 4.3.1 (2021-02-05)
 
 - Fixed the `skyux upgrade --audit` command to work for Windows machines. [#104](https://github.com/blackbaud/skyux-sdk-cli/pull/104)

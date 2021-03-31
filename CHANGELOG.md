@@ -1,3 +1,7 @@
+# 4.4.1 (2021-03-31)
+
+- Fixed the `skyux eject` command to run the Angular CLI schematic after all file operations are completed. [#110](https://github.com/blackbaud/skyux-sdk-cli/pull/110)
+
 # 4.4.0 (2021-03-31)
 
 - Added the experimental `skyux eject` command which converts a SKY UX application into an Angular CLI application. [#107](https://github.com/blackbaud/skyux-sdk-cli/pull/107) [#108](https://github.com/blackbaud/skyux-sdk-cli/pull/108) [#109](https://github.com/blackbaud/skyux-sdk-cli/pull/109)

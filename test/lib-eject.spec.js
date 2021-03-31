@@ -12,6 +12,9 @@ describe('Eject', () => {
   let notFoundComponentExists;
   let rootIndexHtmlExists;
 
+  let mockAngularJson;
+  let actualAngularJson;
+
   let mockSkyuxConfig;
   let actualSkyuxConfig;
 
@@ -45,12 +48,19 @@ describe('Eject', () => {
     notFoundComponentExists = true;
     rootIndexHtmlExists = false;
 
+    mockAngularJson = {
+      projects: {}
+    };
+    actualAngularJson = undefined;
+
     mockSkyuxConfig = {
-      name: 'skyux-spa-foobar'
+      name: 'skyuxconfig-name'
     };
     actualSkyuxConfig = undefined;
 
-    mockPackageJson = {};
+    mockPackageJson = {
+      name: 'packagejson-name'
+    };
     mockEjectedPackageJson = {};
     actualEjectedPackageJson = {};
 
@@ -59,6 +69,26 @@ describe('Eject', () => {
     errorSpy = jasmine.createSpy('error').and.callThrough();
     copySyncSpy = jasmine.createSpy('copySync');
     processExitSpy = spyOn(process, 'exit');
+
+    // Save the ejected project name.
+    spawnSpy.and.callFake((command, args) => {
+      if (command === 'ng' && args[0] === 'new') {
+        ejectedProjectName = args[1];
+        mockAngularJson = {
+          projects: {
+            [ejectedProjectName]: {
+              architect: {
+                build: {
+                  options: {
+                    styles: []
+                  }
+                }
+              }
+            }
+          }
+        };
+      }
+    });
 
     mock('@blackbaud/skyux-logger', {
       error: errorSpy,
@@ -74,13 +104,11 @@ describe('Eject', () => {
       createFileSync() {},
       existsSync(file) {
         if (!path.extname(file)) {
-          const basename = path.basename(file);
-          if (basename === 'assets') {
+          if (path.basename(file) === 'assets') {
             return true;
           }
 
           ejectedProjectPath = file;
-          ejectedProjectName = basename;
           return projectDirectoryExists;
         }
 
@@ -116,6 +144,10 @@ describe('Eject', () => {
         return '';
       },
       readJsonSync(file) {
+        if (file === path.join(ejectedProjectPath, 'angular.json')) {
+          return mockAngularJson;
+        }
+
         if (file === path.join(CWD, 'skyuxconfig.json')) {
           return mockSkyuxConfig;
         }
@@ -132,6 +164,10 @@ describe('Eject', () => {
       },
       writeFileSync: writeFileSyncSpy,
       writeJsonSync(file, contents) {
+        if (file.indexOf('angular.json') > -1) {
+          actualAngularJson = contents;
+        }
+
         if (file.indexOf('skyuxconfig.json') > -1) {
           actualSkyuxConfig = contents;
         }
@@ -190,12 +226,26 @@ describe('Eject', () => {
     expect(processExitSpy).toHaveBeenCalledWith(1);
   });
 
-  it('should derive ejected directory name', async () => {
+  it('should set project name from skyuxconfig.name', async () => {
     const eject = mock.reRequire('../lib/eject');
-    mockSkyuxConfig = {}; // no `name` value; use directory name instead.
     await eject();
-    const currentDirectory = path.basename(CWD);
-    expect(ejectedProjectName).toEqual(currentDirectory);
+    expect(ejectedProjectName).toEqual('skyuxconfig-name');
+  });
+
+  it('should set project name from skyuxconfig.app.base', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    mockSkyuxConfig.app = {
+      base: 'foobar'
+    };
+    await eject();
+    expect(ejectedProjectName).toEqual('foobar');
+  });
+
+  it('should set project name from packageJson.name', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    mockSkyuxConfig = {};
+    await eject();
+    expect(ejectedProjectName).toEqual('packagejson-name');
   });
 
   it('should run `ng new`', async () => {
@@ -203,7 +253,14 @@ describe('Eject', () => {
     await eject();
     expect(spawnSpy).toHaveBeenCalledWith(
       'ng',
-      ['new', ejectedProjectName, '--legacy-browsers', '--routing', '--strict', '--style=scss'],
+      [
+        'new', 'skyuxconfig-name',
+        `--directory=${path.basename(ejectedProjectPath)}`,
+        '--legacy-browsers',
+        '--routing',
+        '--strict',
+        '--style=scss'
+      ],
       {
         stdio: 'inherit'
       }
@@ -220,6 +277,21 @@ describe('Eject', () => {
       `[skyux eject] Error: The '${ejectedProjectPath}' directory already exists. Delete the directory and rerun the "eject" command.`
     );
     expect(processExitSpy).toHaveBeenCalledWith(1);
+  });
+
+  it('should migrate skyuxconfig.app.styles', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    mockSkyuxConfig.app = {
+      styles: [
+        'foobar/baz.css',
+        '@skyux/theme/css/sky.css',
+        '@skyux/theme/css/themes/modern/styles.css'
+      ]
+    };
+    await eject();
+    expect(actualAngularJson.projects[ejectedProjectName].architect.build.options.styles).toEqual([
+      'foobar/baz.css'
+    ]);
   });
 
   it('should process basic skyuxconfig.json files', async () => {

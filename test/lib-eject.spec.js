@@ -23,6 +23,7 @@ describe('Eject', () => {
   let actualEjectedPackageJson;
 
   let copySyncSpy;
+  let deprecateFilesSpy;
   let errorSpy;
   let processExitSpy;
   let spawnSpy;
@@ -68,6 +69,7 @@ describe('Eject', () => {
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
     errorSpy = jasmine.createSpy('error').and.callThrough();
     copySyncSpy = jasmine.createSpy('copySync');
+    deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
     processExitSpy = spyOn(process, 'exit');
 
     // Save the ejected project name.
@@ -210,6 +212,8 @@ describe('Eject', () => {
         return Promise.resolve(dependencies);
       }
     });
+
+    mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
   });
 
   afterEach(() => {
@@ -700,6 +704,12 @@ export class NotFoundComponent { }
 ></iframe>
 `
     );
+  });
+
+  it('should mark root modules as deprecated', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(deprecateFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
 });

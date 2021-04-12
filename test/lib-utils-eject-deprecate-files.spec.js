@@ -52,7 +52,8 @@ describe('deprecateFiles', () => {
     expect(mockFsExtra.writeFileSync).toHaveBeenCalledWith(
       appExtrasPath,
       `/**
- * @deprecated Provided services, imported modules, etc. should be moved to their respective feature modules, and this module should be removed.
+ * @deprecated Provided services, imported modules, etc. should be moved to
+ * their respective feature modules, and this module should be removed.
  */
 ${appExtrasContents}`,
       {
@@ -63,7 +64,8 @@ ${appExtrasContents}`,
     expect(mockFsExtra.writeFileSync).toHaveBeenCalledWith(
       appSkyPath,
       `/**
- * @deprecated Each SKY UX module should be imported into each feature module that reference the SKY UX module, and this module should be removed.
+ * @deprecated Each SKY UX module should be imported into each feature module
+ * that references the SKY UX module, and this module should be removed.
  */
 ${appSkyContents}`,
       {

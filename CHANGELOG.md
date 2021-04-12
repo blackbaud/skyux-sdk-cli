@@ -1,3 +1,7 @@
+# 4.5.0 (2021-04-12)
+
+- Added deprecation warnings to modules that should be refactored after running the `skyux eject` command. [#111](https://github.com/blackbaud/skyux-sdk-cli/pull/111)
+
 # 4.4.1 (2021-03-31)
 
 - Fixed the `skyux eject` command to run the Angular CLI schematic after all file operations are completed. [#110](https://github.com/blackbaud/skyux-sdk-cli/pull/110)

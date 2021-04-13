@@ -479,7 +479,8 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: []
 })
 export class AppRoutingModule { }
 `);
@@ -582,25 +583,25 @@ import {
 const routes: Routes = [
   { path: '', redirectTo: 'new-root', pathMatch: 'full' },
   { path: 'foobar', redirectTo: 'about', pathMatch: 'prefix' },
-  { path: '', component: RootRouteIndexComponent, children: [
-    { path: 'about/careers', component: AboutCareersRouteIndexComponent },
-    { path: 'about', component: AboutRouteIndexComponent, children: [
-      { path: 'about/contact', component: AboutContactRouteIndexComponent, children: [
-        { path: 'about/contact/form', component: AboutContactFormRouteIndexComponent },
-        { path: 'about/contact/contributors', component: AboutContactContributorsRouteIndexComponent }
-      ] }
-    ] },
-    { path: 'users/:userId', component: UsersUserIdRouteIndexComponent },
-    { path: 'users/:userId/locations/:locationId', component: UsersUserIdLocationsLocationIdRouteIndexComponent },
-    { path: 'users/:userId/locations', component: UsersUserIdLocationsRouteIndexComponent },
-    { path: 'users', component: UsersRouteIndexComponent, canActivate: [MyRouteGuard], canActivateChild: [MyRouteGuard], canDeactivate: [MyRouteGuard] }
+  { path: '', component: RootRouteIndexComponent },
+  { path: 'about/careers', component: AboutCareersRouteIndexComponent },
+  { path: 'about', component: AboutRouteIndexComponent, children: [
+    { path: 'contact', component: AboutContactRouteIndexComponent, children: [
+      { path: 'form', component: AboutContactFormRouteIndexComponent },
+      { path: 'contributors', component: AboutContactContributorsRouteIndexComponent }
+    ] }
   ] },
+  { path: 'users/:userId', component: UsersUserIdRouteIndexComponent },
+  { path: 'users/:userId/locations/:locationId', component: UsersUserIdLocationsLocationIdRouteIndexComponent },
+  { path: 'users/:userId/locations', component: UsersUserIdLocationsRouteIndexComponent },
+  { path: 'users', component: UsersRouteIndexComponent, canActivate: [MyRouteGuard], canActivateChild: [MyRouteGuard], canDeactivate: [MyRouteGuard] },
   { path: '**', component: NotFoundComponent }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [MyRouteGuard]
 })
 export class AppRoutingModule { }
 `

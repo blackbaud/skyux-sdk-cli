@@ -471,7 +471,8 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: []
 })
 export class AppRoutingModule { }
 `);
@@ -577,9 +578,9 @@ const routes: Routes = [
   { path: '', component: RootRouteIndexComponent },
   { path: 'about/careers', component: AboutCareersRouteIndexComponent },
   { path: 'about', component: AboutRouteIndexComponent, children: [
-    { path: 'about/contact', component: AboutContactRouteIndexComponent, children: [
-      { path: 'about/contact/form', component: AboutContactFormRouteIndexComponent },
-      { path: 'about/contact/contributors', component: AboutContactContributorsRouteIndexComponent }
+    { path: 'contact', component: AboutContactRouteIndexComponent, children: [
+      { path: 'form', component: AboutContactFormRouteIndexComponent },
+      { path: 'contributors', component: AboutContactContributorsRouteIndexComponent }
     ] }
   ] },
   { path: 'users/:userId', component: UsersUserIdRouteIndexComponent },
@@ -591,7 +592,8 @@ const routes: Routes = [
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
+  providers: [MyRouteGuard]
 })
 export class AppRoutingModule { }
 `

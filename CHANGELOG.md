@@ -1,3 +1,7 @@
+# 4.5.1 (2021-04-13)
+
+- Fixed the `skyux eject` command to properly setup child routes, and to add route guards to the module providers. [#113](https://github.com/blackbaud/skyux-sdk-cli/pull/113) [#114](https://github.com/blackbaud/skyux-sdk-cli/pull/114)
+
 # 4.5.0 (2021-04-12)
 
 - Added deprecation warnings to modules that should be refactored after running the `skyux eject` command. [#111](https://github.com/blackbaud/skyux-sdk-cli/pull/111)

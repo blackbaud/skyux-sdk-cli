@@ -24,10 +24,12 @@ describe('Eject', () => {
 
   let copySyncSpy;
   let deprecateFilesSpy;
+  let ensureNotFoundComponentSpy;
   let errorSpy;
   let processExitSpy;
   let spawnSpy;
   let writeFileSyncSpy;
+  let writeJsonSpy;
 
   let mockComponentData;
   let mockRouteGuardsData;
@@ -70,7 +72,9 @@ describe('Eject', () => {
     errorSpy = jasmine.createSpy('error').and.callThrough();
     copySyncSpy = jasmine.createSpy('copySync');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
+    ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
     processExitSpy = spyOn(process, 'exit');
+    writeJsonSpy = jasmine.createSpy('writeJson');
 
     // Save the ejected project name.
     spawnSpy.and.callFake((command, args) => {
@@ -164,20 +168,7 @@ describe('Eject', () => {
 
         return {};
       },
-      writeFileSync: writeFileSyncSpy,
-      writeJsonSync(file, contents) {
-        if (file.indexOf('angular.json') > -1) {
-          actualAngularJson = contents;
-        }
-
-        if (file.indexOf('skyuxconfig.json') > -1) {
-          actualSkyuxConfig = contents;
-        }
-
-        if (file.indexOf('package.json') > -1) {
-          actualEjectedPackageJson = contents;
-        }
-      }
+      writeFileSync: writeFileSyncSpy
     });
 
     mock('glob', {
@@ -214,6 +205,23 @@ describe('Eject', () => {
     });
 
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
+    mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
+
+    writeJsonSpy.and.callFake((file, contents) => {
+      if (file.indexOf('angular.json') > -1) {
+        actualAngularJson = contents;
+      }
+
+      if (file.indexOf('skyuxconfig.json') > -1) {
+        actualSkyuxConfig = contents;
+      }
+
+      if (file.indexOf('package.json') > -1) {
+        actualEjectedPackageJson = contents;
+      }
+    });
+
+    mock('../lib/utils/eject/write-json', writeJsonSpy);
   });
 
   afterEach(() => {
@@ -680,30 +688,9 @@ export class SkyPagesModule { }
 
   it('should create a NotFoundComponent if not exists', async () => {
     const eject = mock.reRequire('../lib/eject');
-    notFoundComponentExists = false;
     await eject();
-    expect(writeFileSyncSpy).toHaveBeenCalledWith(
-      path.join(ejectedProjectPath, 'src/app/not-found.component.ts'),
-      `import {
-  Component
-} from '@angular/core';
 
-@Component({
-  selector: 'app-not-found',
-  templateUrl: './not-found.component.html'
-})
-export class NotFoundComponent { }
-`
-    );
-    expect(writeFileSyncSpy).toHaveBeenCalledWith(
-      path.join(ejectedProjectPath, 'src/app/not-found.component.html'),
-      `<iframe
-  src="https://app.blackbaud.com/errors/notfound"
-  style="border:0;height:100vh;width:100%;"
-  [title]="'skyux_page_not_found_iframe_title' | skyAppResources"
-></iframe>
-`
-    );
+    expect(ensureNotFoundComponentSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
   it('should mark root modules as deprecated', async () => {

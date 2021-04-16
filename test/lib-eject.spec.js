@@ -16,7 +16,6 @@ describe('Eject', () => {
   let actualAngularJson;
 
   let mockSkyuxConfig;
-  let actualSkyuxConfig;
 
   let mockPackageJson;
 
@@ -24,6 +23,7 @@ describe('Eject', () => {
   let deprecateFilesSpy;
   let ensureNotFoundComponentSpy;
   let errorSpy;
+  let migrateSkyuxConfigFilesSpy;
   let modifyPackageJsonSpy;
   let processExitSpy;
   let spawnSpy;
@@ -58,7 +58,6 @@ describe('Eject', () => {
     mockSkyuxConfig = {
       name: 'skyuxconfig-name'
     };
-    actualSkyuxConfig = undefined;
 
     mockPackageJson = {
       name: 'packagejson-name'
@@ -70,6 +69,7 @@ describe('Eject', () => {
     copySyncSpy = jasmine.createSpy('copySync');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
     ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
+    migrateSkyuxConfigFilesSpy = jasmine.createSpy('migrateSkyuxConfigFiles');
     modifyPackageJsonSpy = jasmine.createSpy('modifyPackageJson');
     processExitSpy = spyOn(process, 'exit');
     writeJsonSpy = jasmine.createSpy('writeJson');
@@ -200,15 +200,12 @@ describe('Eject', () => {
 
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
     mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
+    mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
     mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
 
     writeJsonSpy.and.callFake((file, contents) => {
       if (file.indexOf('angular.json') > -1) {
         actualAngularJson = contents;
-      }
-
-      if (file.indexOf('skyuxconfig.json') > -1) {
-        actualSkyuxConfig = contents;
       }
     });
 
@@ -297,80 +294,12 @@ describe('Eject', () => {
     ]);
   });
 
-  it('should process basic skyuxconfig.json files', async () => {
+  it('should migrate skyuxconfig.json files', async () => {
     const eject = mock.reRequire('../lib/eject');
-    await eject();
-    expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json'
-    });
-  });
-
-  it('should migrate only accepted properties skyuxconfig.json files', async () => {
-    const eject = mock.reRequire('../lib/eject');
-
-    mockSkyuxConfig = {
-      name: 'skyux-spa-foobar',
-      app: {
-        externals: {
-          js: {
-            before: {
-              url: 'script.js'
-            }
-          }
-        },
-        theming: {
-          supportedThemes: ['default', 'modern'],
-          theme: 'modern'
-        },
-        invalidProp: {} // <-- should not be included
-      },
-      auth: true,
-      help: {},
-      host: {
-        url: 'https://foo.blackbaud.com/'
-      },
-      omnibar: {},
-      params: {
-        foo: {
-          required: true
-        },
-        bar: true
-      },
-      codeCoverageThreshold: 'standard',
-      invalidProp: {} // <-- should not be included
-    };
 
     await eject();
 
-    expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json',
-      app: {
-        externals: {
-          js: {
-            before: {
-              url: 'script.js'
-            }
-          }
-        },
-        theming: {
-          supportedThemes: ['default', 'modern'],
-          theme: 'modern'
-        }
-      },
-      auth: true,
-      help: {},
-      host: {
-        url: 'https://foo.blackbaud.com/'
-      },
-      omnibar: {},
-      params: {
-        foo: {
-          required: true
-        },
-        bar: true
-      },
-      codeCoverageThreshold: 'standard'
-    });
+    expect(migrateSkyuxConfigFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
   it('should setup `@skyux-sdk/angular-builders`', async () => {

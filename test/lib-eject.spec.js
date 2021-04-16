@@ -19,13 +19,12 @@ describe('Eject', () => {
   let actualSkyuxConfig;
 
   let mockPackageJson;
-  let mockEjectedPackageJson;
-  let actualEjectedPackageJson;
 
   let copySyncSpy;
   let deprecateFilesSpy;
   let ensureNotFoundComponentSpy;
   let errorSpy;
+  let modifyPackageJsonSpy;
   let processExitSpy;
   let spawnSpy;
   let writeFileSyncSpy;
@@ -64,8 +63,6 @@ describe('Eject', () => {
     mockPackageJson = {
       name: 'packagejson-name'
     };
-    mockEjectedPackageJson = {};
-    actualEjectedPackageJson = {};
 
     spawnSpy = jasmine.createSpy('spawnSpy');
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
@@ -73,6 +70,7 @@ describe('Eject', () => {
     copySyncSpy = jasmine.createSpy('copySync');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
     ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
+    modifyPackageJsonSpy = jasmine.createSpy('modifyPackageJson');
     processExitSpy = spyOn(process, 'exit');
     writeJsonSpy = jasmine.createSpy('writeJson');
 
@@ -158,10 +156,6 @@ describe('Eject', () => {
           return mockSkyuxConfig;
         }
 
-        if (file === path.join(ejectedProjectPath, 'package.json')) {
-          return mockEjectedPackageJson;
-        }
-
         if (file === path.join(CWD, 'package.json')) {
           return mockPackageJson;
         }
@@ -206,6 +200,7 @@ describe('Eject', () => {
 
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
     mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
+    mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
 
     writeJsonSpy.and.callFake((file, contents) => {
       if (file.indexOf('angular.json') > -1) {
@@ -214,10 +209,6 @@ describe('Eject', () => {
 
       if (file.indexOf('skyuxconfig.json') > -1) {
         actualSkyuxConfig = contents;
-      }
-
-      if (file.indexOf('package.json') > -1) {
-        actualEjectedPackageJson = contents;
       }
     });
 
@@ -395,35 +386,11 @@ describe('Eject', () => {
     );
   });
 
-  it('should add SKY UX packages to package.json', async () => {
-    mockPackageJson = {
-      dependencies: {
-        '@angular/core': '9',
-        '@blackbaud-internal/skyux-lib-analytics': '4',
-        '@blackbaud/skyux-lib-stache': '4',
-        '@skyux/core': '4',
-        'ignored-dep': '1',
-        '@skyux-sdk/ignore-me': '4'
-      }
-    };
-
-    mockEjectedPackageJson = {
-      dependencies: {
-        '@angular/core': '11'
-      }
-    };
-
+  it('should update package.json', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
 
-    expect(actualEjectedPackageJson).toEqual({
-      dependencies: {
-        '@angular/core': '11',
-        '@blackbaud-internal/skyux-lib-analytics': '4',
-        '@blackbaud/skyux-lib-stache': '4',
-        '@skyux/core': '4'
-      }
-    });
+    expect(modifyPackageJsonSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
   it('should copy assets folder', async () => {

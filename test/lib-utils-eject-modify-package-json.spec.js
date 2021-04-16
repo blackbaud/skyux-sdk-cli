@@ -8,6 +8,7 @@ describe('Modify package.json', () => {
   let ejectedProjectPath;
   let mockEjectedPackageJson;
   let mockPackageJson;
+  let mockSpawn;
   let modifyPackageJson;
   let upgradeDependenciesSpy;
 
@@ -25,7 +26,14 @@ describe('Modify package.json', () => {
 
         return {};
       },
-    })
+    });
+
+    mockSpawn = jasmine.createSpyObj(
+      'cross-spawn',
+      ['sync']
+    );
+
+    mock('cross-spawn', mockSpawn);
 
     upgradeDependenciesSpy = jasmine.createSpy('upgradeDependencies');
 
@@ -55,22 +63,34 @@ describe('Modify package.json', () => {
         '@skyux/core': '4',
         'third-party-dep': '1',
         '@skyux-sdk/ignore-me': '4'
+      },
+      devDependencies: {
+        '@skyux/foo': '4',
+        '@skyux-sdk/ignore-me-too': '4',
+        'third-party-dev-dep': '2'
       }
     };
 
     mockEjectedPackageJson = {
       dependencies: {
         '@angular/core': '11'
+      },
+      devDependencies: {
+        'tslint': '5'
       }
     };
 
     upgradeDependenciesSpy.and.callFake((dependencies) => {
       Object.assign(
         dependencies,
+        dependencies['@blackbaud-internal/skyux-lib-analytics'] ?
         {
           '@blackbaud-internal/skyux-lib-analytics': '4.1',
           '@blackbaud/skyux-lib-stache': '4.1',
           '@skyux/core': '4.1'
+        } :
+        {
+          '@skyux/foo': '4.1'
         }
       );
     });
@@ -84,7 +104,17 @@ describe('Modify package.json', () => {
         '@blackbaud/skyux-lib-stache': '4.1',
         '@skyux/core': '4.1',
         'third-party-dep': '1'
+      },
+      devDependencies: {
+        '@skyux/foo': '4.1',
+        'third-party-dev-dep': '2',
+        'tslint': '5'
       }
+    });
+
+    expect(mockSpawn.sync).toHaveBeenCalledWith('npm', ['i'], {
+      stdio: 'inherit',
+      cwd: ejectedProjectPath
     });
   });
 
@@ -94,9 +124,9 @@ describe('Modify package.json', () => {
 
     await modifyPackageJson(ejectedProjectPath);
 
-
     expect(actualEjectedPackageJson).toEqual({
-      dependencies: {}
+      dependencies: {},
+      devDependencies: {}
     });
   });
 });

@@ -1,3 +1,11 @@
+# 4.6.0 (2021-04-19)
+
+- Updated the `skyux eject` command to create a directory for string resources if one does not exist. [#116](https://github.com/blackbaud/skyux-sdk-cli/pull/116)
+
+- Updated the `skyux eject` command to preserve third-party dependencies in `package.json`. [#117](https://github.com/blackbaud/skyux-sdk-cli/pull/117)
+
+- Updated the `skyux eject` command to migrate the `appSettings` and `routes` sections in `skyuxconfig.json`. [#118](https://github.com/blackbaud/skyux-sdk-cli/pull/118)
+
 # 4.5.1 (2021-04-13)
 
 - Fixed the `skyux eject` command to properly set up child routes and to add route guards to the module providers. [#113](https://github.com/blackbaud/skyux-sdk-cli/pull/113) [#114](https://github.com/blackbaud/skyux-sdk-cli/pull/114)

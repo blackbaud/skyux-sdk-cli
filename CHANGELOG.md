@@ -2,7 +2,7 @@
 
 - Updated the `skyux eject` command to create a directory for string resources if one does not exist. [#116](https://github.com/blackbaud/skyux-sdk-cli/pull/116)
 
-- Updated the `skyux eject` command to preserve 3rd-party dependencies in `package.json`. [#117](https://github.com/blackbaud/skyux-sdk-cli/pull/117)
+- Updated the `skyux eject` command to preserve third-party dependencies in `package.json`. [#117](https://github.com/blackbaud/skyux-sdk-cli/pull/117)
 
 - Updated the `skyux eject` command to migrate the `appSettings` and `routes` sections in `skyuxconfig.json`. [#118](https://github.com/blackbaud/skyux-sdk-cli/pull/118)
 

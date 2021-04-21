@@ -108,8 +108,13 @@ describe('Eject', () => {
       createFileSync() {},
       existsSync(file) {
         if (!path.extname(file)) {
-          if (path.basename(file) === 'assets') {
+          const basename = path.basename(file);
+          if (basename === 'assets') {
             return true;
+          }
+
+          if (basename === 'public') {
+            return false;
           }
 
           ejectedProjectPath = file;

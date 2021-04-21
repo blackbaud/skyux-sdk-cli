@@ -3,7 +3,7 @@ const mock = require('mock-require');
 
 const CWD = process.cwd();
 
-fdescribe('Modify package.json', () => {
+describe('Modify package.json', () => {
   let actualEjectedPackageJson;
   let ejectedProjectPath;
   let mockEjectedPackageJson;

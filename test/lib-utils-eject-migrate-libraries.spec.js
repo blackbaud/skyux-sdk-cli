@@ -73,7 +73,9 @@ describe('migrate libraries util', () => {
 
   it('should copy source files', () => {
     const util = getUtil();
-    util.copyFiles('src/app/public', 'ejected-path', 'libraryName');
+
+    util.copyFiles(path.join('src/app/public'), 'ejected-path', 'libraryName');
+
     expect(removeSyncSpy).toHaveBeenCalledWith(
       path.join('ejected-path/projects/libraryName/src/lib')
     );
@@ -120,7 +122,7 @@ describe('migrate libraries util', () => {
     util.modifyPackageJson('ejected-path', 'libraryName');
 
     expect(writeJsonSyncSpy).toHaveBeenCalledWith(
-      'ejected-path/projects/libraryName/package.json',
+      path.join('ejected-path/projects/libraryName/package.json'),
       {
         name: '@namespace/packagejson-name',
         version: '4.1.0',
@@ -154,7 +156,7 @@ describe('migrate libraries util', () => {
     util.modifyPackageJson('ejected-path', 'libraryName');
 
     expect(writeJsonSyncSpy).toHaveBeenCalledWith(
-      'ejected-path/projects/libraryName/package.json',
+      path.join('ejected-path/projects/libraryName/package.json'),
       {
         name: '@namespace/packagejson-name',
         version: '4.1.0'

@@ -11,6 +11,7 @@ describe('Eject', () => {
   let skyuxConfigExists;
   let notFoundComponentExists;
   let rootIndexHtmlExists;
+  let publicDirectoryExists;
 
   let mockAngularJson;
   let actualAngularJson;
@@ -49,6 +50,7 @@ describe('Eject', () => {
     skyuxConfigExists = true;
     notFoundComponentExists = true;
     rootIndexHtmlExists = false;
+    publicDirectoryExists = false;
 
     mockAngularJson = {
       projects: {}
@@ -114,7 +116,7 @@ describe('Eject', () => {
           }
 
           if (basename === 'public') {
-            return false;
+            return publicDirectoryExists;
           }
 
           ejectedProjectPath = file;
@@ -195,6 +197,13 @@ describe('Eject', () => {
       verifyLatestVersion() {
         return Promise.resolve();
       }
+    });
+
+    mock('../lib/utils/eject/migrate-libraries', {
+      copyFiles() {},
+      generateAngularCliProject() {},
+      getName() {},
+      modifyPackageJson() {}
     });
 
     mock('../lib/app-dependencies', {
@@ -601,4 +610,13 @@ export class SkyPagesModule { }
     expect(deprecateFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
+  describe('ejecting libraries', () => {
+    it('should modify project name if ejecting a library', async () => {
+      publicDirectoryExists = true;
+      const eject = mock.reRequire('../lib/eject');
+      mockSkyuxConfig = {};
+      await eject();
+      expect(ejectedProjectName).toEqual('packagejson-name-spa');
+    });
+  });
 });

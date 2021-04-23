@@ -19,6 +19,7 @@ describe('Eject', () => {
 
   let mockPackageJson;
 
+  let createAngularCliProjectSpy;
   let copySyncSpy;
   let deprecateFilesSpy;
   let ensureNotFoundComponentSpy;
@@ -26,6 +27,7 @@ describe('Eject', () => {
   let migrateSkyuxConfigFilesSpy;
   let modifyPackageJsonSpy;
   let processExitSpy;
+  let promptForStrictModeSpy;
   let spawnSpy;
   let writeFileSyncSpy;
   let writeJsonSpy;
@@ -67,32 +69,34 @@ describe('Eject', () => {
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
     errorSpy = jasmine.createSpy('error').and.callThrough();
     copySyncSpy = jasmine.createSpy('copySync');
+    createAngularCliProjectSpy = jasmine.createSpy('createAngularCliProject');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
     ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
     migrateSkyuxConfigFilesSpy = jasmine.createSpy('migrateSkyuxConfigFiles');
     modifyPackageJsonSpy = jasmine.createSpy('modifyPackageJson');
     processExitSpy = spyOn(process, 'exit');
+    promptForStrictModeSpy = jasmine.createSpy('promptForStrictMode');
     writeJsonSpy = jasmine.createSpy('writeJson');
 
     // Save the ejected project name.
-    spawnSpy.and.callFake((command, args) => {
-      if (command === 'ng' && args[0] === 'new') {
-        ejectedProjectName = args[1];
-        mockAngularJson = {
-          projects: {
-            [ejectedProjectName]: {
-              architect: {
-                build: {
-                  options: {
-                    styles: []
-                  }
+    createAngularCliProjectSpy.and.callFake((_ejectedProjectPath, projectName) => {
+      ejectedProjectName = projectName;
+      mockAngularJson = {
+        projects: {
+          [ejectedProjectName]: {
+            architect: {
+              build: {
+                options: {
+                  styles: []
                 }
               }
             }
           }
-        };
-      }
+        }
+      };
     });
+
+    promptForStrictModeSpy.and.returnValue(Promise.resolve(false));
 
     mock('@blackbaud/skyux-logger', {
       error: errorSpy,
@@ -198,10 +202,12 @@ describe('Eject', () => {
       }
     });
 
+    mock('../lib/utils/eject/create-angular-cli-project', createAngularCliProjectSpy);
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
     mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
     mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
     mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
+    mock('../lib/utils/eject/prompt-for-strict-mode', promptForStrictModeSpy);
 
     writeJsonSpy.and.callFake((file, contents) => {
       if (file.indexOf('angular.json') > -1) {
@@ -251,20 +257,19 @@ describe('Eject', () => {
   it('should run `ng new`', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(spawnSpy).toHaveBeenCalledWith(
-      'ng',
-      [
-        'new', 'skyuxconfig-name',
-        `--directory=${path.basename(ejectedProjectPath)}`,
-        '--legacy-browsers',
-        '--routing',
-        '--strict',
-        '--style=scss'
-      ],
-      {
-        stdio: 'inherit'
-      }
-    );
+
+    expect(createAngularCliProjectSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', false);
+  });
+
+  it('should prompt for strict mode', async () => {
+    promptForStrictModeSpy.and.returnValue(Promise.resolve(true));
+
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+
+    expect(promptForStrictModeSpy).toHaveBeenCalledWith(CWD);
+
+    expect(createAngularCliProjectSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', true);
   });
 
   it('should throw an error if new project directory already exists', async () => {

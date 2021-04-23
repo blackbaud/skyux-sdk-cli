@@ -1,9 +1,10 @@
 const mock = require('mock-require');
 
-describe('App dependencies', () => {
+describe('(v4-compat) App dependencies', () => {
   let appDependencies;
   let latestVersionMock;
   let getPackageJsonMock;
+  let packageMapMock;
   let loggerMock;
 
   beforeEach(() => {
@@ -49,11 +50,20 @@ describe('App dependencies', () => {
 
     getPackageJsonMock = jasmine.createSpy('getPackageJson');
 
+    packageMapMock = {
+      getPackage: jasmine.createSpy('getPackage').and.callFake((name) => {
+        return {
+          package: name
+        };
+      })
+    };
+
     mock('@blackbaud/skyux-logger', loggerMock);
     mock('latest-version', latestVersionMock);
     mock('package-json', getPackageJsonMock);
+    mock('../lib/package-map', packageMapMock);
 
-    appDependencies = mock.reRequire('../lib/app-dependencies');
+    appDependencies = mock.reRequire('../../lib/v4-compat/app-dependencies');
   });
 
   afterEach(() => {
@@ -200,7 +210,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'typescript',
         {
-          version: '~4.1.5'
+          version: '~3.8.3'
         }
       );
 
@@ -219,7 +229,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'zone.js',
         {
-          version: '~0.11.3'
+          version: '~0.10.2'
         }
       );
 
@@ -276,7 +286,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'codelyzer',
         {
-          version: '^6.0.0'
+          version: '^5.2.2'
         }
       );
 
@@ -296,6 +306,7 @@ describe('App dependencies', () => {
         '@skyux-sdk/builder-plugin-stache': '0.0.1',
         '@skyux/foobar': '0.0.1',
         '@skyux/auth-client-factory': '2.0.0',
+        '@skyux-sdk/builder': '0.0.1',
         '@blackbaud/skyux-lib-restricted-view': '1.0.0',
         '@angular/common': '2.0.0',
         '@skyux-sdk/e2e': '0.0.1',
@@ -305,12 +316,13 @@ describe('App dependencies', () => {
       });
 
       expect(latestVersionMock.calls.allArgs()).toEqual([
-        [ '@angular/common', { version: '^11.0.0' } ],
+        [ '@angular/common', { version: '^9.0.0' } ],
         [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-media', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0' } ],
+        [ '@skyux-sdk/builder', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],

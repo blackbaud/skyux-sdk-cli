@@ -3,6 +3,7 @@ const mock = require('mock-require');
 describe('Upgrade', () => {
   let appDependenciesMock;
   let appDependenciesV3Mock;
+  let appDependenciesV4Mock;
   let jsonUtilsMock;
   let loggerMock;
   let upgrade;
@@ -21,6 +22,11 @@ describe('Upgrade', () => {
     };
 
     appDependenciesV3Mock = {
+      async addSkyPeerDependencies() {},
+      async upgradeDependencies() {}
+    };
+
+    appDependenciesV4Mock = {
       async addSkyPeerDependencies() {},
       async upgradeDependencies() {}
     };
@@ -57,6 +63,7 @@ describe('Upgrade', () => {
     mock('../lib/utils/json-utils', jsonUtilsMock);
     mock('../lib/app-dependencies', appDependenciesMock);
     mock('../lib/v3-compat/app-dependencies', appDependenciesV3Mock);
+    mock('../lib/v4-compat/app-dependencies', appDependenciesV4Mock);
     mock('../lib/utils/npm-install', npmInstallMock);
     mock('../lib/utils/cli-version', {
       verifyLatestVersion: () => Promise.resolve()
@@ -83,8 +90,8 @@ describe('Upgrade', () => {
     };
 
     const devDependencies = {
+      '@angular/cli': '11',
       '@foo/baz': '4.5.6',
-      '@skyux-sdk/builder': '4.0.0',
       'from-branch': 'foo/bar#branch'
     };
 
@@ -114,7 +121,7 @@ describe('Upgrade', () => {
     };
 
     const devDependencies = {
-      '@skyux-sdk/builder': '4.0.0'
+      '@angular/cli': '11'
     };
 
     jsonUtilsMock.readJson.and.returnValue({
@@ -145,7 +152,7 @@ describe('Upgrade', () => {
     jsonUtilsMock.readJson.and.returnValue({
       dependencies,
       devDependencies: {
-        '@skyux-sdk/builder': '4.0.0'
+        '@angular/cli': '11'
       }
     });
 
@@ -169,7 +176,7 @@ describe('Upgrade', () => {
     jsonUtilsMock.readJson.and.returnValue({
       dependencies: {},
       devDependencies: {
-        '@skyux-sdk/builder': '4.0.0'
+        '@angular/cli': '11'
       }
     });
 
@@ -200,11 +207,28 @@ describe('Upgrade', () => {
     done();
   });
 
+  it('should be backwards compatible with Builder 4 projects', async (done) => {
+    const upgradeDependenciesV4Spy = spyOn(appDependenciesV4Mock, 'upgradeDependencies').and.callThrough();
+
+    jsonUtilsMock.readJson.and.returnValue({
+      dependencies: {},
+      devDependencies: {
+        '@skyux-sdk/builder': '4.0.0' // <-- IMPORTANT
+      }
+    });
+
+    await upgrade({});
+
+    expect(upgradeDependenciesV4Spy).toHaveBeenCalled();
+
+    done();
+  });
+
   it('should run npm audit with --audit flag', async (done) => {
     jsonUtilsMock.readJson.and.returnValue({
       dependencies: {},
       devDependencies: {
-        '@skyux-sdk/builder': '4.0.0'
+        '@angular/cli': '11'
       }
     });
 
@@ -223,7 +247,7 @@ describe('Upgrade', () => {
     jsonUtilsMock.readJson.and.returnValue({
       dependencies: {},
       devDependencies: {
-        '@skyux-sdk/builder': '4.0.0'
+        '@angular/cli': '11'
       }
     });
 

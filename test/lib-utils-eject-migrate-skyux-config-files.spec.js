@@ -89,7 +89,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json',
+      $schema: './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json',
       app: {
         externals: {
           js: {
@@ -127,6 +127,17 @@ describe('migrateSkyuxConfigFiles', () => {
     });
   });
 
+  it('should modify the `$schema` property for public projects', () => {
+    mockSkyuxConfig = {
+      name: 'skyux-spa-foobar'
+    };
+
+    migrateSkyuxConfigFiles(ejectedProjectPath, false);
+
+    expect(actualSkyuxConfig).toEqual({
+      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json'
+    });
+  });
 
   it('should skip supported properties not present in the skyuxconfig.json file', () => {
     mockSkyuxConfig = {
@@ -137,7 +148,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json',
+      $schema: './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json',
       auth: true
     });
   });

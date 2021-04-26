@@ -313,7 +313,7 @@ describe('Eject', () => {
 
     await eject();
 
-    expect(migrateSkyuxConfigFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
+    expect(migrateSkyuxConfigFilesSpy).toHaveBeenCalledWith(ejectedProjectPath, false);
   });
 
   it('should add `@skyux-sdk/angular-builders` for public projects', async () => {

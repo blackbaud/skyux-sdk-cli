@@ -8,6 +8,8 @@ describe('Create Angular CLI project', () => {
   let spawnSpy;
 
   function validateSpawn(strictMode) {
+    createAngularCliProject(ejectedProjectPath, projectName, strictMode);
+
     expect(spawnSpy).toHaveBeenCalledWith(
       'ng',
       [
@@ -16,8 +18,8 @@ describe('Create Angular CLI project', () => {
         `--directory=${path.basename(ejectedProjectPath)}`,
         '--legacy-browsers',
         '--routing',
-        '--style=scss',
-        `--strict-${strictMode}`
+        `--strict=${strictMode}`,
+        '--style=scss'
       ],
       {
         stdio: 'inherit'
@@ -45,15 +47,11 @@ describe('Create Angular CLI project', () => {
     mock.stopAll();
   });
 
-  it('should create an Angular CLI project', async () => {
-    createAngularCliProject(ejectedProjectPath, projectName, false);
-
-    validateSpawn('false');
+  it('should create an Angular CLI project', () => {
+    validateSpawn(false);
   });
 
-  it('should use strict mode if specified', async () => {
-    createAngularCliProject(ejectedProjectPath, projectName, true);
-
-    validateSpawn('true');
+  it('should use strict mode if specified', () => {
+    validateSpawn(true);
   });
 });

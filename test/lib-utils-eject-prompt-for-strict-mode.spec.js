@@ -38,9 +38,9 @@ describe('Prompt for strict mode', () => {
     const strictMode = await promptForStrictMode(ejectedProjectPath);
 
     expect(mockPromptly.confirm).toHaveBeenCalledWith(
-      'Would you like to enable strict mode for your new SPA? ' +
+      'Would you like to enable strict mode for your new Angular project? ' +
       'Doing so will break everything, so only choose this option ' +
-      'if you love to refactor.'
+      'if you love to refactor. (y/n)'
     );
 
     expect(strictMode).toBeFalse();

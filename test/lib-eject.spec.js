@@ -35,6 +35,8 @@ describe('Eject', () => {
   let mockRouteGuardsData;
   let mockRoutesData;
 
+  let mockOriginUrl;
+
   beforeEach(() => {
 
     mockRoutesData = {};
@@ -206,6 +208,13 @@ describe('Eject', () => {
       modifyPackageJson() {}
     });
 
+    mockOriginUrl = 'https://github.com/';
+    mock('../lib/utils/git-utils', {
+      getOriginUrl() {
+        return mockOriginUrl;
+      }
+    });
+
     mock('../lib/app-dependencies', {
       upgradeDependencies(dependencies) {
         return Promise.resolve(dependencies);
@@ -316,12 +325,26 @@ describe('Eject', () => {
     expect(migrateSkyuxConfigFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
-  it('should setup `@skyux-sdk/angular-builders`', async () => {
+  it('should add `@skyux-sdk/angular-builders` for public projects', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
     expect(spawnSpy).toHaveBeenCalledWith(
       'ng',
       ['add', '@skyux-sdk/angular-builders'],
+      {
+        stdio: 'inherit',
+        cwd: ejectedProjectPath
+      }
+    );
+  });
+
+  it('should add `@blackbaud-internal/skyux-angular-builders` for private projects', async () => {
+    mockOriginUrl = 'https://blackbaud.visualstudio.com/';
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(spawnSpy).toHaveBeenCalledWith(
+      'ng',
+      ['add', '@blackbaud-internal/skyux-angular-builders@^5.0.0-alpha.0'],
       {
         stdio: 'inherit',
         cwd: ejectedProjectPath

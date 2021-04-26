@@ -45,7 +45,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles = mock.reRequire('../lib/utils/eject/migrate-skyux-config-files');
   });
 
-  it('should migrate only accepted properties skyuxconfig.json files', () => {
+  it('should migrate only accepted properties in internal skyuxconfig.json files', () => {
     mockSkyuxConfig = {
       name: 'skyux-spa-foobar',
       app: {
@@ -89,7 +89,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json',
+      $schema: './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json',
       app: {
         externals: {
           js: {
@@ -127,6 +127,20 @@ describe('migrateSkyuxConfigFiles', () => {
     });
   });
 
+  it('should migrate only accepted properties in public skyuxconfig.json files', () => {
+    mockSkyuxConfig = {
+      name: 'skyux-spa-foobar',
+      codeCoverageThreshold: 'standard',
+      invalidProp: {} // <-- should not be included
+    };
+
+    migrateSkyuxConfigFiles(ejectedProjectPath, false);
+
+    expect(actualSkyuxConfig).toEqual({
+      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json',
+      codeCoverageThreshold: 'standard'
+    });
+  });
 
   it('should skip supported properties not present in the skyuxconfig.json file', () => {
     mockSkyuxConfig = {
@@ -137,7 +151,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json',
+      $schema: './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json',
       auth: true
     });
   });

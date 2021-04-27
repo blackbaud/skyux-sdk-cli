@@ -127,18 +127,15 @@ describe('migrateSkyuxConfigFiles', () => {
     });
   });
 
-  it('should migrate only accepted properties in public skyuxconfig.json files', () => {
+  it('should modify the `$schema` property for public projects', () => {
     mockSkyuxConfig = {
-      name: 'skyux-spa-foobar',
-      codeCoverageThreshold: 'standard',
-      invalidProp: {} // <-- should not be included
+      name: 'skyux-spa-foobar'
     };
 
     migrateSkyuxConfigFiles(ejectedProjectPath, false);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json',
-      codeCoverageThreshold: 'standard'
+      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json'
     });
   });
 

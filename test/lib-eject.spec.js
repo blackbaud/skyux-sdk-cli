@@ -71,7 +71,7 @@ describe('Eject', () => {
 
     spawnSpy = jasmine.createSpy('spawnSpy');
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
-    errorSpy = jasmine.createSpy('error').and.callThrough();
+    errorSpy = jasmine.createSpy('error');
     copySyncSpy = jasmine.createSpy('copySync');
     createAngularCliProjectSpy = jasmine.createSpy('createAngularCliProject');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
@@ -101,6 +101,8 @@ describe('Eject', () => {
     });
 
     promptForStrictModeSpy.and.returnValue(Promise.resolve(false));
+
+    spyOn(console, 'error');
 
     mock('@blackbaud/skyux-logger', {
       error: errorSpy,

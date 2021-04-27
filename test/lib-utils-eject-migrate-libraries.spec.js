@@ -24,6 +24,10 @@ describe('migrate libraries util', () => {
     };
     mockEjectedPackageJson = {};
 
+    mock('@blackbaud/skyux-logger', {
+      info() {}
+    });
+
     mock('cross-spawn', {
       sync: spawnSyncSpy
     });

@@ -1,3 +1,12 @@
+# 4.7.0 (2021-04-27)
+
+- Updated the `skyux upgrade` command to work with Angular CLI projects. [#121](https://github.com/blackbaud/skyux-sdk-cli/pull/121)
+- Updated the `skyux eject` command to migrate basic SKY UX library projects. [#122](https://github.com/blackbaud/skyux-sdk-cli/pull/122)
+- Updated the `skyux eject` command to add the `@blackbaud-internal/skyux-angular-builders` package to private projects and the `@skyux-sdk/angular-builders` package to public projects. [#124](https://github.com/blackbaud/skyux-sdk-cli/pull/124)
+- Updated the `skyux eject` command to prompt the user if they wish to enable "strict" mode for their ejected project. [#125](https://github.com/blackbaud/skyux-sdk-cli/pull/125)
+- Fixed the `skyux eject` command to properly set the `$schema` property for the `skyuxconfig.json` file. [#126](https://github.com/blackbaud/skyux-sdk-cli/pull/126)
+- Fixed the `skyux eject` command to properly handle library source files. [#120](https://github.com/blackbaud/skyux-sdk-cli/pull/120)
+
 # 4.6.0 (2021-04-19)
 
 - Updated the `skyux eject` command to create a directory for string resources if one does not exist. [#116](https://github.com/blackbaud/skyux-sdk-cli/pull/116)

@@ -45,7 +45,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles = mock.reRequire('../lib/utils/eject/migrate-skyux-config-files');
   });
 
-  it('should migrate only accepted properties skyuxconfig.json files', () => {
+  it('should migrate only accepted properties in internal skyuxconfig.json files', () => {
     mockSkyuxConfig = {
       name: 'skyux-spa-foobar',
       app: {

@@ -38,6 +38,7 @@ describe('Eject', () => {
   let mockRoutesData;
 
   let mockOriginUrl;
+  let isGitClean;
 
   beforeEach(() => {
 
@@ -215,9 +216,13 @@ describe('Eject', () => {
     });
 
     mockOriginUrl = 'https://github.com/';
+    isGitClean = true;
     mock('../lib/utils/git-utils', {
       getOriginUrl() {
         return mockOriginUrl;
+      },
+      checkGitClean() {
+        return isGitClean;
       }
     });
 

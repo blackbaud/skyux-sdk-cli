@@ -38,6 +38,7 @@ describe('Eject', () => {
   let mockRoutesData;
 
   let mockOriginUrl;
+  let isGitClean;
 
   beforeEach(() => {
 
@@ -215,9 +216,13 @@ describe('Eject', () => {
     });
 
     mockOriginUrl = 'https://github.com/';
+    isGitClean = true;
     mock('../lib/utils/git-utils', {
       getOriginUrl() {
         return mockOriginUrl;
+      },
+      isGitClean() {
+        return isGitClean;
       }
     });
 
@@ -245,6 +250,16 @@ describe('Eject', () => {
 
   afterEach(() => {
     mock.stopAll();
+  });
+
+  it('should throw an error if uncommitted changes found', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    isGitClean = false;
+    await eject();
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[skyux eject] Error: Uncommitted changes found. Please commit or stash any changes before ejecting your project.'
+    );
+    expect(processExitSpy).toHaveBeenCalledWith(1);
   });
 
   it('should throw an error if skyuxconfig.json not found', async () => {

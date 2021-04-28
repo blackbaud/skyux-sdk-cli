@@ -36,8 +36,43 @@ describe('git utils', () => {
       '--get',
       'remote.origin.url'
     ], {
-      cwd: path.join(process.cwd())
+      cwd: path.join(process.cwd()),
+      stdio: 'pipe'
     });
+  });
+
+  it('should check if git is clean', () => {
+    const util = mock.reRequire('../lib/utils/git-utils');
+    syncSpy.and.returnValue({
+      stdout: {
+        toString() {
+          return '  ';
+        }
+      }
+    });
+    const isClean = util.isGitClean();
+    expect(isClean).toBeTrue();
+
+    expect(syncSpy).toHaveBeenCalledWith('git', [
+      'status',
+      '--porcelain'
+    ], {
+      cwd: path.join(process.cwd()),
+      stdio: 'pipe'
+    });
+  });
+
+  it('should check if git is not clean', () => {
+    const util = mock.reRequire('../lib/utils/git-utils');
+    syncSpy.and.returnValue({
+      stdout: {
+        toString() {
+          return 'M lib/foo.js';
+        }
+      }
+    });
+    const isClean = util.isGitClean();
+    expect(isClean).toBeFalse();
   });
 
 });

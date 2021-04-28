@@ -2,7 +2,7 @@ const mock = require('mock-require');
 
 describe('Prompt for strict mode', () => {
   let ejectedProjectPath;
-  let mockPromptly;
+  let mockInquirer;
   let mockTsConfig;
   let promptForStrictMode;
 
@@ -16,12 +16,12 @@ describe('Prompt for strict mode', () => {
       },
     });
 
-    mockPromptly = jasmine.createSpyObj(
-      'promptly',
-      ['confirm']
+    mockInquirer = jasmine.createSpyObj(
+      'inquirer',
+      ['prompt']
     );
 
-    mock('promptly', mockPromptly);
+    mock('inquirer', mockInquirer);
 
     promptForStrictMode = mock.reRequire('../lib/utils/eject/prompt-for-strict-mode');
   });
@@ -33,15 +33,18 @@ describe('Prompt for strict mode', () => {
   it('should prompt for strict mode if the SPA does not already have strict mode enabled', async () => {
     mockTsConfig = {};
 
-    mockPromptly.confirm.and.returnValue(Promise.resolve(false));
+    mockInquirer.prompt.and.returnValue(Promise.resolve(false));
 
     const strictMode = await promptForStrictMode(ejectedProjectPath);
 
-    expect(mockPromptly.confirm).toHaveBeenCalledWith(
-      'Would you like to enable strict mode for your new Angular project? ' +
-      'Doing so will break everything, so only choose this option ' +
-      'if you love to refactor. (y/n)'
-    );
+    expect(mockInquirer.prompt).toHaveBeenCalledWith([{
+      type: 'confirm',
+      name: 'confirmation',
+      message: 'Would you like to enable strict mode for your new Angular project? ' +
+        'Doing so will break everything, so only choose this option ' +
+        'if you love to refactor.',
+      default: false
+    }]);
 
     expect(strictMode).toBeFalse();
   });
@@ -53,7 +56,7 @@ describe('Prompt for strict mode', () => {
 
     const strictMode = await promptForStrictMode(ejectedProjectPath);
 
-    expect(mockPromptly.confirm).not.toHaveBeenCalled();
+    expect(mockInquirer.prompt).not.toHaveBeenCalled();
 
     expect(strictMode).toBeTrue();
   });

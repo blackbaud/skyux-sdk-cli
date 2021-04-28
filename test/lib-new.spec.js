@@ -2,6 +2,11 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('skyux new command', () => {
+  let promptDoneSpy;
+
+  beforeEach(() => {
+    promptDoneSpy = jasmine.createSpy('promptDone');
+  });
 
   afterEach(() => {
     mock.stopAll();
@@ -26,24 +31,30 @@ describe('skyux new command', () => {
   }
 
   function spyOnPromptly(name, url) {
-    const spyPromptly = jasmine.createSpyObj('promptly', ['prompt']);
+    const promptSpy = jasmine.createSpyObj('inquirer', ['prompt']);
 
-    spyPromptly.prompt.and.callFake((message, options) => {
+    promptSpy.prompt.and.callFake((questions) => {
       let value = name;
 
-      if (message.indexOf('URL') > -1) {
+      if (questions[0].message.indexOf('URL') > -1) {
         value = url;
       }
 
-      if (options.validator) {
-        value = options.validator(value);
+      if (questions[0].validate) {
+        questions[0].validate.call({
+          async() {
+            return promptDoneSpy;
+          }
+        }, value);
       }
 
-      return Promise.resolve(value);
+      return Promise.resolve({
+        [questions[0].name]: value
+      });
     });
 
-    mock('promptly', spyPromptly);
-    return spyPromptly.prompt;
+    mock('inquirer', promptSpy);
+    return promptSpy.prompt;
   }
 
   function spyOnSpawn() {
@@ -108,10 +119,10 @@ describe('skyux new command', () => {
     it('should ask for a SPA name and url', async () => {
       const spies = getSpies('name', '');
       await getLib()({});
-      expect(spies.spyPrompt.calls.argsFor(0)[0]).toBe(
+      expect(spies.spyPrompt.calls.argsFor(0)[0][0].message).toBe(
         'What is the root directory for your SPA? (example: my-spa-name)'
       );
-      expect(spies.spyPrompt.calls.argsFor(1)[0]).toBe(
+      expect(spies.spyPrompt.calls.argsFor(1)[0][0].message).toBe(
         'What is the URL to your repo? (leave this blank if you don\'t know)'
       );
     });
@@ -120,20 +131,31 @@ describe('skyux new command', () => {
       const spies = getSpies('already-exists', '');
       spies.spyFs.existsSync.and.returnValue(true);
       await getLib()({});
-      expect(spies.spyLogger.error).toHaveBeenCalledWith(
+      expect(promptDoneSpy).toHaveBeenCalledWith(
         'SPA directory already exists.'
       );
     });
 
     it('should catch a SPA name with invalid characters', async () => {
-      const spies = getSpies('invalid name', '');
+      getSpies('invalid name', '');
       await getLib()({});
-      expect(spies.spyLogger.error).toHaveBeenCalledWith(
+      expect(promptDoneSpy).toHaveBeenCalledWith(
         'SPA root directories may only contain lower-case letters, numbers or dashes.'
       );
     });
 
-    it('should use the --name argument and handle an error', async () => {
+    it('should use the --name argument', async () => {
+      const spies = getSpies('name', '');
+      spies.spyFs.readJsonSync.and.returnValue({});
+      await getLib()({
+        name: 'name'
+      });
+      expect(spies.spyLogger.info).toHaveBeenCalledWith(
+        'Created a single-page application (SPA) in directory skyux-spa-name'
+      );
+    });
+
+    it('should handle an invalid --name argument', async () => {
       const spies = getSpies('name', '');
       await getLib()({
         name: 'invalid name'
@@ -387,7 +409,7 @@ describe('skyux new command', () => {
         `A library named skyux-lib-${name}`
       );
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
-        `Creating a library named 'skyux-lib-${name}'...`
+        `\nCreating a library named 'skyux-lib-${name}'...`
       );
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
         `Created a library in directory skyux-lib-${name}`

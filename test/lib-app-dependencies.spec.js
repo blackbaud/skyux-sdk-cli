@@ -287,7 +287,8 @@ describe('App dependencies', () => {
 
     it('should use specific ranges for SKY UX and Angular packages', async () => {
       // Dependencies purposefully listed out of order:
-      await appDependencies.upgradeDependencies({
+      const dependencies = {
+        '@blackbaud-internal/skyux-angular-builders': '5.0.1',
         '@skyux-sdk/builder-plugin-skyux': '0.0.1',
         '@blackbaud/skyux-lib-stache': '0.0.1',
         '@blackbaud/skyux-lib-code-block': '0.0.1',
@@ -301,16 +302,21 @@ describe('App dependencies', () => {
         '@skyux-sdk/e2e': '0.0.1',
         '@skyux-sdk/pact': '0.0.1',
         '@blackbaud/skyux-lib-clipboard': '0.0.1',
-        '@skyux-sdk/builder-plugin-pact': '0.0.1'
-      });
+        '@skyux-sdk/builder-plugin-pact': '0.0.1',
+        '@skyux-sdk/angular-builders': '5.0.0'
+      };
+
+      await appDependencies.upgradeDependencies(dependencies);
 
       expect(latestVersionMock.calls.allArgs()).toEqual([
         [ '@angular/common', { version: '^11.0.0' } ],
+        [ '@blackbaud-internal/skyux-angular-builders', { version: '^5.0.0-alpha.0' } ],
         [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-media', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0' } ],
         [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0' } ],
+        [ '@skyux-sdk/angular-builders', { version: '^5.0.0-alpha.0' } ],
         [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],
         [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],

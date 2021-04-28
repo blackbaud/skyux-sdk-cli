@@ -25,8 +25,10 @@ describe('Eject', () => {
   let deprecateFilesSpy;
   let ensureNotFoundComponentSpy;
   let errorSpy;
+  let mergeEjectedFilesSpy;
   let migrateSkyuxConfigFilesSpy;
   let modifyPackageJsonSpy;
+  let npmCiSpy;
   let processExitSpy;
   let promptForStrictModeSpy;
   let spawnSpy;
@@ -207,6 +209,12 @@ describe('Eject', () => {
         return Promise.resolve();
       }
     });
+
+    mergeEjectedFilesSpy = jasmine.createSpy('mergeEjectedFiles');
+    mock('../lib/utils/eject/merge-ejected-files', mergeEjectedFilesSpy);
+
+    npmCiSpy = jasmine.createSpy('npmCi');
+    mock('../lib/utils/npm-ci', npmCiSpy);
 
     mock('../lib/utils/eject/migrate-libraries', {
       copyFiles() {},
@@ -653,6 +661,18 @@ export class SkyPagesModule { }
     const eject = mock.reRequire('../lib/eject');
     await eject();
     expect(deprecateFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
+  });
+
+  it('should run `npm ci` after eject complete', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(npmCiSpy).toHaveBeenCalled();
+  });
+
+  it('should merge ejected files with source files', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(mergeEjectedFilesSpy).toHaveBeenCalled();
   });
 
   describe('ejecting libraries', () => {

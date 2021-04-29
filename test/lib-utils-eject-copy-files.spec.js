@@ -35,8 +35,9 @@ describe('eject utils copy files', () => {
       sync(pattern) {
         switch (pattern) {
           case path.join(CWD, 'src/app/**/*'):
+            // Glob always returns paths with forward slashes.
             return [
-              path.join(CWD, 'src/app/home.component.ts')
+              `${CWD.replace(/\\/g, '/')}/src/app/home.component.ts`
             ];
           default:
             return [];

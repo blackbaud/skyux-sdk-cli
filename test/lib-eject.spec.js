@@ -42,6 +42,10 @@ describe('Eject', () => {
   let mockOriginUrl;
   let isGitClean;
 
+  let copyAssetsDirectorySpy;
+  let copyAppFilesSpy;
+  let copyRootProjectFilesSpy;
+
   beforeEach(() => {
 
     mockRoutesData = {};
@@ -202,6 +206,15 @@ describe('Eject', () => {
 
         return [];
       }
+    });
+
+    copyAssetsDirectorySpy = jasmine.createSpy('copyAssetsDirectory');
+    copyAppFilesSpy = jasmine.createSpy('copyAppFiles');
+    copyRootProjectFilesSpy = jasmine.createSpy('copyRootProjectFiles');
+    mock('../lib/utils/eject/copy-files', {
+      copyAssetsDirectory: copyAssetsDirectorySpy,
+      copyAppFiles: copyAppFilesSpy,
+      copyRootProjectFiles: copyRootProjectFilesSpy
     });
 
     mock('../lib/utils/cli-version', {
@@ -392,19 +405,19 @@ describe('Eject', () => {
   it('should copy assets folder', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(copySyncSpy).toHaveBeenCalledWith(
-      path.join(CWD, 'src/assets'),
-      path.join(ejectedProjectPath, 'src/assets')
-    );
+    expect(copyAssetsDirectorySpy).toHaveBeenCalled();
   });
 
   it('should copy specific app files', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(copySyncSpy).toHaveBeenCalledWith(
-      path.join(CWD, 'src/app/home.component.ts'),
-      path.join(ejectedProjectPath, 'src/app/home.component.ts')
-    );
+    expect(copyAppFilesSpy).toHaveBeenCalled();
+  });
+
+  it('should copy root files', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(copyRootProjectFilesSpy).toHaveBeenCalled();
   });
 
   it('should handle migrating SPAs without routes', async () => {

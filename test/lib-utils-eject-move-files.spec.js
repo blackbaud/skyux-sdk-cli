@@ -1,7 +1,8 @@
 const mock = require('mock-require');
 const path = require('path');
 
-const MOCK_EJECTED_PROJECT_PATH = '.mocktmp';
+const MOCK_EJECTED_PROJECT_PATH = '.mockprojectpath';
+const MOCK_TEMP_DIR = '.mocktmpdir';
 
 describe('move files', () => {
   let copySyncSpy;
@@ -23,9 +24,15 @@ describe('move files', () => {
     });
 
     mock('glob', {
-      sync() {
+      sync(pattern) {
+        if (pattern.startsWith(MOCK_EJECTED_PROJECT_PATH)) {
+          return [
+            path.join(MOCK_EJECTED_PROJECT_PATH, 'src/app/app.component.ts')
+          ];
+        }
+
         return [
-          path.join(MOCK_EJECTED_PROJECT_PATH, 'src/app/app.component.ts')
+          path.join(process.cwd(), 'src/app/app.component.ts')
         ];
       }
     });
@@ -39,36 +46,50 @@ describe('move files', () => {
     return mock.reRequire('../lib/utils/eject/move-files');
   }
 
-  it('should move files from ejected temp folder to current working directory', () => {
-    const util = getUtil();
+  describe('moveEjectedFilesToCwd', () => {
+    it('should move files from ejected temp folder to current working directory', () => {
+      const util = getUtil();
 
-    util.moveEjectedFilesToCwd(MOCK_EJECTED_PROJECT_PATH);
+      util.moveEjectedFilesToCwd(MOCK_EJECTED_PROJECT_PATH);
 
-    expect(moveSyncSpy).toHaveBeenCalledWith(
-      path.join(MOCK_EJECTED_PROJECT_PATH, 'src/app/app.component.ts'),
-      path.join(process.cwd(), 'src/app/app.component.ts'),
-      {
-        overwrite: true
-      }
-    );
+      expect(moveSyncSpy).toHaveBeenCalledWith(
+        path.join(MOCK_EJECTED_PROJECT_PATH, 'src/app/app.component.ts'),
+        path.join(process.cwd(), 'src/app/app.component.ts'),
+        {
+          overwrite: true
+        }
+      );
+    });
+
+    it('should remove directories', () => {
+      const util = getUtil();
+
+      util.moveEjectedFilesToCwd(MOCK_EJECTED_PROJECT_PATH);
+
+      expect(removeSyncSpy).toHaveBeenCalledWith(
+        path.join(process.cwd(), 'node_modules')
+      );
+
+      expect(removeSyncSpy).toHaveBeenCalledWith(
+        path.join(process.cwd(), 'src')
+      );
+
+      expect(removeSyncSpy).toHaveBeenCalledWith(
+        MOCK_EJECTED_PROJECT_PATH
+      );
+    });
   });
 
-  it('should remove directories', () => {
-    const util = getUtil();
+  describe('moveSourceFilesToTemp', () => {
+    it('should copy original source files from current working directory to temp folder', () => {
+      const util = getUtil();
 
-    util.moveEjectedFilesToCwd(MOCK_EJECTED_PROJECT_PATH);
+      util.moveSourceFilesToTemp(MOCK_EJECTED_PROJECT_PATH, MOCK_TEMP_DIR);
 
-    expect(removeSyncSpy).toHaveBeenCalledWith(
-      path.join(process.cwd(), 'node_modules')
-    );
-
-    expect(removeSyncSpy).toHaveBeenCalledWith(
-      path.join(process.cwd(), 'src')
-    );
-
-    expect(removeSyncSpy).toHaveBeenCalledWith(
-      MOCK_EJECTED_PROJECT_PATH
-    );
+      expect(copySyncSpy).toHaveBeenCalledWith(
+        path.join(process.cwd(), 'src/app/app.component.ts'),
+        path.join(process.cwd(), MOCK_TEMP_DIR, 'src/app/app.component.ts')
+      );
+    });
   });
-
 });

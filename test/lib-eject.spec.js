@@ -25,10 +25,11 @@ describe('Eject', () => {
   let deprecateFilesSpy;
   let ensureNotFoundComponentSpy;
   let errorSpy;
-  let mergeEjectedFilesSpy;
+  let moveEjectedFilesSpy;
+  let moveSourceFilesSpy;
   let migrateSkyuxConfigFilesSpy;
   let modifyPackageJsonSpy;
-  let npmCiSpy;
+  let npmInstallSpy;
   let processExitSpy;
   let promptForStrictModeSpy;
   let spawnSpy;
@@ -223,11 +224,15 @@ describe('Eject', () => {
       }
     });
 
-    mergeEjectedFilesSpy = jasmine.createSpy('mergeEjectedFiles');
-    mock('../lib/utils/eject/merge-ejected-files', mergeEjectedFilesSpy);
+    moveEjectedFilesSpy = jasmine.createSpy('moveEjectedFiles');
+    moveSourceFilesSpy = jasmine.createSpy('moveSourceFiles');
+    mock('../lib/utils/eject/move-files', {
+      moveEjectedFilesToCwd: moveEjectedFilesSpy,
+      moveSourceFilesToTemp: moveSourceFilesSpy
+    });
 
-    npmCiSpy = jasmine.createSpy('npmCi');
-    mock('../lib/utils/npm-ci', npmCiSpy);
+    npmInstallSpy = jasmine.createSpy('npmInstall').and.returnValue(Promise.resolve());
+    mock('../lib/utils/npm-install', npmInstallSpy);
 
     mock('../lib/utils/eject/migrate-libraries', {
       copyFiles() {},
@@ -676,16 +681,22 @@ export class SkyPagesModule { }
     expect(deprecateFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
-  it('should run `npm ci` after eject complete', async () => {
+  it('should run `npm install` after eject complete', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(npmCiSpy).toHaveBeenCalled();
+    expect(npmInstallSpy).toHaveBeenCalled();
   });
 
-  it('should merge ejected files with source files', async () => {
+  it('should move ejected files to current working directory', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(mergeEjectedFilesSpy).toHaveBeenCalled();
+    expect(moveEjectedFilesSpy).toHaveBeenCalled();
+  });
+
+  it('should move original source files to temp directory', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(moveSourceFilesSpy).toHaveBeenCalled();
   });
 
   describe('ejecting libraries', () => {

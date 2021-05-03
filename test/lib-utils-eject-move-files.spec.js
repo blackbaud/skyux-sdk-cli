@@ -3,8 +3,9 @@ const path = require('path');
 
 const MOCK_EJECTED_PROJECT_PATH = '.mocktmp';
 
-describe('merge ejected files', () => {
+describe('move files', () => {
   let copySyncSpy;
+  let moveSyncSpy;
   let removeSyncSpy;
 
   beforeEach(() => {
@@ -13,9 +14,11 @@ describe('merge ejected files', () => {
     });
 
     copySyncSpy = jasmine.createSpy('copySync');
+    moveSyncSpy = jasmine.createSpy('moveSync');
     removeSyncSpy = jasmine.createSpy('removeSync');
     mock('fs-extra', {
       copySync: copySyncSpy,
+      moveSync: moveSyncSpy,
       removeSync: removeSyncSpy
     });
 
@@ -33,24 +36,27 @@ describe('merge ejected files', () => {
   });
 
   function getUtil() {
-    return mock.reRequire('../lib/utils/eject/merge-ejected-files');
+    return mock.reRequire('../lib/utils/eject/move-files');
   }
 
-  it('should copy files from ejected temp folder to source location', () => {
-    const mergeEjectedFiles = getUtil();
+  it('should move files from ejected temp folder to current working directory', () => {
+    const util = getUtil();
 
-    mergeEjectedFiles(MOCK_EJECTED_PROJECT_PATH);
+    util.moveEjectedFilesToCwd(MOCK_EJECTED_PROJECT_PATH);
 
-    expect(copySyncSpy).toHaveBeenCalledWith(
+    expect(moveSyncSpy).toHaveBeenCalledWith(
       path.join(MOCK_EJECTED_PROJECT_PATH, 'src/app/app.component.ts'),
-      path.join(process.cwd(), 'src/app/app.component.ts')
+      path.join(process.cwd(), 'src/app/app.component.ts'),
+      {
+        overwrite: true
+      }
     );
   });
 
   it('should remove directories', () => {
-    const mergeEjectedFiles = getUtil();
+    const util = getUtil();
 
-    mergeEjectedFiles(MOCK_EJECTED_PROJECT_PATH);
+    util.moveEjectedFilesToCwd(MOCK_EJECTED_PROJECT_PATH);
 
     expect(removeSyncSpy).toHaveBeenCalledWith(
       path.join(process.cwd(), 'node_modules')

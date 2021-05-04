@@ -1,7 +1,7 @@
 const path = require('path');
 const mock = require('mock-require');
 
-describe('Create Angular CLI project', () => {
+describe('Create Angular Application', () => {
   let createAngularCliProject;
   let ejectedProjectPath;
   let projectName;
@@ -40,7 +40,7 @@ describe('Create Angular CLI project', () => {
       sync: spawnSpy
     });
 
-    createAngularCliProject = mock.reRequire('../lib/utils/eject/create-angular-cli-project');
+    createAngularCliProject = mock.reRequire('../lib/utils/eject/create-angular-application');
   });
 
   afterEach(() => {

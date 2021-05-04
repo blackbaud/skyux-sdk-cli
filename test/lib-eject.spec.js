@@ -25,8 +25,11 @@ describe('Eject', () => {
   let deprecateFilesSpy;
   let ensureNotFoundComponentSpy;
   let errorSpy;
+  let moveEjectedFilesSpy;
+  let backupSourceFilesSpy;
   let migrateSkyuxConfigFilesSpy;
   let modifyPackageJsonSpy;
+  let npmInstallSpy;
   let processExitSpy;
   let promptForStrictModeSpy;
   let spawnSpy;
@@ -220,6 +223,15 @@ describe('Eject', () => {
         return Promise.resolve();
       }
     });
+
+    moveEjectedFilesSpy = jasmine.createSpy('moveEjectedFiles');
+    mock('../lib/utils/eject/move-ejected-files', moveEjectedFilesSpy);
+
+    backupSourceFilesSpy = jasmine.createSpy('backupSourceFiles');
+    mock('../lib/utils/eject/backup-source-files', backupSourceFilesSpy);
+
+    npmInstallSpy = jasmine.createSpy('npmInstall').and.returnValue(Promise.resolve());
+    mock('../lib/utils/npm-install', npmInstallSpy);
 
     mock('../lib/utils/eject/migrate-libraries', {
       copyFiles() {},
@@ -666,6 +678,24 @@ export class SkyPagesModule { }
     const eject = mock.reRequire('../lib/eject');
     await eject();
     expect(deprecateFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
+  });
+
+  it('should run `npm install` after eject complete', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(npmInstallSpy).toHaveBeenCalled();
+  });
+
+  it('should move ejected files to current working directory', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(moveEjectedFilesSpy).toHaveBeenCalled();
+  });
+
+  it('should backup original source files', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(backupSourceFilesSpy).toHaveBeenCalled();
   });
 
   describe('ejecting libraries', () => {

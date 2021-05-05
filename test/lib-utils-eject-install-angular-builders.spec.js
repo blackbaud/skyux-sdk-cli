@@ -2,17 +2,25 @@ const mock = require('mock-require');
 
 describe('Eject > Install Angular Builders', () => {
 
-  let mockEjectedProjectPath;
   let spawnSpy;
+
+  let mockEjectedProjectPath;
+  let mockSpawnStatusCode;
 
   beforeEach(() => {
     mockEjectedProjectPath = 'MOCK_EJECTED_PATH';
+    mockSpawnStatusCode = 0;
 
     mock('@blackbaud/skyux-logger', {
       info() {}
     });
 
-    spawnSpy = jasmine.createSpy('spawnSpy');
+    spawnSpy = jasmine.createSpy('spawnSpy').and.callFake(() => {
+      return {
+        status: mockSpawnStatusCode
+      };
+    });
+
     mock('cross-spawn', {
       sync: spawnSpy
     });
@@ -49,6 +57,23 @@ describe('Eject > Install Angular Builders', () => {
     installAngularBuilders(mockEjectedProjectPath, true);
 
     validateSpawn('@blackbaud-internal/skyux-angular-builders@^5.0.0-alpha.0');
+  });
+
+  it('should handle errors', async () => {
+    mockSpawnStatusCode = 1;
+
+    const installAngularBuilders = getUtil();
+
+    try {
+      installAngularBuilders(mockEjectedProjectPath, true);
+      fail('Expected to throw error.');
+    } catch (err) {
+      expect(err).toEqual(
+        new Error(
+          'Failed to add @blackbaud-internal/skyux-angular-builders@^5.0.0-alpha.0 to project.'
+        )
+      );
+    }
   });
 
 });

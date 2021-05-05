@@ -1,6 +1,6 @@
 const mock = require('mock-require');
 
-describe('Install Angular Builders', () => {
+describe('Eject > Install Angular Builders', () => {
 
   let mockEjectedProjectPath;
   let spawnSpy;

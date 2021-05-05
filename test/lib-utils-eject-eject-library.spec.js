@@ -3,7 +3,7 @@ const path = require('path');
 
 const constants = require('../lib/utils/eject/constants');
 
-describe('Eject Library', () => {
+describe('Eject > Library', () => {
 
   let npmInstallSpy;
   let copySourceFilesSpy;

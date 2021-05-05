@@ -1,7 +1,7 @@
 const path = require('path');
 const mock = require('mock-require');
 
-describe('Create Angular Application', () => {
+describe('Eject > Create Angular Application', () => {
   let createAngularCliProject;
   let ejectedProjectPath;
   let projectName;

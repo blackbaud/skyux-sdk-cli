@@ -6,15 +6,17 @@ const CWD = process.cwd();
 describe('migrateSkyuxConfigFiles', () => {
   let actualSkyuxConfig;
   let ejectedProjectPath;
+  let internalSchemaPath;
   let migrateSkyuxConfigFiles;
   let mockFsExtra;
   let mockSkyuxConfig;
-  let schemaPath;
+  let publicSchemaPath;
   let writeJsonSpy;
 
   beforeEach(() => {
     ejectedProjectPath = 'foo';
-    schemaPath = './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json';
+    internalSchemaPath = './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json';
+    publicSchemaPath = './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json';
 
     writeJsonSpy = jasmine.createSpy('writeJson').and.callFake((file, contents) => {
       if (file.indexOf('skyuxconfig.json') > -1) {
@@ -91,7 +93,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: schemaPath,
+      $schema: internalSchemaPath,
       app: {
         externals: {
           js: {
@@ -137,7 +139,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath, false);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: schemaPath
+      $schema: publicSchemaPath
     });
   });
 
@@ -150,7 +152,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: schemaPath,
+      $schema: internalSchemaPath,
       auth: true
     });
   });
@@ -166,7 +168,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: schemaPath,
+      $schema: internalSchemaPath,
       experiments: {
         blackbaudEmployee: true
       }

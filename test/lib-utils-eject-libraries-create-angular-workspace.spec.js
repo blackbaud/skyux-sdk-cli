@@ -29,7 +29,9 @@ describe('Eject Libraries > Create Angular Workspace', () => {
   });
 
   function verifySpawn() {
-    const createAngularWorkspace = mock.reRequire('../lib/utils/eject/libraries/create-angular-workspace');
+    const createAngularWorkspace = mock.reRequire(
+      '../lib/utils/eject/libraries/create-angular-workspace'
+    );
     createAngularWorkspace(mockEjectedProjectPath, mockWorkspaceName, mockStrictMode);
     expect(crossSpawnSpy).toHaveBeenCalledOnceWith(
       'ng',

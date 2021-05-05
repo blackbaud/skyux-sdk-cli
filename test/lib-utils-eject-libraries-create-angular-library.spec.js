@@ -27,7 +27,9 @@ describe('Eject Libraries > Create Angular Library', () => {
   });
 
   function verifySpawn() {
-    const createAngularLibrary = mock.reRequire('../lib/utils/eject/libraries/create-angular-library');
+    const createAngularLibrary = mock.reRequire(
+      '../lib/utils/eject/libraries/create-angular-library'
+    );
     createAngularLibrary(mockEjectedProjectPath, mockProjectName);
     expect(crossSpawnSpy).toHaveBeenCalledOnceWith(
       'ng',

@@ -27,6 +27,7 @@ describe('Eject', () => {
   let errorSpy;
   let moveEjectedFilesSpy;
   let backupSourceFilesSpy;
+  let migrateAssetsPathsSpy;
   let migrateSkyuxConfigFilesSpy;
   let modifyPackageJsonSpy;
   let npmInstallSpy;
@@ -84,6 +85,7 @@ describe('Eject', () => {
     createAngularCliProjectSpy = jasmine.createSpy('createAngularCliProject');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
     ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
+    migrateAssetsPathsSpy = jasmine.createSpy('migrateAssetsPaths');
     migrateSkyuxConfigFilesSpy = jasmine.createSpy('migrateSkyuxConfigFiles');
     modifyPackageJsonSpy = jasmine.createSpy('modifyPackageJson');
     processExitSpy = spyOn(process, 'exit');
@@ -260,6 +262,7 @@ describe('Eject', () => {
     mock('../lib/utils/eject/create-angular-cli-project', createAngularCliProjectSpy);
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
     mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
+    mock('../lib/utils/eject/migrate-assets-paths', migrateAssetsPathsSpy);
     mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
     mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
     mock('../lib/utils/eject/prompt-for-strict-mode', promptForStrictModeSpy);
@@ -362,6 +365,14 @@ describe('Eject', () => {
     expect(actualAngularJson.projects[ejectedProjectName].architect.build.options.styles).toEqual([
       'foobar/baz.css'
     ]);
+  });
+
+  it('should migrate assets paths', async () => {
+    const eject = mock.reRequire('../lib/eject');
+
+    await eject();
+
+    expect(migrateAssetsPathsSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
   it('should migrate skyuxconfig.json files', async () => {

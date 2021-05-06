@@ -1,3 +1,15 @@
+# 4.8.0 (2021-05-06)
+
+- Replaced the `promptly` dependency with `inquirer`. [#130](https://github.com/blackbaud/skyux-sdk-cli/pull/130)
+- Upgraded the `@blackbaud/skyux-logger` dependency to address a problem that only occurs in Node.js 14 environments. [#138](https://github.com/blackbaud/skyux-sdk-cli/pull/138)
+- Updated the `skyux eject` command to verify that `git` is "clean" before running the migration process. [#131](https://github.com/blackbaud/skyux-sdk-cli/pull/131)
+- Updated the `skyux eject` command to migrate the auth email whitelist plugin. [#137](https://github.com/blackbaud/skyux-sdk-cli/pull/137)
+- Updated the `skyux eject` command to modify the ejected project's `.gitignore` file. [#132](https://github.com/blackbaud/skyux-sdk-cli/pull/132)
+- Updated the `skyux eject` command to save a backup of all source files in a temporary folder, and move the ejected files to the working directory. [#133](https://github.com/blackbaud/skyux-sdk-cli/pull/133)
+- Fixed the `skyux eject` command to install the builder after an Angular library is generated. [#128](https://github.com/blackbaud/skyux-sdk-cli/pull/128)
+- Fixed the `skyux eject` command to properly copy files on Windows machines. [#134](https://github.com/blackbaud/skyux-sdk-cli/pull/134)
+
+
 # 4.7.0 (2021-04-27)
 
 - Updated the `skyux upgrade` command to work with Angular CLI projects. [#121](https://github.com/blackbaud/skyux-sdk-cli/pull/121)

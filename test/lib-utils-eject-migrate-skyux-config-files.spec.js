@@ -6,13 +6,17 @@ const CWD = process.cwd();
 describe('migrateSkyuxConfigFiles', () => {
   let actualSkyuxConfig;
   let ejectedProjectPath;
+  let internalSchemaPath;
   let migrateSkyuxConfigFiles;
   let mockFsExtra;
   let mockSkyuxConfig;
+  let publicSchemaPath;
   let writeJsonSpy;
 
   beforeEach(() => {
     ejectedProjectPath = 'foo';
+    internalSchemaPath = './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json';
+    publicSchemaPath = './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json';
 
     writeJsonSpy = jasmine.createSpy('writeJson').and.callFake((file, contents) => {
       if (file.indexOf('skyuxconfig.json') > -1) {
@@ -89,7 +93,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json',
+      $schema: internalSchemaPath,
       app: {
         externals: {
           js: {
@@ -135,7 +139,7 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath, false);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json'
+      $schema: publicSchemaPath
     });
   });
 
@@ -148,8 +152,26 @@ describe('migrateSkyuxConfigFiles', () => {
     migrateSkyuxConfigFiles(ejectedProjectPath);
 
     expect(actualSkyuxConfig).toEqual({
-      $schema: './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json',
+      $schema: internalSchemaPath,
       auth: true
+    });
+  });
+
+  it('should migrate known plugins', () => {
+    mockSkyuxConfig = {
+      name: 'skyux-spa-foobar',
+      plugins: [
+        '@blackbaud/skyux-builder-plugin-auth-email-whitelist'
+      ]
+    };
+
+    migrateSkyuxConfigFiles(ejectedProjectPath);
+
+    expect(actualSkyuxConfig).toEqual({
+      $schema: internalSchemaPath,
+      experiments: {
+        blackbaudEmployee: true
+      }
     });
   });
 });

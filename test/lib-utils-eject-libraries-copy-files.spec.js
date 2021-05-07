@@ -1,7 +1,7 @@
 const mock = require('mock-require');
 const path = require('path');
 
-describe('Eject Libraries > Copy Source Files', () => {
+describe('Eject Libraries > Copy Files', () => {
 
   let copySyncSpy;
   let removeSyncSpy;
@@ -35,13 +35,13 @@ describe('Eject Libraries > Copy Source Files', () => {
     mock.stopAll();
   });
 
-  function copySourceFiles() {
-    const util = mock.reRequire('../lib/utils/eject/libraries/copy-source-files');
-    util(mockSourcePath, mockEjectedProjectPath, mockProjectDirectory);
+  function getUtil() {
+    const util = mock.reRequire('../lib/utils/eject/libraries/copy-files');
+    return util;
   }
 
   it('should copy source files', () => {
-    copySourceFiles();
+    getUtil().copySourceFiles(mockSourcePath, mockEjectedProjectPath, mockProjectDirectory);
 
     expect(removeSyncSpy).toHaveBeenCalledWith(
       path.join('mock/ejected/path/projects/my-lib/src/lib')
@@ -56,6 +56,20 @@ describe('Eject Libraries > Copy Source Files', () => {
     expect(renameSyncSpy).toHaveBeenCalledWith(
       path.join('mock/ejected/path/projects/my-lib/src/public_api.ts'),
       path.join('mock/ejected/path/projects/my-lib/src/public-api.ts')
+    );
+  });
+
+  it('should copy root files', () => {
+    getUtil().copyRootFiles(mockEjectedProjectPath, mockProjectDirectory);
+
+    expect(copySyncSpy).toHaveBeenCalledWith(
+      path.join(process.cwd(), 'README.md'),
+      path.join('mock/ejected/path/projects/my-lib/README.md')
+    );
+
+    expect(copySyncSpy).toHaveBeenCalledWith(
+      path.join(process.cwd(), 'CHANGELOG.md'),
+      path.join('mock/ejected/path/projects/my-lib/CHANGELOG.md')
     );
   });
 

@@ -6,6 +6,7 @@ const constants = require('../lib/utils/eject/constants');
 describe('Eject > Library', () => {
 
   let npmInstallSpy;
+  let copyRootFilesSpy;
   let copySourceFilesSpy;
   let createAngularLibrarySpy;
   let createAngularWorkspaceSpy;
@@ -46,8 +47,12 @@ describe('Eject > Library', () => {
     npmInstallSpy = jasmine.createSpy('npmInstall');
     mock('../lib/utils/npm-install', npmInstallSpy);
 
+    copyRootFilesSpy = jasmine.createSpy('copyRootFiles');
     copySourceFilesSpy = jasmine.createSpy('copySourceFiles');
-    mock('../lib/utils/eject/libraries/copy-source-files', copySourceFilesSpy);
+    mock('../lib/utils/eject/libraries/copy-files', {
+      copyRootFiles: copyRootFilesSpy,
+      copySourceFiles: copySourceFilesSpy
+    });
 
     createAngularLibrarySpy = jasmine.createSpy('createAngularLibrary');
     mock('../lib/utils/eject/libraries/create-angular-library', createAngularLibrarySpy);
@@ -121,6 +126,11 @@ describe('Eject > Library', () => {
     expect(migrateSkyuxConfigFilesSpy).toHaveBeenCalledWith(
       mockEjectedProjectPath,
       mockIsInternal
+    );
+
+    expect(copyRootFilesSpy).toHaveBeenCalledWith(
+      mockEjectedProjectPath,
+      'my-lib'
     );
 
     expect(copySourceFilesSpy).toHaveBeenCalledWith(

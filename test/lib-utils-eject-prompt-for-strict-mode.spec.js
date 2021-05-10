@@ -33,13 +33,15 @@ describe('Prompt for strict mode', () => {
   it('should prompt for strict mode if the SPA does not already have strict mode enabled', async () => {
     mockTsConfig = {};
 
-    mockInquirer.prompt.and.returnValue(Promise.resolve(false));
+    mockInquirer.prompt.and.returnValue(Promise.resolve({
+      'strict-confirmation': false
+    }));
 
     const strictMode = await promptForStrictMode(ejectedProjectPath);
 
     expect(mockInquirer.prompt).toHaveBeenCalledWith([{
       type: 'confirm',
-      name: 'confirmation',
+      name: 'strict-confirmation',
       message: 'Would you like to enable strict mode for your new Angular project? ' +
         'Doing so will break everything, so only choose this option ' +
         'if you love to refactor.',

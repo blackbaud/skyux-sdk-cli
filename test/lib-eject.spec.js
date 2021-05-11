@@ -31,6 +31,7 @@ describe('Eject', () => {
   let backupSourceFilesSpy;
   let migrateAssetsPathsSpy;
   let migrateSkyuxConfigFilesSpy;
+  let modifyAppComponentSpy;
   let modifyPackageJsonSpy;
   let npmInstallSpy;
   let processExitSpy;
@@ -88,6 +89,7 @@ describe('Eject', () => {
     ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
     migrateAssetsPathsSpy = jasmine.createSpy('migrateAssetsPaths');
     migrateSkyuxConfigFilesSpy = jasmine.createSpy('migrateSkyuxConfigFiles');
+    modifyAppComponentSpy = jasmine.createSpy('modifyAppComponent');
     modifyPackageJsonSpy = jasmine.createSpy('modifyPackageJson');
     processExitSpy = spyOn(process, 'exit');
     promptForStrictModeSpy = jasmine.createSpy('promptForStrictMode');
@@ -260,6 +262,7 @@ describe('Eject', () => {
     mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
     mock('../lib/utils/eject/migrate-assets-paths', migrateAssetsPathsSpy);
     mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
+    mock('../lib/utils/eject/modify-app-component', modifyAppComponentSpy);
     mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
     mock('../lib/utils/eject/prompt-for-strict-mode', promptForStrictModeSpy);
 
@@ -587,13 +590,11 @@ export class AppRoutingModule { }
     );
   });
 
-  it('should modify the app.component.html file', async () => {
+  it('should modify the app component', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(writeFileSyncSpy).toHaveBeenCalledWith(
-      path.join(ejectedProjectPath, 'src/app/app.component.html'),
-      `<router-outlet></router-outlet>`
-    );
+
+    expect(modifyAppComponentSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
   it('should create the SkyPagesModule', async () => {

@@ -15,8 +15,10 @@ describe('Eject > Library', () => {
   let installAngularBuildersSpy;
   let migrateSkyuxConfigFilesSpy;
   let modifyGitignoreSpy;
+  let modifyRootReadmeSpy;
   let modifyWorkspacePackageJson;
   let moveEjectedFilesSpy;
+  let runLintFixSpy;
 
   let mockEjectedProjectPath;
   let mockLibrarySourcePath;
@@ -63,6 +65,9 @@ describe('Eject > Library', () => {
     modifyLibraryPackageJsonSpy = jasmine.createSpy('modifyLibraryPackageJson');
     mock('../lib/utils/eject/libraries/modify-library-package-json', modifyLibraryPackageJsonSpy);
 
+    modifyRootReadmeSpy = jasmine.createSpy('modifyRootReadme');
+    mock('../lib/utils/eject/libraries/modify-root-readme', modifyRootReadmeSpy);
+
     backupSourceFilesSpy = jasmine.createSpy('backupSourceFiles');
     mock('../lib/utils/eject/backup-source-files', backupSourceFilesSpy);
 
@@ -80,6 +85,9 @@ describe('Eject > Library', () => {
 
     moveEjectedFilesSpy = jasmine.createSpy('moveEjectedFiles');
     mock('../lib/utils/eject/move-ejected-files', moveEjectedFilesSpy);
+
+    runLintFixSpy = jasmine.createSpy('runLintFix');
+    mock('../lib/utils/eject/run-lint-fix', runLintFixSpy);
   });
 
   afterEach(() => {
@@ -182,6 +190,12 @@ describe('Eject > Library', () => {
     await ejectLibrary();
 
     expect(npmInstallSpy).toHaveBeenCalled();
+  });
+
+  it('should run lint fix', async () => {
+    await ejectLibrary();
+
+    expect(runLintFixSpy).toHaveBeenCalled();
   });
 
 });

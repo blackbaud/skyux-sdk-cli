@@ -4,12 +4,15 @@ const path = require('path');
 describe('Eject Libraries > Copy Files', () => {
 
   let copySyncSpy;
+  let moveSyncSpy;
   let removeSyncSpy;
   let renameSyncSpy;
 
   let mockSourcePath;
   let mockEjectedProjectPath;
   let mockProjectDirectory;
+
+  let rootFilesExist;
 
   beforeEach(() => {
     mockSourcePath = path.join('mock/source/path');
@@ -20,12 +23,18 @@ describe('Eject Libraries > Copy Files', () => {
       info() {}
     });
 
+    rootFilesExist = true;
     copySyncSpy = jasmine.createSpy('copySync');
+    moveSyncSpy = jasmine.createSpy('moveSync');
     removeSyncSpy = jasmine.createSpy('removeSync');
     renameSyncSpy = jasmine.createSpy('renameSync');
 
     mock('fs-extra', {
       copySync: copySyncSpy,
+      existsSync() {
+        return rootFilesExist;
+      },
+      moveSync: moveSyncSpy,
       removeSync: removeSyncSpy,
       renameSync: renameSyncSpy
     });
@@ -59,18 +68,31 @@ describe('Eject Libraries > Copy Files', () => {
     );
   });
 
-  it('should copy root files', () => {
+  it('should handle root files', () => {
     getUtil().copyRootFiles(mockEjectedProjectPath, mockProjectDirectory);
 
-    expect(copySyncSpy).toHaveBeenCalledWith(
+    expect(moveSyncSpy).toHaveBeenCalledWith(
       path.join(process.cwd(), 'README.md'),
-      path.join('mock/ejected/path/projects/my-lib/README.md')
+      path.join('mock/ejected/path/projects/my-lib/README.md'),
+      {
+        overwrite: true
+      }
     );
 
-    expect(copySyncSpy).toHaveBeenCalledWith(
-      path.join(process.cwd(), 'CHANGELOG.md'),
-      path.join('mock/ejected/path/projects/my-lib/CHANGELOG.md')
+    expect(moveSyncSpy).toHaveBeenCalledWith(
+      path.join(process.cwd(), 'LICENSE'),
+      path.join('mock/ejected/path/projects/my-lib/LICENSE'),
+      {
+        overwrite: true
+      }
     );
+  });
+
+  it('should handle missing root files', () => {
+    rootFilesExist = false;
+    getUtil().copyRootFiles(mockEjectedProjectPath, mockProjectDirectory);
+
+    expect(moveSyncSpy).not.toHaveBeenCalled();
   });
 
 });

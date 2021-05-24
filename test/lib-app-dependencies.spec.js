@@ -200,7 +200,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'typescript',
         {
-          version: '~4.1.5'
+          version: '~4.2.3'
         }
       );
 
@@ -219,26 +219,7 @@ describe('App dependencies', () => {
       expect(latestVersionMock).toHaveBeenCalledWith(
         'zone.js',
         {
-          version: '~0.11.3'
-        }
-      );
-
-      expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because Angular requires a specific minor version/)
-      );
-    });
-
-    it('should use a specific range for ts-node', async () => {
-      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
-
-      await appDependencies.upgradeDependencies({
-        'ts-node': '1.0.0'
-      });
-
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'ts-node',
-        {
-          version: '~8.3.0'
+          version: '~0.11.4'
         }
       );
 
@@ -266,25 +247,6 @@ describe('App dependencies', () => {
       );
     });
 
-    it('should use a specific range for Codelyzer', async () => {
-      const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
-
-      await appDependencies.upgradeDependencies({
-        'codelyzer': '2.1.0'
-      });
-
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'codelyzer',
-        {
-          version: '^6.0.0'
-        }
-      );
-
-      expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because Angular requires a specific major version/)
-      );
-    });
-
     it('should use specific ranges for SKY UX and Angular packages', async () => {
       // Dependencies purposefully listed out of order:
       const dependencies = {
@@ -309,22 +271,22 @@ describe('App dependencies', () => {
       await appDependencies.upgradeDependencies(dependencies);
 
       expect(latestVersionMock.calls.allArgs()).toEqual([
-        [ '@angular/common', { version: '^11.0.0' } ],
+        [ '@angular/common', { version: '^12.0.0' } ],
         [ '@blackbaud-internal/skyux-angular-builders', { version: '^5.0.0-alpha.0' } ],
-        [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-media', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0' } ],
+        [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-media', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
         [ '@skyux-sdk/angular-builders', { version: '^5.0.0-alpha.0' } ],
-        [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
         [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],
-        [ '@skyux-sdk/e2e', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/pact', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/testing', { version: '^4.0.0-rc.0' } ],
+        [ '@skyux-sdk/e2e', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/pact', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/testing', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
         [ '@skyux/auth-client-factory', { version: '^2.0.0' } ],
-        [ '@skyux/foobar', { version: '^4.0.0-rc.0' } ]
+        [ '@skyux/foobar', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ]
       ]);
     });
 

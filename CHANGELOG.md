@@ -1,3 +1,12 @@
+# 4.9.0 (2021-05-25)
+
+- Updated the `skyux upgrade` command to work with Angular 12 projects. [#146](https://github.com/blackbaud/skyux-sdk-cli/pull/146)
+- Updated the `skyux eject` command to handle SKY UX component libraries. [#136](https://github.com/blackbaud/skyux-sdk-cli/pull/136)
+- Updated the `skyux eject` command to include a relevant unit test for the generated `AppComponent`. [#143](https://github.com/blackbaud/skyux-sdk-cli/pull/143)
+- Updated the `skyux eject` command to migrate SKY UX Builder asset paths to Angular CLI asset paths. [#140](https://github.com/blackbaud/skyux-sdk-cli/pull/140)
+- Fixed the `skyux eject` command to generate files according to existing TSLint rules. [#142](https://github.com/blackbaud/skyux-sdk-cli/pull/142)
+- Fixed the `skyux new` command to print the proper confirmation message when creating new applications. [#145](https://github.com/blackbaud/skyux-sdk-cli/pull/145)
+
 # 4.8.0 (2021-05-06)
 
 - Replaced the `promptly` dependency with `inquirer`. [#130](https://github.com/blackbaud/skyux-sdk-cli/pull/130)

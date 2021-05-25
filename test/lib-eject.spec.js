@@ -20,16 +20,24 @@ describe('Eject', () => {
 
   let mockPackageJson;
 
-  let createAngularCliProjectSpy;
+  let createAngularApplicationSpy;
   let copySyncSpy;
   let deprecateFilesSpy;
+  let ejectLibrarySpy;
   let ensureNotFoundComponentSpy;
   let errorSpy;
+  let installAngularBuildersSpy;
+  let moveEjectedFilesSpy;
+  let backupSourceFilesSpy;
+  let migrateAssetsPathsSpy;
   let migrateSkyuxConfigFilesSpy;
+  let modifyAppComponentSpy;
   let modifyPackageJsonSpy;
+  let npmInstallSpy;
   let processExitSpy;
   let promptForStrictModeSpy;
-  let spawnSpy;
+  let runLintFixSpy;
+
   let writeFileSyncSpy;
   let writeJsonSpy;
 
@@ -74,21 +82,22 @@ describe('Eject', () => {
       name: 'packagejson-name'
     };
 
-    spawnSpy = jasmine.createSpy('spawnSpy');
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
     errorSpy = jasmine.createSpy('error');
     copySyncSpy = jasmine.createSpy('copySync');
-    createAngularCliProjectSpy = jasmine.createSpy('createAngularCliProject');
+    createAngularApplicationSpy = jasmine.createSpy('createAngularApplication');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
     ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
+    migrateAssetsPathsSpy = jasmine.createSpy('migrateAssetsPaths');
     migrateSkyuxConfigFilesSpy = jasmine.createSpy('migrateSkyuxConfigFiles');
+    modifyAppComponentSpy = jasmine.createSpy('modifyAppComponent');
     modifyPackageJsonSpy = jasmine.createSpy('modifyPackageJson');
     processExitSpy = spyOn(process, 'exit');
     promptForStrictModeSpy = jasmine.createSpy('promptForStrictMode');
     writeJsonSpy = jasmine.createSpy('writeJson');
 
     // Save the ejected project name.
-    createAngularCliProjectSpy.and.callFake((_ejectedProjectPath, projectName) => {
+    createAngularApplicationSpy.and.callFake((_ejectedProjectPath, projectName) => {
       ejectedProjectName = projectName;
       mockAngularJson = {
         projects: {
@@ -112,10 +121,6 @@ describe('Eject', () => {
     mock('@blackbaud/skyux-logger', {
       error: errorSpy,
       info() {}
-    });
-
-    mock('cross-spawn', {
-      sync: spawnSpy
     });
 
     mock('fs-extra', {
@@ -221,12 +226,23 @@ describe('Eject', () => {
       }
     });
 
-    mock('../lib/utils/eject/migrate-libraries', {
-      copyFiles() {},
-      generateAngularCliProject() {},
-      getName() {},
-      modifyPackageJson() {}
-    });
+    ejectLibrarySpy = jasmine.createSpy('ejectLibrary');
+    mock('../lib/utils/eject/eject-library', ejectLibrarySpy);
+
+    installAngularBuildersSpy = jasmine.createSpy('installAngularBuilders');
+    mock('../lib/utils/eject/install-angular-builders', installAngularBuildersSpy);
+
+    moveEjectedFilesSpy = jasmine.createSpy('moveEjectedFiles');
+    mock('../lib/utils/eject/move-ejected-files', moveEjectedFilesSpy);
+
+    backupSourceFilesSpy = jasmine.createSpy('backupSourceFiles');
+    mock('../lib/utils/eject/backup-source-files', backupSourceFilesSpy);
+
+    runLintFixSpy = jasmine.createSpy('runLintFix');
+    mock('../lib/utils/eject/run-lint-fix', runLintFixSpy);
+
+    npmInstallSpy = jasmine.createSpy('npmInstall').and.returnValue(Promise.resolve());
+    mock('../lib/utils/npm-install', npmInstallSpy);
 
     mockOriginUrl = 'https://github.com/';
     isGitClean = true;
@@ -245,10 +261,12 @@ describe('Eject', () => {
       }
     });
 
-    mock('../lib/utils/eject/create-angular-cli-project', createAngularCliProjectSpy);
+    mock('../lib/utils/eject/create-angular-application', createAngularApplicationSpy);
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
     mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
+    mock('../lib/utils/eject/migrate-assets-paths', migrateAssetsPathsSpy);
     mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
+    mock('../lib/utils/eject/modify-app-component', modifyAppComponentSpy);
     mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
     mock('../lib/utils/eject/prompt-for-strict-mode', promptForStrictModeSpy);
 
@@ -311,7 +329,7 @@ describe('Eject', () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
 
-    expect(createAngularCliProjectSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', false);
+    expect(createAngularApplicationSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', false);
   });
 
   it('should prompt for strict mode', async () => {
@@ -322,7 +340,7 @@ describe('Eject', () => {
 
     expect(promptForStrictModeSpy).toHaveBeenCalledWith(CWD);
 
-    expect(createAngularCliProjectSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', true);
+    expect(createAngularApplicationSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', true);
   });
 
   it('should throw an error if new project directory already exists', async () => {
@@ -352,6 +370,14 @@ describe('Eject', () => {
     ]);
   });
 
+  it('should migrate assets paths', async () => {
+    const eject = mock.reRequire('../lib/eject');
+
+    await eject();
+
+    expect(migrateAssetsPathsSpy).toHaveBeenCalledWith(ejectedProjectPath);
+  });
+
   it('should migrate skyuxconfig.json files', async () => {
     const eject = mock.reRequire('../lib/eject');
 
@@ -363,13 +389,9 @@ describe('Eject', () => {
   it('should add `@skyux-sdk/angular-builders` for public projects', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(spawnSpy).toHaveBeenCalledWith(
-      'ng',
-      ['add', '@skyux-sdk/angular-builders'],
-      {
-        stdio: 'inherit',
-        cwd: ejectedProjectPath
-      }
+    expect(installAngularBuildersSpy).toHaveBeenCalledWith(
+      ejectedProjectPath,
+      false
     );
   });
 
@@ -377,13 +399,9 @@ describe('Eject', () => {
     mockOriginUrl = 'https://blackbaud.visualstudio.com/';
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(spawnSpy).toHaveBeenCalledWith(
-      'ng',
-      ['add', '@blackbaud-internal/skyux-angular-builders@^5.0.0-alpha.0'],
-      {
-        stdio: 'inherit',
-        cwd: ejectedProjectPath
-      }
+    expect(installAngularBuildersSpy).toHaveBeenCalledWith(
+      ejectedProjectPath,
+      true
     );
   });
 
@@ -576,13 +594,11 @@ export class AppRoutingModule { }
     );
   });
 
-  it('should modify the app.component.html file', async () => {
+  it('should modify the app component', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(writeFileSyncSpy).toHaveBeenCalledWith(
-      path.join(ejectedProjectPath, 'src/app/app.component.html'),
-      `<router-outlet></router-outlet>`
-    );
+
+    expect(modifyAppComponentSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
   it('should create the SkyPagesModule', async () => {
@@ -668,13 +684,42 @@ export class SkyPagesModule { }
     expect(deprecateFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
+  it('should run `npm install` after eject complete', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(npmInstallSpy).toHaveBeenCalled();
+  });
+
+  it('should move ejected files to current working directory', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(moveEjectedFilesSpy).toHaveBeenCalled();
+  });
+
+  it('should backup original source files', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(backupSourceFilesSpy).toHaveBeenCalled();
+  });
+
+  it('should run lint fix', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(runLintFixSpy).toHaveBeenCalled();
+  });
+
   describe('ejecting libraries', () => {
     it('should modify project name if ejecting a library', async () => {
       publicDirectoryExists = true;
       const eject = mock.reRequire('../lib/eject');
       mockSkyuxConfig = {};
       await eject();
-      expect(ejectedProjectName).toEqual('packagejson-name-spa');
+      expect(ejectLibrarySpy).toHaveBeenCalledWith(
+        path.join(process.cwd(), 'src/app/public'),
+        ejectedProjectPath,
+        false,
+        false
+      );
     });
   });
 });

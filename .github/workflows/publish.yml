@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - '*.*.*'
+      - '*.*.*-alpha.*'
 
 jobs:
   publish:
@@ -14,15 +15,15 @@ jobs:
       id: vars
       run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
     # Setup .npmrc file to publish to npm
-    - uses: actions/setup-node@v1
+    - uses: actions/setup-node@v2
       with:
-        node-version: '12.x'
+        node-version: '14.x'
         registry-url: 'https://registry.npmjs.org'
     - name: Install
       run: |
         npm install
     - name: Publish
-      run: npm publish
+      run: npm publish --access public --tag next
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     - uses: rtCamp/action-slack-notify@master

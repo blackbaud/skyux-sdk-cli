@@ -125,6 +125,9 @@ describe('skyux new command', () => {
       expect(spies.spyPrompt.calls.argsFor(1)[0][0].message).toBe(
         'What is the URL to your repo? (leave this blank if you don\'t know)'
       );
+      expect(spies.spyLogger.info).toHaveBeenCalledWith(
+        '\nCreating a single-page application (SPA) named \'skyux-spa-name\'...'
+      );
     });
 
     it('should catch a SPA directory that already exists', async () => {

@@ -3,7 +3,7 @@ const path = require('path');
 
 describe('Eject Libraries > Create Angular Workspace', () => {
 
-  let crossSpawnSpy;
+  let runNgCommandSpy;
 
   let mockEjectedProjectPath;
   let mockWorkspaceName;
@@ -18,10 +18,9 @@ describe('Eject Libraries > Create Angular Workspace', () => {
       info() {}
     });
 
-    crossSpawnSpy = jasmine.createSpy('crossSpawn');
-    mock('cross-spawn', {
-      sync: crossSpawnSpy
-    });
+    runNgCommandSpy = jasmine.createSpy('runNgCommand');
+
+    mock('../lib/utils/run-ng-command', runNgCommandSpy);
   });
 
   afterEach(() => {
@@ -33,17 +32,14 @@ describe('Eject Libraries > Create Angular Workspace', () => {
       '../lib/utils/eject/libraries/create-angular-workspace'
     );
     createAngularWorkspace(mockEjectedProjectPath, mockWorkspaceName, mockStrictMode);
-    expect(crossSpawnSpy).toHaveBeenCalledOnceWith(
-      'ng',
+    expect(runNgCommandSpy).toHaveBeenCalledOnceWith(
+      'new',
       [
-        'new', 'my-lib-workspace',
+        'my-lib-workspace',
         '--create-application=false',
         '--directory=ejected-path',
         `--strict=${mockStrictMode}`
-      ],
-      {
-        stdio: 'inherit'
-      }
+      ]
     );
   }
 

@@ -5,40 +5,34 @@ describe('Eject > Create Angular Application', () => {
   let createAngularCliProject;
   let ejectedProjectPath;
   let projectName;
-  let spawnSpy;
+  let runNgCommandSpy;
 
   function validateSpawn(strictMode) {
     createAngularCliProject(ejectedProjectPath, projectName, strictMode);
 
-    expect(spawnSpy).toHaveBeenCalledWith(
-      'ng',
+    expect(runNgCommandSpy).toHaveBeenCalledWith(
+      'new',
       [
-        'new',
         projectName,
         `--directory=${path.basename(ejectedProjectPath)}`,
         '--legacy-browsers',
         '--routing',
         `--strict=${strictMode}`,
         '--style=scss'
-      ],
-      {
-        stdio: 'inherit'
-      }
+      ]
     );
   }
 
   beforeEach(() => {
     ejectedProjectPath = 'foo';
     projectName = 'projectName';
-    spawnSpy = jasmine.createSpy('sync');
+    runNgCommandSpy = jasmine.createSpy('runNgCommand');
 
     mock('@blackbaud/skyux-logger', {
       info() {}
     });
 
-    mock('cross-spawn', {
-      sync: spawnSpy
-    });
+    mock('../lib/utils/run-ng-command', runNgCommandSpy);
 
     createAngularCliProject = mock.reRequire('../lib/utils/eject/create-angular-application');
   });

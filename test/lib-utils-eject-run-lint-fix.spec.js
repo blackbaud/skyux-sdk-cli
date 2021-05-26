@@ -2,17 +2,16 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('Run lint fix', () => {
-  let spawnSyncSpy;
+  let runNgCommandSpy;
 
   beforeEach(() => {
     mock('@blackbaud/skyux-logger', {
       info() {}
     });
 
-    spawnSyncSpy = jasmine.createSpy('spawnSync');
-    mock('cross-spawn', {
-      sync: spawnSyncSpy
-    });
+    runNgCommandSpy = jasmine.createSpy('runNgCommand');
+
+    mock('../lib/utils/run-ng-command', runNgCommandSpy);
   });
 
   afterEach(() => {
@@ -23,7 +22,7 @@ describe('Run lint fix', () => {
     const runLintFix = mock.reRequire('../lib/utils/eject/run-lint-fix');
     const mockCwd = 'foo/bar/baz';
     runLintFix(mockCwd);
-    expect(spawnSyncSpy).toHaveBeenCalledWith('ng', ['lint', '--fix'], {
+    expect(runNgCommandSpy).toHaveBeenCalledWith('lint', ['--fix'], {
       cwd: path.join(mockCwd),
       stdio: 'inherit'
     });

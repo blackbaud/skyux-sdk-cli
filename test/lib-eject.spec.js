@@ -628,6 +628,11 @@ import {
 } from '@angular/core';
 
 import {
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
+
+import {
   RouterModule
 } from '@angular/router';
 
@@ -663,6 +668,8 @@ import {
   imports: [
     AppExtrasModule,
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     RouterModule,
     SkyAppLinkModule,
     SkyI18nModule

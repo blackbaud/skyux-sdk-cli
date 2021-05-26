@@ -35,8 +35,6 @@ describe('Eject', () => {
   let npmInstallSpy;
   let processExitSpy;
   let promptForStrictModeSpy;
-  let runLintFixSpy;
-  let setupDeprecatedTsLintBuilderSpy;
   let updateSourceFilesSpy;
 
   let writeFileSyncSpy;
@@ -241,12 +239,6 @@ describe('Eject', () => {
 
     backupSourceFilesSpy = jasmine.createSpy('backupSourceFiles');
     mock('../lib/utils/eject/backup-source-files', backupSourceFilesSpy);
-
-    runLintFixSpy = jasmine.createSpy('runLintFix');
-    mock('../lib/utils/eject/run-lint-fix', runLintFixSpy);
-
-    setupDeprecatedTsLintBuilderSpy = jasmine.createSpy('setupDeprecatedTsLintBuilder');
-    mock('../lib/utils/eject/setup-deprecated-tslint-builder', setupDeprecatedTsLintBuilderSpy);
 
     npmInstallSpy = jasmine.createSpy('npmInstall').and.returnValue(Promise.resolve());
     mock('../lib/utils/npm-install', npmInstallSpy);
@@ -720,21 +712,6 @@ export class SkyPagesModule { }
     const eject = mock.reRequire('../lib/eject');
     await eject();
     expect(backupSourceFilesSpy).toHaveBeenCalled();
-  });
-
-  it('should run lint fix', async () => {
-    const eject = mock.reRequire('../lib/eject');
-    await eject();
-    expect(runLintFixSpy).toHaveBeenCalled();
-  });
-
-  it('should setup deprecated TSLint builder', async () => {
-    const eject = mock.reRequire('../lib/eject');
-    await eject();
-    expect(setupDeprecatedTsLintBuilderSpy).toHaveBeenCalledWith(
-      ejectedProjectPath,
-      ejectedProjectName
-    );
   });
 
   describe('ejecting libraries', () => {

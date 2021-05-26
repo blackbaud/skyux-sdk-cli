@@ -18,7 +18,6 @@ describe('Eject > Library', () => {
   let modifyRootReadmeSpy;
   let modifyWorkspacePackageJson;
   let moveEjectedFilesSpy;
-  let runLintFixSpy;
 
   let mockEjectedProjectPath;
   let mockLibrarySourcePath;
@@ -85,9 +84,6 @@ describe('Eject > Library', () => {
 
     moveEjectedFilesSpy = jasmine.createSpy('moveEjectedFiles');
     mock('../lib/utils/eject/move-ejected-files', moveEjectedFilesSpy);
-
-    runLintFixSpy = jasmine.createSpy('runLintFix');
-    mock('../lib/utils/eject/run-lint-fix', runLintFixSpy);
   });
 
   afterEach(() => {
@@ -190,12 +186,6 @@ describe('Eject > Library', () => {
     await ejectLibrary();
 
     expect(npmInstallSpy).toHaveBeenCalled();
-  });
-
-  it('should run lint fix', async () => {
-    await ejectLibrary();
-
-    expect(runLintFixSpy).toHaveBeenCalled();
   });
 
 });

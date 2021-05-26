@@ -715,7 +715,10 @@ export class SkyPagesModule { }
   it('should setup deprecated TSLint builder', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(setupDeprecatedTsLintBuilderSpy).toHaveBeenCalled();
+    expect(setupDeprecatedTsLintBuilderSpy).toHaveBeenCalledWith(
+      ejectedProjectPath,
+      ejectedProjectName
+    );
   });
 
   describe('ejecting libraries', () => {

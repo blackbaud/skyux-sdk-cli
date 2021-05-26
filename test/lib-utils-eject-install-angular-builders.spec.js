@@ -2,7 +2,7 @@ const mock = require('mock-require');
 
 describe('Eject > Install Angular Builders', () => {
 
-  let spawnSpy;
+  let runNgCommandSpy;
 
   let mockEjectedProjectPath;
   let mockSpawnStatusCode;
@@ -15,15 +15,13 @@ describe('Eject > Install Angular Builders', () => {
       info() {}
     });
 
-    spawnSpy = jasmine.createSpy('spawnSpy').and.callFake(() => {
+    runNgCommandSpy = jasmine.createSpy('runNgCommand').and.callFake(() => {
       return {
         status: mockSpawnStatusCode
       };
     });
 
-    mock('cross-spawn', {
-      sync: spawnSpy
-    });
+    mock('../lib/utils/run-ng-command', runNgCommandSpy);
   });
 
   afterEach(() => {
@@ -35,9 +33,9 @@ describe('Eject > Install Angular Builders', () => {
   }
 
   function validateSpawn(packageName) {
-    expect(spawnSpy).toHaveBeenCalledWith(
-      'ng',
-      ['add', packageName],
+    expect(runNgCommandSpy).toHaveBeenCalledWith(
+      'add',
+      [packageName, '--skip-confirmation'],
       {
         stdio: 'inherit',
         cwd: mockEjectedProjectPath

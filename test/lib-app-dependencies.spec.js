@@ -273,20 +273,20 @@ describe('App dependencies', () => {
       expect(latestVersionMock.calls.allArgs()).toEqual([
         [ '@angular/common', { version: '^12.0.0' } ],
         [ '@blackbaud-internal/skyux-angular-builders', { version: '^5.0.0-alpha.0' } ],
-        [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
-        [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
-        [ '@blackbaud/skyux-lib-media', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
-        [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
-        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-media', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
+        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
         [ '@skyux-sdk/angular-builders', { version: '^5.0.0-alpha.0' } ],
-        [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
-        [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
         [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],
-        [ '@skyux-sdk/e2e', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
-        [ '@skyux-sdk/pact', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
-        [ '@skyux-sdk/testing', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/e2e', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/pact', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
+        [ '@skyux-sdk/testing', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ],
         [ '@skyux/auth-client-factory', { version: '^2.0.0' } ],
-        [ '@skyux/foobar', { version: '^4.0.0-rc.0 || ^5.0.0-alpha.0' } ]
+        [ '@skyux/foobar', { version: '^4.0.0-alpha.0 || ^5.0.0-alpha.0' } ]
       ]);
     });
 

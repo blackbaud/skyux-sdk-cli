@@ -35,7 +35,6 @@ describe('Eject', () => {
   let npmInstallSpy;
   let processExitSpy;
   let promptForStrictModeSpy;
-  let runLintFixSpy;
   let updateSourceFilesSpy;
 
   let writeFileSyncSpy;
@@ -49,7 +48,8 @@ describe('Eject', () => {
   let isGitClean;
 
   let copyAssetsDirectorySpy;
-  let copyAppFilesSpy;
+  let copySrcAppFilesSpy;
+  let copySrcLibFilesSpy;
   let copyRootProjectFilesSpy;
 
   beforeEach(() => {
@@ -212,11 +212,13 @@ describe('Eject', () => {
     });
 
     copyAssetsDirectorySpy = jasmine.createSpy('copyAssetsDirectory');
-    copyAppFilesSpy = jasmine.createSpy('copyAppFiles');
+    copySrcAppFilesSpy = jasmine.createSpy('copySrcAppFiles');
+    copySrcLibFilesSpy = jasmine.createSpy('copySrcLibFiles');
     copyRootProjectFilesSpy = jasmine.createSpy('copyRootProjectFiles');
     mock('../lib/utils/eject/copy-files', {
       copyAssetsDirectory: copyAssetsDirectorySpy,
-      copyAppFiles: copyAppFilesSpy,
+      copySrcAppFiles: copySrcAppFilesSpy,
+      copySrcLibFiles: copySrcLibFilesSpy,
       copyRootProjectFiles: copyRootProjectFilesSpy
     });
 
@@ -237,9 +239,6 @@ describe('Eject', () => {
 
     backupSourceFilesSpy = jasmine.createSpy('backupSourceFiles');
     mock('../lib/utils/eject/backup-source-files', backupSourceFilesSpy);
-
-    runLintFixSpy = jasmine.createSpy('runLintFix');
-    mock('../lib/utils/eject/run-lint-fix', runLintFixSpy);
 
     npmInstallSpy = jasmine.createSpy('npmInstall').and.returnValue(Promise.resolve());
     mock('../lib/utils/npm-install', npmInstallSpy);
@@ -421,7 +420,13 @@ describe('Eject', () => {
   it('should copy specific app files', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(copyAppFilesSpy).toHaveBeenCalled();
+    expect(copySrcAppFilesSpy).toHaveBeenCalled();
+  });
+
+  it('should copy specific ./src/lib files', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(copySrcLibFilesSpy).toHaveBeenCalled();
   });
 
   it('should copy root files', async () => {
@@ -615,6 +620,11 @@ import {
 } from '@angular/core';
 
 import {
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
+
+import {
   RouterModule
 } from '@angular/router';
 
@@ -650,6 +660,8 @@ import {
   imports: [
     AppExtrasModule,
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     RouterModule,
     SkyAppLinkModule,
     SkyI18nModule
@@ -700,12 +712,6 @@ export class SkyPagesModule { }
     const eject = mock.reRequire('../lib/eject');
     await eject();
     expect(backupSourceFilesSpy).toHaveBeenCalled();
-  });
-
-  it('should run lint fix', async () => {
-    const eject = mock.reRequire('../lib/eject');
-    await eject();
-    expect(runLintFixSpy).toHaveBeenCalled();
   });
 
   describe('ejecting libraries', () => {

@@ -3,7 +3,7 @@ const path = require('path');
 
 describe('Eject Libraries > Create Angular Library', () => {
 
-  let crossSpawnSpy;
+  let runNgCommandSpy;
 
   let mockEjectedProjectPath;
   let mockProjectName;
@@ -16,10 +16,9 @@ describe('Eject Libraries > Create Angular Library', () => {
       info() {}
     });
 
-    crossSpawnSpy = jasmine.createSpy('crossSpawn');
-    mock('cross-spawn', {
-      sync: crossSpawnSpy
-    });
+    runNgCommandSpy = jasmine.createSpy('runNgCommand');
+
+    mock('../lib/utils/run-ng-command', runNgCommandSpy);
   });
 
   afterEach(() => {
@@ -31,10 +30,10 @@ describe('Eject Libraries > Create Angular Library', () => {
       '../lib/utils/eject/libraries/create-angular-library'
     );
     createAngularLibrary(mockEjectedProjectPath, mockProjectName);
-    expect(crossSpawnSpy).toHaveBeenCalledOnceWith(
-      'ng',
+    expect(runNgCommandSpy).toHaveBeenCalledOnceWith(
+      'generate',
       [
-        'generate', 'library', 'my-lib',
+        'library', 'my-lib',
         '--prefix=sky'
       ],
       {

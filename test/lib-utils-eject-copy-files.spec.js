@@ -39,6 +39,10 @@ describe('eject utils copy files', () => {
             return [
               `${CWD.replace(/\\/g, '/')}/src/app/home.component.ts`
             ];
+          case path.join(CWD, 'src/lib/**/*'):
+            return [
+              `${CWD.replace(/\\/g, '/')}/src/lib/jquery.js`
+            ];
           default:
             return [];
         }
@@ -63,12 +67,21 @@ describe('eject utils copy files', () => {
     );
   });
 
-  it('should copy specific app files', () => {
+  it('should copy specific ./src/app files', () => {
     const util = getUtil();
-    util.copyAppFiles(EJECTED_PROJECT_PATH);
+    util.copySrcAppFiles(EJECTED_PROJECT_PATH);
     expect(copySyncSpy).toHaveBeenCalledWith(
       path.join(CWD, 'src/app/home.component.ts'),
       path.join(EJECTED_PROJECT_PATH, 'src/app/home.component.ts')
+    );
+  });
+
+  it('should copy specific ./src/lib files', () => {
+    const util = getUtil();
+    util.copySrcLibFiles(EJECTED_PROJECT_PATH);
+    expect(copySyncSpy).toHaveBeenCalledWith(
+      path.join(CWD, 'src/lib/jquery.js'),
+      path.join(EJECTED_PROJECT_PATH, 'src/lib/jquery.js')
     );
   });
 

@@ -50,7 +50,8 @@ describe('Eject', () => {
   let isGitClean;
 
   let copyAssetsDirectorySpy;
-  let copyAppFilesSpy;
+  let copySrcAppFilesSpy;
+  let copySrcLibFilesSpy;
   let copyRootProjectFilesSpy;
 
   beforeEach(() => {
@@ -213,11 +214,13 @@ describe('Eject', () => {
     });
 
     copyAssetsDirectorySpy = jasmine.createSpy('copyAssetsDirectory');
-    copyAppFilesSpy = jasmine.createSpy('copyAppFiles');
+    copySrcAppFilesSpy = jasmine.createSpy('copySrcAppFiles');
+    copySrcLibFilesSpy = jasmine.createSpy('copySrcLibFiles');
     copyRootProjectFilesSpy = jasmine.createSpy('copyRootProjectFiles');
     mock('../lib/utils/eject/copy-files', {
       copyAssetsDirectory: copyAssetsDirectorySpy,
-      copyAppFiles: copyAppFilesSpy,
+      copySrcAppFiles: copySrcAppFilesSpy,
+      copySrcLibFiles: copySrcLibFilesSpy,
       copyRootProjectFiles: copyRootProjectFilesSpy
     });
 
@@ -425,7 +428,13 @@ describe('Eject', () => {
   it('should copy specific app files', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
-    expect(copyAppFilesSpy).toHaveBeenCalled();
+    expect(copySrcAppFilesSpy).toHaveBeenCalled();
+  });
+
+  it('should copy specific ./src/lib files', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject();
+    expect(copySrcLibFilesSpy).toHaveBeenCalled();
   });
 
   it('should copy root files', async () => {

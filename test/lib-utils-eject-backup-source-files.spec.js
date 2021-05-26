@@ -44,4 +44,18 @@ describe('backup source files', () => {
       path.join(process.cwd(), MOCK_TEMP_DIR, 'src/app/app.component.ts')
     );
   });
+
+  it('should work with Windows paths', () => {
+    const mockCwd = '\\mock\\current\\working\\directory';
+    spyOn(process, 'cwd').and.returnValue(mockCwd);
+
+    const util = getUtil();
+
+    util(MOCK_EJECTED_PROJECT_PATH, MOCK_TEMP_DIR);
+
+    expect(copySyncSpy).toHaveBeenCalledWith(
+      path.join(mockCwd, 'src/app/app.component.ts'),
+      path.join(mockCwd, MOCK_TEMP_DIR, 'src/app/app.component.ts')
+    );
+  });
 });

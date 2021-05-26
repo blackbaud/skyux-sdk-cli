@@ -120,7 +120,8 @@ describe('Eject', () => {
 
     mock('@blackbaud/skyux-logger', {
       error: errorSpy,
-      info() {}
+      info() {},
+      warn() {}
     });
 
     mock('fs-extra', {

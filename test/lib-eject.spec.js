@@ -29,7 +29,6 @@ describe('Eject', () => {
   let installAngularBuildersSpy;
   let moveEjectedFilesSpy;
   let backupSourceFilesSpy;
-  let migrateAssetsPathsSpy;
   let migrateSkyuxConfigFilesSpy;
   let modifyAppComponentSpy;
   let modifyPackageJsonSpy;
@@ -37,6 +36,7 @@ describe('Eject', () => {
   let processExitSpy;
   let promptForStrictModeSpy;
   let runLintFixSpy;
+  let updateSourceFilesSpy;
 
   let writeFileSyncSpy;
   let writeJsonSpy;
@@ -88,7 +88,7 @@ describe('Eject', () => {
     createAngularApplicationSpy = jasmine.createSpy('createAngularApplication');
     deprecateFilesSpy = jasmine.createSpy('deprecateFiles');
     ensureNotFoundComponentSpy = jasmine.createSpy('ensureNotFoundComponent');
-    migrateAssetsPathsSpy = jasmine.createSpy('migrateAssetsPaths');
+    updateSourceFilesSpy = jasmine.createSpy('updateSourceFiles');
     migrateSkyuxConfigFilesSpy = jasmine.createSpy('migrateSkyuxConfigFiles');
     modifyAppComponentSpy = jasmine.createSpy('modifyAppComponent');
     modifyPackageJsonSpy = jasmine.createSpy('modifyPackageJson');
@@ -264,11 +264,11 @@ describe('Eject', () => {
     mock('../lib/utils/eject/create-angular-application', createAngularApplicationSpy);
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
     mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
-    mock('../lib/utils/eject/migrate-assets-paths', migrateAssetsPathsSpy);
     mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
     mock('../lib/utils/eject/modify-app-component', modifyAppComponentSpy);
     mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
     mock('../lib/utils/eject/prompt-for-strict-mode', promptForStrictModeSpy);
+    mock('../lib/utils/eject/update-source-files', updateSourceFilesSpy);
 
     writeJsonSpy.and.callFake((file, contents) => {
       if (file.indexOf('angular.json') > -1) {
@@ -370,12 +370,12 @@ describe('Eject', () => {
     ]);
   });
 
-  it('should migrate assets paths', async () => {
+  it('should update source files', async () => {
     const eject = mock.reRequire('../lib/eject');
 
     await eject();
 
-    expect(migrateAssetsPathsSpy).toHaveBeenCalledWith(ejectedProjectPath);
+    expect(updateSourceFilesSpy).toHaveBeenCalledWith(ejectedProjectPath);
   });
 
   it('should migrate skyuxconfig.json files', async () => {

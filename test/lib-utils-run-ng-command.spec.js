@@ -18,18 +18,37 @@ describe('Run ng command', () => {
     mock.stopAll();
   });
 
-  it('should execute an Angular 12 command', () => {
-    runNgCommand('new', ['--strict']);
+  function verifySpawn(
+    command,
+    args = [],
+    config = {
+      stdio: 'inherit'
+    }
+  ) {
     expect(spawnSyncSpy).toHaveBeenCalledWith(
       'npx',
       [
         '-p', '@angular/cli@12',
-        'ng', 'new',
-        '--strict'
+        'ng', command,
+        ...args
       ],
-      {
-        stdio: 'inherit'
-      }
+      config
     );
+  }
+
+  it('should execute an Angular 12 command', () => {
+    const args = ['--strict'];
+
+    runNgCommand('new', args);
+    verifySpawn('new', args);
+  });
+
+  it('should allow overwriting the spawn config', () => {
+    const config = {
+      stdio: 'pipe'
+    };
+
+    runNgCommand('new', undefined, config);
+    verifySpawn('new', undefined, config);
   });
 });

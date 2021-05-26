@@ -54,7 +54,8 @@ describe('Eject > Setup deprecated TSLint builder', () => {
       {
         devDependencies: {
           codelyzer: '^6.0.0',
-          tslint: '~6.1.0'
+          tslint: '~6.1.0',
+          'tslint-jasmine-rules': '^1.6.1'
         }
       },
       {

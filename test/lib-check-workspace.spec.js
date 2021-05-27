@@ -101,7 +101,6 @@ describe('Check workspace', () => {
       },
       readFileSync(filePath) {
         const fileName = path.basename(filePath);
-        console.log('EH?', fileName);
         switch (fileName) {
           case '.browserslistrc':
             return mockBrowserslistrc.join('\n');

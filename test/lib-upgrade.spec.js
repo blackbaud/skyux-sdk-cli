@@ -4,14 +4,15 @@ describe('Upgrade', () => {
   let appDependenciesMock;
   let appDependenciesV3Mock;
   let appDependenciesV4Mock;
+  let buildToolMetadataSpy;
   let jsonUtilsMock;
   let loggerMock;
   let upgrade;
+  let mockBuildToolMetadata;
   let npmInstallArgs;
   let npmInstallMock;
   let npmInstallCalled;
   let processExitSpy;
-  let latestVersionMock;
   let npmAuditSpy;
   let deleteDependenciesSpy;
 
@@ -36,10 +37,6 @@ describe('Upgrade', () => {
       writeJson: jasmine.createSpy('writeJson')
     };
 
-    latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName, args) => {
-      return Promise.resolve(args.version);
-    });
-
     npmInstallArgs = {};
     npmInstallCalled = false;
     npmInstallMock = function (args) {
@@ -57,10 +54,20 @@ describe('Upgrade', () => {
     npmAuditSpy = jasmine.createSpy('npmAudit');
     deleteDependenciesSpy = jasmine.createSpy('deleteDependencies');
 
+    mockBuildToolMetadata = {
+      name: '@blackbaud-internal/skyux-angular-builders',
+      currentlyInstalledMajorVersion: 5
+    };
+
+    buildToolMetadataSpy = jasmine.createSpy('getBuildToolMetadata')
+      .and.callFake(() => {
+        return Promise.resolve(mockBuildToolMetadata);
+      });
+
     mock('@blackbaud/skyux-logger', loggerMock);
-    mock('latest-version', latestVersionMock);
 
     mock('../lib/utils/json-utils', jsonUtilsMock);
+    mock('../lib/utils/get-build-tool-metadata', buildToolMetadataSpy);
     mock('../lib/app-dependencies', appDependenciesMock);
     mock('../lib/v3-compat/app-dependencies', appDependenciesV3Mock);
     mock('../lib/v4-compat/app-dependencies', appDependenciesV4Mock);
@@ -193,11 +200,14 @@ describe('Upgrade', () => {
   it('should be backwards compatible with Builder 3 projects', async (done) => {
     const upgradeDependenciesV3Spy = spyOn(appDependenciesV3Mock, 'upgradeDependencies').and.callThrough();
 
+    mockBuildToolMetadata = {
+      name: '@skyux-sdk/builder',
+      currentlyInstalledMajorVersion: 3
+    };
+
     jsonUtilsMock.readJson.and.returnValue({
       dependencies: {},
-      devDependencies: {
-        '@skyux-sdk/builder': '3.0.0' // <-- IMPORTANT
-      }
+      devDependencies: {}
     });
 
     await upgrade({});
@@ -210,11 +220,14 @@ describe('Upgrade', () => {
   it('should be backwards compatible with Builder 4 projects', async (done) => {
     const upgradeDependenciesV4Spy = spyOn(appDependenciesV4Mock, 'upgradeDependencies').and.callThrough();
 
+    mockBuildToolMetadata = {
+      name: '@skyux-sdk/builder',
+      currentlyInstalledMajorVersion: 4
+    };
+
     jsonUtilsMock.readJson.and.returnValue({
       dependencies: {},
-      devDependencies: {
-        '@skyux-sdk/builder': '4.0.0' // <-- IMPORTANT
-      }
+      devDependencies: {}
     });
 
     await upgrade({});

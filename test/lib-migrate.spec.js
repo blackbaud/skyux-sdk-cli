@@ -1,16 +1,21 @@
 const mock = require('mock-require');
 
 describe('Migrate', function () {
+  let buildToolMetadataSpy;
   let jsonUtilsMock;
   let loggerMock;
+  let loggerWarnSpy;
+  let mockBuildToolMetadata;
   let processExitSpy;
 
   beforeEach(() => {
+    loggerWarnSpy = jasmine.createSpy('loggerWarn');
 
     loggerMock = {
       logLevel: undefined,
       error() {},
-      info: jasmine.createSpy('info')
+      info: jasmine.createSpy('info'),
+      warn: loggerWarnSpy
     };
 
     jsonUtilsMock = {
@@ -20,11 +25,23 @@ describe('Migrate', function () {
 
     processExitSpy = spyOn(process, 'exit');
 
+    mockBuildToolMetadata = {
+      name: '@skyux-sdk/builder',
+      currentlyInstalledMajorVersion: 3
+    };
+
+    buildToolMetadataSpy = jasmine.createSpy('getBuildToolMetadata')
+      .and.callFake(() => {
+        return Promise.resolve(mockBuildToolMetadata);
+      });
+
     mock('@blackbaud/skyux-logger', loggerMock);
 
     mock('../lib/utils/cli-version', {
       verifyLatestVersion: () => Promise.resolve()
     });
+
+    mock('../lib/utils/get-build-tool-metadata', buildToolMetadataSpy);
 
     mock('../lib/utils/json-utils', jsonUtilsMock);
 
@@ -152,6 +169,17 @@ describe('Migrate', function () {
     expect(loggerSpy).toHaveBeenCalledWith('Error: Something bad happened.');
     expect(processExitSpy).toHaveBeenCalledWith(1);
 
+    done();
+  });
+
+  it('should abort if not running against @skyux-sdk/builder@3', async (done) => {
+    mockBuildToolMetadata.currentlyInstalledMajorVersion = 4;
+
+    const migrate = mock.reRequire('../lib/migrate');
+    await migrate({});
+    expect(loggerWarnSpy).toHaveBeenCalledWith(
+      'Migration aborted. To migrate a SKY UX 4 project to SKY UX 5, run `skyux eject`.'
+    );
     done();
   });
 

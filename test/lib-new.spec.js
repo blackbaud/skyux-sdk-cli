@@ -13,7 +13,10 @@ describe('skyux new command', () => {
   });
 
   function spyOnLogger() {
-    const spyLoggerPromise = jasmine.createSpyObj('getLoggerResponse', ['succeed', 'fail']);
+    const spyLoggerPromise = jasmine.createSpyObj('getLoggerResponse', [
+      'succeed',
+      'fail'
+    ]);
     const spyLogger = jasmine.createSpyObj('logger', [
       'info',
       'warn',
@@ -41,11 +44,14 @@ describe('skyux new command', () => {
       }
 
       if (questions[0].validate) {
-        questions[0].validate.call({
-          async() {
-            return promptDoneSpy;
-          }
-        }, value);
+        questions[0].validate.call(
+          {
+            async() {
+              return promptDoneSpy;
+            }
+          },
+          value
+        );
       }
 
       return Promise.resolve({
@@ -70,10 +76,14 @@ describe('skyux new command', () => {
   }
 
   function spyOnFs() {
-    const spyFs = jasmine.createSpyObj(
-      'fs-extra',
-      ['readdirSync', 'removeSync', 'copySync', 'readJsonSync', 'writeJson', 'existsSync']
-    )
+    const spyFs = jasmine.createSpyObj('fs-extra', [
+      'readdirSync',
+      'removeSync',
+      'copySync',
+      'readJsonSync',
+      'writeJson',
+      'existsSync'
+    ]);
     mock('fs-extra', spyFs);
     return spyFs;
   }
@@ -123,10 +133,10 @@ describe('skyux new command', () => {
         'What is the root directory for your SPA? (example: my-spa-name)'
       );
       expect(spies.spyPrompt.calls.argsFor(1)[0][0].message).toBe(
-        'What is the URL to your repo? (leave this blank if you don\'t know)'
+        "What is the URL to your repo? (leave this blank if you don't know)"
       );
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
-        '\nCreating a single-page application (SPA) named \'skyux-spa-name\'...'
+        "\nCreating a single-page application (SPA) named 'skyux-spa-name'..."
       );
     });
 
@@ -183,7 +193,7 @@ describe('skyux new command', () => {
         repo: false // minimist converts `--no-repo` to `repo: false`
       });
       expect(spies.spyPrompt.calls.any()).not.toBe(
-        'What is the URL to your repo? (leave this blank if you don\'t know)'
+        "What is the URL to your repo? (leave this blank if you don't know)"
       );
     });
 
@@ -196,7 +206,7 @@ describe('skyux new command', () => {
       expect(spies.spyLogger.error).toHaveBeenCalledWith(error);
     });
 
-    it('should checkout the repo\'s master branch', async () => {
+    it("should checkout the repo's master branch", async () => {
       const repo = 'https://example.com/custom-repo.git';
       const spies = getSpies('name', repo);
       spies.spyClone.and.returnValue(Promise.resolve());
@@ -272,7 +282,7 @@ describe('skyux new command', () => {
       );
     });
 
-    it('should checkout the repo\'s 4.x.x branch', async () => {
+    it("should checkout the repo's 4.x.x branch", async () => {
       const spies = getSpies('name', '');
       spies.spyClone.and.returnValue(Promise.resolve());
       await getLib()({});
@@ -295,7 +305,9 @@ describe('skyux new command', () => {
       const template = 'custom-template';
       const error = 'custom-branch-error status 1,';
       const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.reject({ message: error, branch }));
+      spies.spyClone.and.returnValue(
+        Promise.reject({ message: error, branch })
+      );
       await getLib()({ template });
       expect(spies.spyLoggerPromise.fail).toHaveBeenCalledWith(
         `Template found but missing corresponding ${branch} branch. Please consult the template owner or use the '--branch' flag.`
@@ -360,7 +372,9 @@ describe('skyux new command', () => {
       spies.spyClone.and.returnValue(Promise.resolve());
       spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
       spies.spyFs.readdirSync.and.returnValue([]);
-      spies.spyLatestVersion.and.callFake(dep => Promise.resolve(`${dep}-MOCKED-LATEST`));
+      spies.spyLatestVersion.and.callFake((dep) =>
+        Promise.resolve(`${dep}-MOCKED-LATEST`)
+      );
       spies.spyFs.readJsonSync.and.returnValue({
         dependencies: {
           foo: 'latest',
@@ -377,13 +391,19 @@ describe('skyux new command', () => {
       });
       await getLib()({});
 
-      const [ writeJsonPath, writeJsonData, writeJsonOptions ] = spies.spyFs.writeJson.calls.argsFor(0);
-      expect(writeJsonPath).toEqual(path.join(`skyux-spa-${name}`, `tmp`, `package.json`));
+      const [writeJsonPath, writeJsonData, writeJsonOptions] =
+        spies.spyFs.writeJson.calls.argsFor(0);
+      expect(writeJsonPath).toEqual(
+        path.join(`skyux-spa-${name}`, `tmp`, `package.json`)
+      );
       expect(writeJsonData).toEqual(
         jasmine.objectContaining({
           dependencies: { foo: 'foo-MOCKED-LATEST', bar: 'bar-MOCKED-LATEST' },
           peerDependencies: { foo: 'latest', bar: '1.0.0' },
-          devDependencies: { foo: 'foo-MOCKED-LATEST', bar: 'bar-MOCKED-LATEST' },
+          devDependencies: {
+            foo: 'foo-MOCKED-LATEST',
+            bar: 'bar-MOCKED-LATEST'
+          },
           name: `blackbaud-skyux-spa-${name}`,
           description: `A single-page application (SPA) named skyux-spa-${name}`,
           repository: {

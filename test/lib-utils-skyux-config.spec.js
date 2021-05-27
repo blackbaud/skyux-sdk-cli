@@ -1,6 +1,7 @@
 const mock = require('mock-require');
 
-const SKYUX_CONFIG_SCHEMA_PATH = './node_modules/@skyux/config/skyuxconfig-schema.json';
+const SKYUX_CONFIG_SCHEMA_PATH =
+  './node_modules/@skyux/config/skyuxconfig-schema.json';
 
 describe('SKY UX Config util', function () {
   let loggerMock;
@@ -21,7 +22,8 @@ describe('SKY UX Config util', function () {
     testSkyUxConfigJson = {};
 
     jsonUtilsMock = {
-      readJson: () => Promise.resolve(JSON.parse(JSON.stringify(testSkyUxConfigJson))),
+      readJson: () =>
+        Promise.resolve(JSON.parse(JSON.stringify(testSkyUxConfigJson))),
       writeJson: () => Promise.resolve()
     };
 
@@ -61,10 +63,7 @@ describe('SKY UX Config util', function () {
   it('should remove SKY UX theme stylesheet from omnibar config', async () => {
     testSkyUxConfigJson = {
       app: {
-        styles: [
-          '@skyux/theme/css/sky.css',
-          'foo.css'
-        ]
+        styles: ['@skyux/theme/css/sky.css', 'foo.css']
       }
     };
 
@@ -74,9 +73,7 @@ describe('SKY UX Config util', function () {
     await util.validateSkyUxConfigJson();
 
     const config = writeSpy.calls.allArgs()[0][1];
-    expect(config.app.styles).toEqual([
-      'foo.css'
-    ]);
+    expect(config.app.styles).toEqual(['foo.css']);
   });
 
   it('should add host frame options to omnibar config', async () => {
@@ -157,21 +154,29 @@ describe('SKY UX Config util', function () {
     await util.validateSkyUxConfigJson();
 
     expect(writeSpy.calls.allArgs()).toEqual([
-      ['skyuxconfig.json', {
-        $schema: SKYUX_CONFIG_SCHEMA_PATH,
-        host: {
-          frameOptions: {
-            none: true
+      [
+        'skyuxconfig.json',
+        {
+          $schema: SKYUX_CONFIG_SCHEMA_PATH,
+          host: {
+            frameOptions: {
+              none: true
+            }
           }
         }
-      }],
-      ['skyuxconfig.serve.json', {
-        $schema: SKYUX_CONFIG_SCHEMA_PATH
-      }],
-      ['skyuxconfig.pact.json', {
-        $schema: SKYUX_CONFIG_SCHEMA_PATH
-      }]
+      ],
+      [
+        'skyuxconfig.serve.json',
+        {
+          $schema: SKYUX_CONFIG_SCHEMA_PATH
+        }
+      ],
+      [
+        'skyuxconfig.pact.json',
+        {
+          $schema: SKYUX_CONFIG_SCHEMA_PATH
+        }
+      ]
     ]);
   });
-
 });

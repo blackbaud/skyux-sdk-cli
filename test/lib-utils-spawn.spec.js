@@ -43,10 +43,8 @@ describe('spawn util', () => {
 
   it('should call spawn and resolve', async () => {
     await runTest('exit', 0);
-    expect()
-    expect(logger.info).toHaveBeenCalledWith(
-      'Executing: `a b c`'
-    );
+    expect();
+    expect(logger.info).toHaveBeenCalledWith('Executing: `a b c`');
   });
 
   it('should handle a catastrophic error', async () => {
@@ -83,7 +81,8 @@ describe('spawn util', () => {
       const spawn = getLib();
       await spawn('a', 'b', 'c');
 
-      const [ spawnCommand, spawnArgs, spawnOptions ] = spies.spyChildProcess.spawn.calls.argsFor(0);
+      const [spawnCommand, spawnArgs, spawnOptions] =
+        spies.spyChildProcess.spawn.calls.argsFor(0);
       expect(spawnCommand).toEqual('a');
       expect(spawnArgs).toEqual(['b', 'c']);
       expect(spawnOptions).toEqual(
@@ -99,13 +98,11 @@ describe('spawn util', () => {
       const spawn = getLib();
       await spawn.spawnWithOptions(options, 'a', 'b', 'c');
 
-      const [ spawnCommand, spawnArgs, spawnOptions ] = spies.spyChildProcess.spawn.calls.argsFor(0);
+      const [spawnCommand, spawnArgs, spawnOptions] =
+        spies.spyChildProcess.spawn.calls.argsFor(0);
       expect(spawnCommand).toEqual('a');
       expect(spawnArgs).toEqual(['b', 'c']);
-      expect(spawnOptions).toEqual(
-        jasmine.objectContaining(options)
-      );
+      expect(spawnOptions).toEqual(jasmine.objectContaining(options));
     });
   });
-
 });

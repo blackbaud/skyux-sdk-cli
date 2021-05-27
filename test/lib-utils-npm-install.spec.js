@@ -11,7 +11,7 @@ describe('npm install library', () => {
       removeSync() {}
     };
 
-    spyLoggerPromise = jasmine.createSpyObj('logger', ['succeed','fail']);
+    spyLoggerPromise = jasmine.createSpyObj('logger', ['succeed', 'fail']);
     spyOn(logger, 'promise').and.returnValue(spyLoggerPromise);
     spyOn(logger, 'warn');
     spyOn(logger, 'error');
@@ -69,9 +69,11 @@ describe('npm install library', () => {
   });
 
   it('should set child spawn stdio if passed in the settings', () => {
-    expect(getArgsFromSpawn({
-      stdio: 'foobar'
-    })).toEqual({
+    expect(
+      getArgsFromSpawn({
+        stdio: 'foobar'
+      })
+    ).toEqual({
       stdio: 'foobar'
     });
     expect(logger.promise).toHaveBeenCalledWith(
@@ -84,13 +86,15 @@ describe('npm install library', () => {
     expect(logger.promise).toHaveBeenCalledWith(
       'Running npm install. This step can take several minutes.'
     );
-  })
+  });
 
   it('should reject with any error caught from npm install', (done) => {
     const error = 'custom error it failed';
-    getPromiseFromSpawn(1, error).catch(err => {
+    getPromiseFromSpawn(1, error).catch((err) => {
       expect(err).toEqual(error);
-      expect(logger.promise).toHaveBeenCalledWith('Running npm install. This step can take several minutes.');
+      expect(logger.promise).toHaveBeenCalledWith(
+        'Running npm install. This step can take several minutes.'
+      );
       expect(spyLoggerPromise.fail).toHaveBeenCalled();
       done();
     });
@@ -98,7 +102,9 @@ describe('npm install library', () => {
 
   it('should listen for the exit event and reject if exit code is not 0', (done) => {
     getPromiseFromSpawn(1).catch((err) => {
-      expect(err).toEqual('Unknown error occured. `npm install` has failed.  Run `skyux install --logLevel verbose` for more information.');
+      expect(err).toEqual(
+        'Unknown error occured. `npm install` has failed.  Run `skyux install --logLevel verbose` for more information.'
+      );
       expect(spyLoggerPromise.fail).toHaveBeenCalled();
       done();
     });
@@ -121,17 +127,10 @@ npm WARN another warning
       expect(logger.warn).toHaveBeenCalledWith(
         '\nYou may need to address the following warnings:\n'
       );
-      expect(logger.warn).toHaveBeenCalledWith(
-        'npm WARN warning should show'
-      );
-      expect(logger.warn).toHaveBeenCalledWith(
-        'npm WARN another warning'
-      );
-      expect(logger.warn).toHaveBeenCalledWith(
-        '\n'
-      );
+      expect(logger.warn).toHaveBeenCalledWith('npm WARN warning should show');
+      expect(logger.warn).toHaveBeenCalledWith('npm WARN another warning');
+      expect(logger.warn).toHaveBeenCalledWith('\n');
       done();
-    })
+    });
   });
-
 });

@@ -2,13 +2,12 @@ const mock = require('mock-require');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('clone utility', () => {
-
   let spyLoggerPromise;
   let spyGitClone;
   let clone;
 
   beforeEach(() => {
-    spyLoggerPromise = jasmine.createSpyObj('logger', ['succeed','fail']);
+    spyLoggerPromise = jasmine.createSpyObj('logger', ['succeed', 'fail']);
     spyOn(logger, 'promise').and.returnValue(spyLoggerPromise);
     spyOn(logger, 'info');
     spyOn(logger, 'warn');
@@ -30,7 +29,9 @@ describe('clone utility', () => {
     const checkout = 'my-branch';
 
     spyGitClone.and.callFake((a, b, c, callback) => {
-      expect(logger.info).toHaveBeenCalledWith(`Cloning ${url}#${checkout} into ${target}`);
+      expect(logger.info).toHaveBeenCalledWith(
+        `Cloning ${url}#${checkout} into ${target}`
+      );
       expect(url).toEqual(a);
       expect(target).toEqual(b);
       expect({ checkout }).toEqual(c);
@@ -57,5 +58,4 @@ describe('clone utility', () => {
       done();
     }
   });
-
 });

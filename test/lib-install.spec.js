@@ -6,13 +6,12 @@ let logger;
 let npmInstallSpy;
 
 describe('skyux install command', () => {
-
   let cleanupMock;
 
   beforeEach(() => {
     logger = {
       error: jasmine.createSpy('error')
-    }
+    };
 
     mock('@blackbaud/skyux-logger', logger);
 
@@ -69,5 +68,4 @@ describe('skyux install command', () => {
     await install();
     expect(logger.error).toHaveBeenCalledWith(err);
   });
-
 });

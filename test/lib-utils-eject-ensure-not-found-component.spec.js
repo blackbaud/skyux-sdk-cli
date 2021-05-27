@@ -14,20 +14,22 @@ describe('ensureNotFoundComponent', () => {
     notFoundComponentExists = false;
     resourcesFileExists = false;
 
-    mockFsExtra = jasmine.createSpyObj(
-      'fs-extra',
-      ['existsSync', 'readJsonSync', 'writeFileSync', 'writeJsonSync']
-    )
+    mockFsExtra = jasmine.createSpyObj('fs-extra', [
+      'existsSync',
+      'readJsonSync',
+      'writeFileSync',
+      'writeJsonSync'
+    ]);
 
     mockFsExtra.readJsonSync.and.callFake((filePath) => {
-      switch(path.basename(filePath)) {
+      switch (path.basename(filePath)) {
         case 'resources_en_US.json':
           return resourcesFileExists ? {} : undefined;
       }
     });
 
     mockFsExtra.existsSync.and.callFake((filePath) => {
-      switch(path.basename(filePath)) {
+      switch (path.basename(filePath)) {
         case 'not-found.component.ts':
           return notFoundComponentExists;
         case 'resources_en_US.json':
@@ -41,7 +43,9 @@ describe('ensureNotFoundComponent', () => {
 
     mock('../lib/utils/eject/write-json', writeJsonSpy);
 
-    ensureNotFoundComponent = mock.reRequire('../lib/utils/eject/ensure-not-found-component');
+    ensureNotFoundComponent = mock.reRequire(
+      '../lib/utils/eject/ensure-not-found-component'
+    );
   });
 
   afterEach(() => {
@@ -101,9 +105,10 @@ export class NotFoundComponent { }
       {
         skyux_page_not_found_iframe_title: {
           message: 'Page not found',
-          _description: 'A string value to represent the Page Not Found iframe title attribute.'
+          _description:
+            'A string value to represent the Page Not Found iframe title attribute.'
         }
       }
-    )
+    );
   });
 });

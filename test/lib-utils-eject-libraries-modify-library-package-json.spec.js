@@ -2,7 +2,6 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('Eject Libraries > Modify package.json', () => {
-
   let writeJsonSyncSpy;
 
   let mockEjectedProjectPath;
@@ -30,7 +29,10 @@ describe('Eject Libraries > Modify package.json', () => {
           return mockPackageJson;
         }
 
-        if (filePath === path.join(mockEjectedProjectPath, 'projects/my-lib/package.json')) {
+        if (
+          filePath ===
+          path.join(mockEjectedProjectPath, 'projects/my-lib/package.json')
+        ) {
           return mockEjectedPackageJson;
         }
       },
@@ -43,7 +45,9 @@ describe('Eject Libraries > Modify package.json', () => {
   });
 
   function getUtil() {
-    return mock.reRequire('../lib/utils/eject/libraries/modify-library-package-json');
+    return mock.reRequire(
+      '../lib/utils/eject/libraries/modify-library-package-json'
+    );
   }
 
   it('should modify the library package.json', () => {
@@ -55,21 +59,21 @@ describe('Eject Libraries > Modify package.json', () => {
         '@skyux/core': '^4'
       },
       dependencies: {
-        'moment': '1'
+        moment: '1'
       }
     };
 
     mockEjectedPackageJson = {
-      'name': 'core-lib',
-      'version': '0.0.0',
-      'dependencies': {
-        'tslib': '^2.0.0'
+      name: 'core-lib',
+      version: '0.0.0',
+      dependencies: {
+        tslib: '^2.0.0'
       },
-      'peerDependencies': {
+      peerDependencies: {
         '@angular/common': '^11.0.0',
         '@angular/core': '^11.0.0'
       }
-    }
+    };
 
     const modifyPackageJson = getUtil();
     modifyPackageJson(mockEjectedProjectPath, 'my-lib');
@@ -102,7 +106,7 @@ describe('Eject Libraries > Modify package.json', () => {
     mockEjectedPackageJson = {
       name: 'core-lib',
       version: '0.0.0'
-    }
+    };
 
     const modifyPackageJson = getUtil();
     modifyPackageJson(mockEjectedProjectPath, 'my-lib');
@@ -116,5 +120,4 @@ describe('Eject Libraries > Modify package.json', () => {
       { spaces: 2 }
     );
   });
-
 });

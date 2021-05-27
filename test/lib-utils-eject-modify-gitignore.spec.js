@@ -2,7 +2,6 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('modifyGitignore', () => {
-
   let writeFileSyncSpy;
 
   beforeEach(() => {
@@ -21,10 +20,10 @@ describe('modifyGitignore', () => {
   });
 
   it('should modify the .gitignore file', () => {
-    const modifyGitignore = mock.reRequire('../lib/utils/eject/modify-gitignore');
-    modifyGitignore('EJECTED_PROJECT_PATH', [
-      '/foobar'
-    ]);
+    const modifyGitignore = mock.reRequire(
+      '../lib/utils/eject/modify-gitignore'
+    );
+    modifyGitignore('EJECTED_PROJECT_PATH', ['/foobar']);
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join('EJECTED_PROJECT_PATH/.gitignore'),
       `MOCK_GITIGNORE_CONTENTS
@@ -35,5 +34,4 @@ describe('modifyGitignore', () => {
       { encoding: 'utf-8' }
     );
   });
-
 });

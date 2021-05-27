@@ -4,7 +4,6 @@ const path = require('path');
 const constants = require('../lib/utils/eject/constants');
 
 describe('Eject > Library', () => {
-
   let npmInstallSpy;
   let copyRootFilesSpy;
   let copySourceFilesSpy;
@@ -32,7 +31,6 @@ describe('Eject > Library', () => {
     mockIsInternal = true;
     mockStrictMode = false;
 
-
     mock('@blackbaud/skyux-logger', {
       info() {}
     });
@@ -56,30 +54,50 @@ describe('Eject > Library', () => {
     });
 
     createAngularLibrarySpy = jasmine.createSpy('createAngularLibrary');
-    mock('../lib/utils/eject/libraries/create-angular-library', createAngularLibrarySpy);
+    mock(
+      '../lib/utils/eject/libraries/create-angular-library',
+      createAngularLibrarySpy
+    );
 
     createAngularWorkspaceSpy = jasmine.createSpy('createAngularWorkspace');
-    mock('../lib/utils/eject/libraries/create-angular-workspace', createAngularWorkspaceSpy);
+    mock(
+      '../lib/utils/eject/libraries/create-angular-workspace',
+      createAngularWorkspaceSpy
+    );
 
     modifyLibraryPackageJsonSpy = jasmine.createSpy('modifyLibraryPackageJson');
-    mock('../lib/utils/eject/libraries/modify-library-package-json', modifyLibraryPackageJsonSpy);
+    mock(
+      '../lib/utils/eject/libraries/modify-library-package-json',
+      modifyLibraryPackageJsonSpy
+    );
 
     modifyRootReadmeSpy = jasmine.createSpy('modifyRootReadme');
-    mock('../lib/utils/eject/libraries/modify-root-readme', modifyRootReadmeSpy);
+    mock(
+      '../lib/utils/eject/libraries/modify-root-readme',
+      modifyRootReadmeSpy
+    );
 
     backupSourceFilesSpy = jasmine.createSpy('backupSourceFiles');
     mock('../lib/utils/eject/backup-source-files', backupSourceFilesSpy);
 
     installAngularBuildersSpy = jasmine.createSpy('installAngularBuilders');
-    mock('../lib/utils/eject/install-angular-builders', installAngularBuildersSpy);
+    mock(
+      '../lib/utils/eject/install-angular-builders',
+      installAngularBuildersSpy
+    );
 
     migrateSkyuxConfigFilesSpy = jasmine.createSpy('migrateSkyuxConfigFiles');
-    mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
+    mock(
+      '../lib/utils/eject/migrate-skyux-config-files',
+      migrateSkyuxConfigFilesSpy
+    );
 
     modifyGitignoreSpy = jasmine.createSpy('modifyGitignore');
     mock('../lib/utils/eject/modify-gitignore', modifyGitignoreSpy);
 
-    modifyWorkspacePackageJson = jasmine.createSpy('modifyWorkspacePackageJson');
+    modifyWorkspacePackageJson = jasmine.createSpy(
+      'modifyWorkspacePackageJson'
+    );
     mock('../lib/utils/eject/modify-package-json', modifyWorkspacePackageJson);
 
     moveEjectedFilesSpy = jasmine.createSpy('moveEjectedFiles');
@@ -143,13 +161,11 @@ describe('Eject > Library', () => {
       'my-lib'
     );
 
-    expect(modifyGitignoreSpy).toHaveBeenCalledWith(
-      mockEjectedProjectPath, [
-        constants.SOURCE_CODE_BACKUP_DIR,
-        '/screenshots-baseline-local',
-        '/screenshots-diff-local'
-      ]
-    );
+    expect(modifyGitignoreSpy).toHaveBeenCalledWith(mockEjectedProjectPath, [
+      constants.SOURCE_CODE_BACKUP_DIR,
+      '/screenshots-baseline-local',
+      '/screenshots-diff-local'
+    ]);
   });
 
   it('should modify the ejected library and workspace package.json', async () => {
@@ -177,9 +193,7 @@ describe('Eject > Library', () => {
   it('should move ejected files to current working directory', async () => {
     await ejectLibrary();
 
-    expect(moveEjectedFilesSpy).toHaveBeenCalledWith(
-      mockEjectedProjectPath
-    );
+    expect(moveEjectedFilesSpy).toHaveBeenCalledWith(mockEjectedProjectPath);
   });
 
   it('should run `npm install`', async () => {
@@ -187,5 +201,4 @@ describe('Eject > Library', () => {
 
     expect(npmInstallSpy).toHaveBeenCalled();
   });
-
 });

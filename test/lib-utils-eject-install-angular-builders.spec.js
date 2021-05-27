@@ -1,7 +1,6 @@
 const mock = require('mock-require');
 
 describe('Eject > Install Angular Builders', () => {
-
   let runNgCommandSpy;
 
   let mockEjectedProjectPath;
@@ -73,5 +72,4 @@ describe('Eject > Install Angular Builders', () => {
       );
     }
   });
-
 });

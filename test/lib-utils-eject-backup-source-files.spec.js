@@ -19,9 +19,7 @@ describe('backup source files', () => {
 
     mock('glob', {
       sync() {
-        return [
-          path.join(process.cwd(), 'src/app/app.component.ts')
-        ];
+        return [path.join(process.cwd(), 'src/app/app.component.ts')];
       }
     });
   });

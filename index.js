@@ -9,21 +9,22 @@ const generator = require('./lib/utils/certs/generator');
  * @returns {Array} Array of matching patterns
  */
 function getGlobs() {
-
   // Look globally and locally for matching glob pattern
   const dirs = [
     `${process.cwd()}/node_modules/`, // local (where they ran the command from)
-    `${__dirname}/..`,  // global, if scoped package (where this code exists)
-    `${__dirname}/../..`, // global, if not scoped package
+    `${__dirname}/..`, // global, if scoped package (where this code exists)
+    `${__dirname}/../..` // global, if not scoped package
   ];
 
   let globs = [];
 
-  dirs.forEach(dir => {
+  dirs.forEach((dir) => {
     const legacyPattern = path.join(dir, '*/skyux-builder*/package.json');
     const newPattern = path.join(dir, '@skyux-sdk/builder*/package.json');
 
-    logger.verbose(`Looking for modules in ${legacyPattern} and ${newPattern}.`);
+    logger.verbose(
+      `Looking for modules in ${legacyPattern} and ${newPattern}.`
+    );
 
     globs = globs.concat([
       ...glob.sync(legacyPattern),
@@ -45,7 +46,7 @@ function getModulesAnswered(command, argv, globs) {
   let modulesCalled = {};
   let modulesAnswered = [];
 
-  globs.forEach(pkg => {
+  globs.forEach((pkg) => {
     const dirName = path.dirname(pkg);
     let pkgJson = {};
     let module;
@@ -61,7 +62,9 @@ function getModulesAnswered(command, argv, globs) {
       const pkgName = pkgJson.name || dirName;
 
       if (modulesCalled[pkgName]) {
-        logger.verbose(`Multiple instances were found. Skipping passing the command to ${pkgName} at ${pkg}.`);
+        logger.verbose(
+          `Multiple instances were found. Skipping passing the command to ${pkgName} at ${pkg}.`
+        );
       } else {
         logger.verbose(`Passing the command to ${pkgName} at ${pkg}.`);
 
@@ -69,7 +72,6 @@ function getModulesAnswered(command, argv, globs) {
         if (module.runCommand(command, argv)) {
           modulesAnswered.push(pkgName);
         }
-
       }
     }
   });
@@ -85,18 +87,21 @@ function getModulesAnswered(command, argv, globs) {
  * @param {boolean} isInternalCommand
  */
 function invokeCommandError(command, isInternalCommand) {
-
   if (isInternalCommand) {
     return;
   }
 
   const cwd = process.cwd();
-  logger.error(`No modules were found that handle the '${command}' command. Please check your syntax. For more information, use the 'help' command.`);
+  logger.error(
+    `No modules were found that handle the '${command}' command. Please check your syntax. For more information, use the 'help' command.`
+  );
 
   if (cwd.indexOf('skyux-spa') === -1) {
     logger.error(`Are you in a SKY UX SPA directory?`);
   } else if (!fs.existsSync('./node_modules')) {
-    logger.error(`The 'node_modules' folder was not found. Did you run 'npm install'?`);
+    logger.error(
+      `The 'node_modules' folder was not found. Did you run 'npm install'?`
+    );
   }
 
   process.exit(1);
@@ -110,7 +115,6 @@ function invokeCommandError(command, isInternalCommand) {
  * @param {boolean} isInternalCommand
  */
 function invokeCommand(command, argv, isInternalCommand) {
-
   const globs = getGlobs();
 
   if (globs.length === 0) {
@@ -124,7 +128,8 @@ function invokeCommand(command, argv, isInternalCommand) {
     return invokeCommandError(command, isInternalCommand);
   }
 
-  const modulesAnsweredPlural = modulesAnsweredLength === 1 ? 'module' : 'modules';
+  const modulesAnsweredPlural =
+    modulesAnsweredLength === 1 ? 'module' : 'modules';
 
   logger.verbose(
     `Successfully passed the '${command}' command to ${modulesAnsweredLength} ${modulesAnsweredPlural}:`
@@ -162,7 +167,7 @@ function validateCert(command, argv) {
       if (argv.s || argv.serve) {
         return generator.validate(argv);
       }
-    break;
+      break;
   }
 
   return true;
@@ -182,20 +187,23 @@ function processArgv(argv) {
 
   // Don't validate custom sslCert and sslKey
   if (!argv.sslCert && !argv.sslKey) {
-
     argv.sslCert = generator.getCertPath();
     argv.sslKey = generator.getKeyPath();
 
     // Validate cert for specific scenarios
     if (!validateCert(command, argv)) {
       logger.warn(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
-      logger.warn(`You may proceed, but \`skyux ${command}\` may not function properly.`)
-      logger.warn('Please install the latest SKY UX CLI and run `skyux certs install`.');
+      logger.warn(
+        `You may proceed, but \`skyux ${command}\` may not function properly.`
+      );
+      logger.warn(
+        'Please install the latest SKY UX CLI and run `skyux certs install`.'
+      );
     }
   }
 
   // Catch skyux install certs when they meant skyux certs install
-  const [ isInstall, isCerts ] = argv['_'];
+  const [isInstall, isCerts] = argv['_'];
   if (isInstall === 'install' && isCerts === 'certs') {
     logger.error('The `skyux install` command is invalid.');
     logger.error('Did you mean to run `skyux certs install` instead?');

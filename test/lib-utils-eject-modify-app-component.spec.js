@@ -15,7 +15,9 @@ describe('modifyAppComponent()', () => {
       writeFileSync: writeFileSyncSpy
     });
 
-    modifyAppComponent = mock.reRequire('../lib/utils/eject/modify-app-component');
+    modifyAppComponent = mock.reRequire(
+      '../lib/utils/eject/modify-app-component'
+    );
   });
 
   it('should modify the app.component.html file', async () => {
@@ -31,5 +33,4 @@ describe('modifyAppComponent()', () => {
       jasmine.stringMatching(/describe\('AppComponent'/)
     );
   });
-
 });

@@ -27,11 +27,7 @@ describe('Run ng command', () => {
   ) {
     expect(spawnSyncSpy).toHaveBeenCalledWith(
       'npx',
-      [
-        '-p', '@angular/cli@12',
-        'ng', command,
-        ...args
-      ],
+      ['-p', '@angular/cli@12', 'ng', command, ...args],
       config
     );
   }

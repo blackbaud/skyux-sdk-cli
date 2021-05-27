@@ -7,7 +7,7 @@ describe('skyux version command', () => {
     const version = 'this.should.match1';
 
     let stubs = {};
-    stubs[path.join(__dirname,  '..', 'package.json')] = {
+    stubs[path.join(__dirname, '..', 'package.json')] = {
       '@noCallThru': true,
       version: version
     };
@@ -21,7 +21,7 @@ describe('skyux version command', () => {
     const version = 'this.should.match2';
 
     let stubs = {};
-    stubs[path.join(__dirname,  '..', 'package.json')] = {
+    stubs[path.join(__dirname, '..', 'package.json')] = {
       '@noCallThru': true,
       version: version
     };

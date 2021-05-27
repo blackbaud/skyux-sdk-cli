@@ -29,10 +29,7 @@ describe('SKY UX libraries util', function () {
     const copySpy = spyOn(fsExtraMock, 'copyFile').and.callThrough();
     await util.fixEntryPoints();
     expect(copySpy.calls.allArgs()).toEqual([
-      [
-        'src/app/public/index.ts',
-        'src/app/public/public_api.ts'
-      ]
+      ['src/app/public/index.ts', 'src/app/public/public_api.ts']
     ]);
   });
 
@@ -42,10 +39,7 @@ describe('SKY UX libraries util', function () {
     const copySpy = spyOn(fsExtraMock, 'copyFile').and.callThrough();
     await util.fixEntryPoints();
     expect(copySpy.calls.allArgs()).toEqual([
-      [
-        'src/app/public/index.ts',
-        'src/app/public/public_api.ts'
-      ],
+      ['src/app/public/index.ts', 'src/app/public/public_api.ts'],
       [
         'src/app/public/testing/index.ts',
         'src/app/public/testing/public_api.ts'
@@ -68,5 +62,4 @@ describe('SKY UX libraries util', function () {
     });
     expect(modified).toEqual({});
   });
-
 });

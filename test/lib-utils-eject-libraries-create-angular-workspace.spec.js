@@ -2,7 +2,6 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('Eject Libraries > Create Angular Workspace', () => {
-
   let runNgCommandSpy;
 
   let mockEjectedProjectPath;
@@ -31,16 +30,17 @@ describe('Eject Libraries > Create Angular Workspace', () => {
     const createAngularWorkspace = mock.reRequire(
       '../lib/utils/eject/libraries/create-angular-workspace'
     );
-    createAngularWorkspace(mockEjectedProjectPath, mockWorkspaceName, mockStrictMode);
-    expect(runNgCommandSpy).toHaveBeenCalledOnceWith(
-      'new',
-      [
-        'my-lib-workspace',
-        '--create-application=false',
-        '--directory=ejected-path',
-        `--strict=${mockStrictMode}`
-      ]
+    createAngularWorkspace(
+      mockEjectedProjectPath,
+      mockWorkspaceName,
+      mockStrictMode
     );
+    expect(runNgCommandSpy).toHaveBeenCalledOnceWith('new', [
+      'my-lib-workspace',
+      '--create-application=false',
+      '--directory=ejected-path',
+      `--strict=${mockStrictMode}`
+    ]);
   }
 
   it('should create an empty workspace using Angular CLI', () => {
@@ -51,5 +51,4 @@ describe('Eject Libraries > Create Angular Workspace', () => {
     mockStrictMode = true;
     verifySpawn();
   });
-
 });

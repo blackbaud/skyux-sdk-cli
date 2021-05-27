@@ -30,7 +30,8 @@ describe('Migrate', function () {
       currentlyInstalledMajorVersion: 3
     };
 
-    buildToolMetadataSpy = jasmine.createSpy('getBuildToolMetadata')
+    buildToolMetadataSpy = jasmine
+      .createSpy('getBuildToolMetadata')
       .and.callFake(() => {
         return Promise.resolve(mockBuildToolMetadata);
       });
@@ -79,8 +80,8 @@ describe('Migrate', function () {
         'core-js': '*',
         'intl-tel-input': '*',
         'microedge-rxstate': '*',
-        'foo': '*',
-        'tslib': '*'
+        foo: '*',
+        tslib: '*'
       },
       devDependencies: {
         '@angular/http': '*',
@@ -91,14 +92,14 @@ describe('Migrate', function () {
         '@skyux-sdk/builder': '*',
         '@skyux-sdk/cli': '*',
         '@skyux-sdk/pact': '*',
-        'bar': '*'
+        bar: '*'
       },
       peerDependencies: {
         '@pact-foundation/node': '*',
         '@types/core-js': '*',
         '@types/node': '*',
         'rxjs-compat': '*',
-        'baz': '*'
+        baz: '*'
       }
     });
     const writeSpy = spyOn(jsonUtilsMock, 'writeJson').and.callThrough();
@@ -106,14 +107,14 @@ describe('Migrate', function () {
     await migrate({});
     expect(writeSpy).toHaveBeenCalledWith('package.json', {
       dependencies: {
-        'foo': '*'
+        foo: '*'
       },
       devDependencies: {
         '@skyux-sdk/builder': '^4.0.0-rc.0',
-        'bar': '*'
+        bar: '*'
       },
       peerDependencies: {
-        'baz': '*'
+        baz: '*'
       }
     });
     done();
@@ -182,5 +183,4 @@ describe('Migrate', function () {
     );
     done();
   });
-
 });

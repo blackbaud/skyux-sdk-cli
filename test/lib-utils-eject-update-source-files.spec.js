@@ -9,20 +9,19 @@ describe('updateSourceFiles', () => {
   let writeFileSyncSpy;
 
   function validateWriteFile(filePath, contents) {
-    expect(writeFileSyncSpy).toHaveBeenCalledWith(
-      filePath,
-      contents,
-      {
-        encoding: 'utf-8'
-      }
-    );
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(filePath, contents, {
+      encoding: 'utf-8'
+    });
   }
 
   beforeEach(() => {
     ejectedProjectPath = 'foo';
 
     globSyncSpy = jasmine.createSpy('sync').and.callFake((pattern) => {
-      if (pattern === path.join(ejectedProjectPath, 'src/app/**/*.+(html|css|scss|ts)')) {
+      if (
+        pattern ===
+        path.join(ejectedProjectPath, 'src/app/**/*.+(html|css|scss|ts)')
+      ) {
         return [
           path.join(ejectedProjectPath, 'src/app/bar/bar.component.ts'),
           path.join(ejectedProjectPath, 'src/app/bar/bar.component.scss'),
@@ -31,30 +30,32 @@ describe('updateSourceFiles', () => {
           path.join(ejectedProjectPath, 'src/app/foo/foo.component.scss'),
           path.join(ejectedProjectPath, 'src/app/foo/foo.component.spec.ts'),
           path.join(ejectedProjectPath, 'src/app/styles.css')
-        ]
+        ];
       }
 
       return [];
     });
 
-    readFileSyncSpy = jasmine.createSpy('readFileSync').and.callFake((filePath) => {
-      switch (path.basename(filePath)) {
-        case 'bar.component.spec.ts':
-          return `import { SkyAppResourcesTestService } from '@skyux/i18n/testing';`;
-        case 'bar.component.scss':
-          return 'span { color: red }';
-        case 'bar.component.ts':
-          return '@Component({template: \'<img src="~/assets/image.png">\'})';
-        case 'foo.component.html':
-          return '<img src="~/assets/image.png"><img src="~/assets/image2.png">';
-        case 'foo.component.scss':
-          return '.img { background-image: url(~/assets/image.png) }'
-        case 'foo.component.spec.ts':
-          return `import { SkyAppTestModule } from '@skyux-sdk/builder/runtime/testing/browser';`;
-        case 'styles.css':
-          return 'div { background-image: url("~/assets/image.png") }';
-      }
-    });
+    readFileSyncSpy = jasmine
+      .createSpy('readFileSync')
+      .and.callFake((filePath) => {
+        switch (path.basename(filePath)) {
+          case 'bar.component.spec.ts':
+            return `import { SkyAppResourcesTestService } from '@skyux/i18n/testing';`;
+          case 'bar.component.scss':
+            return 'span { color: red }';
+          case 'bar.component.ts':
+            return '@Component({template: \'<img src="~/assets/image.png">\'})';
+          case 'foo.component.html':
+            return '<img src="~/assets/image.png"><img src="~/assets/image2.png">';
+          case 'foo.component.scss':
+            return '.img { background-image: url(~/assets/image.png) }';
+          case 'foo.component.spec.ts':
+            return `import { SkyAppTestModule } from '@skyux-sdk/builder/runtime/testing/browser';`;
+          case 'styles.css':
+            return 'div { background-image: url("~/assets/image.png") }';
+        }
+      });
 
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
 
@@ -72,7 +73,9 @@ describe('updateSourceFiles', () => {
       verbose: jasmine.createSpy('verbose')
     });
 
-    updateSourceFiles = mock.reRequire('../lib/utils/eject/update-source-files');
+    updateSourceFiles = mock.reRequire(
+      '../lib/utils/eject/update-source-files'
+    );
   });
 
   afterEach(() => {
@@ -114,5 +117,4 @@ describe('updateSourceFiles', () => {
       'div { background-image: url("assets/image.png") }'
     );
   });
-
 });

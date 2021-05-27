@@ -3,7 +3,6 @@ const mock = require('mock-require');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('skyux help command', () => {
-
   beforeEach(() => {
     spyOn(logger, 'info');
   });
@@ -19,7 +18,6 @@ describe('skyux help command', () => {
   });
 
   it('should handle known help topics', () => {
-
     const topic = 'CUSTOM HELP TOPIC';
     spyOn(fs, 'existsSync').and.returnValue(true);
     spyOn(fs, 'readFileSync').and.returnValue(topic);

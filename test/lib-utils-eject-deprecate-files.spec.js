@@ -25,10 +25,10 @@ describe('deprecateFiles', () => {
     appExtrasContents = '@NgModule() export class AppExtrasModule {}';
     appSkyContents = '@NgModule() export class AppSkyModule {}';
 
-    mockFsExtra = jasmine.createSpyObj(
-      'fs-extra',
-      ['readFileSync', 'writeFileSync']
-    )
+    mockFsExtra = jasmine.createSpyObj('fs-extra', [
+      'readFileSync',
+      'writeFileSync'
+    ]);
 
     mockFsExtra.readFileSync.and.callFake((filePath) => {
       switch (filePath) {

@@ -47,8 +47,8 @@ describe('Stylesheets util', function () {
     await util.fixSassDeep();
 
     expect(writeSpy.calls.allArgs()).toEqual([
-      [ 'foo.scss', '::ng-deep p {}' ],
-      [ 'bar.scss', 'p ::ng-deep a {}' ]
+      ['foo.scss', '::ng-deep p {}'],
+      ['bar.scss', 'p ::ng-deep a {}']
     ]);
   });
 
@@ -62,5 +62,4 @@ describe('Stylesheets util', function () {
 
     expect(writeSpy).not.toHaveBeenCalled();
   });
-
 });

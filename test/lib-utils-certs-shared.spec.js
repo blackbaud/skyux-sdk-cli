@@ -1,10 +1,7 @@
-
-
 const mock = require('mock-require');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('cert utils shared', () => {
-
   beforeEach(() => {
     spyOn(logger, 'info');
     spyOn(logger, 'error');
@@ -20,10 +17,8 @@ describe('cert utils shared', () => {
 
   it('should expose a public API', () => {
     const lib = getLib();
-    const methods = [
-      'execute'
-    ];
-    methods.forEach(method => expect(lib[method]).toBeDefined());
+    const methods = ['execute'];
+    methods.forEach((method) => expect(lib[method]).toBeDefined());
   });
 
   it('should handle a successful execute', async () => {
@@ -58,5 +53,4 @@ describe('cert utils shared', () => {
       `Unsuccessfully ${action}ed the SKY UX certificates at the ${level} level. ${err}`
     );
   });
-
 });

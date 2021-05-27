@@ -59,12 +59,8 @@ describe('move ejected files', () => {
       path.join(process.cwd(), 'node_modules')
     );
 
-    expect(removeSyncSpy).toHaveBeenCalledWith(
-      path.join(process.cwd(), 'src')
-    );
+    expect(removeSyncSpy).toHaveBeenCalledWith(path.join(process.cwd(), 'src'));
 
-    expect(removeSyncSpy).toHaveBeenCalledWith(
-      MOCK_EJECTED_PROJECT_PATH
-    );
+    expect(removeSyncSpy).toHaveBeenCalledWith(MOCK_EJECTED_PROJECT_PATH);
   });
 });

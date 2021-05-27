@@ -1,9 +1,6 @@
-
-
 const mock = require('mock-require');
 
 describe('cert utils mac', () => {
-
   afterEach(() => {
     mock.stopAll();
   });
@@ -16,11 +13,12 @@ describe('cert utils mac', () => {
   }
 
   function spyOnGenerator() {
-    const spyGenerator = jasmine.createSpyObj(
-      'generator',
-      ['getCertAuthPath', 'getCertAuthCommonName', 'getCertCommonName']
-    );
-    mock('../lib/utils/certs/generator', spyGenerator );
+    const spyGenerator = jasmine.createSpyObj('generator', [
+      'getCertAuthPath',
+      'getCertAuthCommonName',
+      'getCertCommonName'
+    ]);
+    mock('../lib/utils/certs/generator', spyGenerator);
     return spyGenerator;
   }
 
@@ -36,11 +34,8 @@ describe('cert utils mac', () => {
 
   it('should expose a public API', () => {
     const lib = getLib();
-    const methods = [
-      'trust',
-      'untrust'
-    ];
-    methods.forEach(method => expect(lib[method]).toBeDefined());
+    const methods = ['trust', 'untrust'];
+    methods.forEach((method) => expect(lib[method]).toBeDefined());
   });
 
   it('should trust at the OS level', async () => {
@@ -55,9 +50,21 @@ describe('cert utils mac', () => {
 
     await lib.trust();
 
-    expect(spyExecute).toHaveBeenCalledWith('trust', 'OS', jasmine.any(Function));
+    expect(spyExecute).toHaveBeenCalledWith(
+      'trust',
+      'OS',
+      jasmine.any(Function)
+    );
     expect(spySpawn).toHaveBeenCalledWith(
-      `sudo`, `security`, `add-trusted-cert`, `-d`, `-r`, `trustRoot`, `-k`, `/Library/Keychains/System.keychain`, certAuthPath
+      `sudo`,
+      `security`,
+      `add-trusted-cert`,
+      `-d`,
+      `-r`,
+      `trustRoot`,
+      `-k`,
+      `/Library/Keychains/System.keychain`,
+      certAuthPath
     );
   });
 
@@ -75,13 +82,24 @@ describe('cert utils mac', () => {
 
     await lib.untrust();
 
-    expect(spyExecute).toHaveBeenCalledWith('untrust', 'OS', jasmine.any(Function));
-    expect(spySpawn).toHaveBeenCalledWith(
-      `sudo`, `security`, `delete-certificate`, `-c`, certAuthCommonName
+    expect(spyExecute).toHaveBeenCalledWith(
+      'untrust',
+      'OS',
+      jasmine.any(Function)
     );
     expect(spySpawn).toHaveBeenCalledWith(
-      `sudo`, `security`, `delete-certificate`, `-c`, certCommonName
+      `sudo`,
+      `security`,
+      `delete-certificate`,
+      `-c`,
+      certAuthCommonName
+    );
+    expect(spySpawn).toHaveBeenCalledWith(
+      `sudo`,
+      `security`,
+      `delete-certificate`,
+      `-c`,
+      certCommonName
     );
   });
-
 });

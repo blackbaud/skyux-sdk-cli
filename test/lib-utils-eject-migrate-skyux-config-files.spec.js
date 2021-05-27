@@ -15,14 +15,18 @@ describe('migrateSkyuxConfigFiles', () => {
 
   beforeEach(() => {
     ejectedProjectPath = 'foo';
-    internalSchemaPath = './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json';
-    publicSchemaPath = './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json';
+    internalSchemaPath =
+      './node_modules/@blackbaud-internal/skyux-angular-builders/skyuxconfig-schema.json';
+    publicSchemaPath =
+      './node_modules/@skyux-sdk/angular-builders/skyuxconfig-schema.json';
 
-    writeJsonSpy = jasmine.createSpy('writeJson').and.callFake((file, contents) => {
-      if (file.indexOf('skyuxconfig.json') > -1) {
-        actualSkyuxConfig = contents;
-      }
-    });
+    writeJsonSpy = jasmine
+      .createSpy('writeJson')
+      .and.callFake((file, contents) => {
+        if (file.indexOf('skyuxconfig.json') > -1) {
+          actualSkyuxConfig = contents;
+        }
+      });
 
     mock('glob', {
       sync(pattern) {
@@ -35,10 +39,7 @@ describe('migrateSkyuxConfigFiles', () => {
       }
     });
 
-    mockFsExtra = jasmine.createSpyObj(
-      'fs-extra',
-      ['readJsonSync']
-    )
+    mockFsExtra = jasmine.createSpyObj('fs-extra', ['readJsonSync']);
 
     mockFsExtra.readJsonSync.and.callFake(() => mockSkyuxConfig);
 
@@ -46,7 +47,9 @@ describe('migrateSkyuxConfigFiles', () => {
 
     mock('../lib/utils/eject/write-json', writeJsonSpy);
 
-    migrateSkyuxConfigFiles = mock.reRequire('../lib/utils/eject/migrate-skyux-config-files');
+    migrateSkyuxConfigFiles = mock.reRequire(
+      '../lib/utils/eject/migrate-skyux-config-files'
+    );
   });
 
   it('should migrate only accepted properties in internal skyuxconfig.json files', () => {
@@ -67,7 +70,7 @@ describe('migrateSkyuxConfigFiles', () => {
         invalidProp: {} // <-- should not be included
       },
       appSettings: {
-        'foo': 'bar'
+        foo: 'bar'
       },
       auth: true,
       help: {},
@@ -82,9 +85,7 @@ describe('migrateSkyuxConfigFiles', () => {
         bar: true
       },
       routes: {
-        public: [
-          '/foo'
-        ]
+        public: ['/foo']
       },
       codeCoverageThreshold: 'standard',
       invalidProp: {} // <-- should not be included
@@ -108,7 +109,7 @@ describe('migrateSkyuxConfigFiles', () => {
         }
       },
       appSettings: {
-        'foo': 'bar'
+        foo: 'bar'
       },
       auth: true,
       help: {},
@@ -123,9 +124,7 @@ describe('migrateSkyuxConfigFiles', () => {
         bar: true
       },
       routes: {
-        public: [
-          '/foo'
-        ]
+        public: ['/foo']
       },
       codeCoverageThreshold: 'standard'
     });
@@ -160,9 +159,7 @@ describe('migrateSkyuxConfigFiles', () => {
   it('should migrate known plugins', () => {
     mockSkyuxConfig = {
       name: 'skyux-spa-foobar',
-      plugins: [
-        '@blackbaud/skyux-builder-plugin-auth-email-whitelist'
-      ]
+      plugins: ['@blackbaud/skyux-builder-plugin-auth-email-whitelist']
     };
 
     migrateSkyuxConfigFiles(ejectedProjectPath);

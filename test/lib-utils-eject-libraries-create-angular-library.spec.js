@@ -2,7 +2,6 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('Eject Libraries > Create Angular Library', () => {
-
   let runNgCommandSpy;
 
   let mockEjectedProjectPath;
@@ -32,10 +31,7 @@ describe('Eject Libraries > Create Angular Library', () => {
     createAngularLibrary(mockEjectedProjectPath, mockProjectName);
     expect(runNgCommandSpy).toHaveBeenCalledOnceWith(
       'generate',
-      [
-        'library', 'my-lib',
-        '--prefix=sky'
-      ],
+      ['library', 'my-lib', '--prefix=sky'],
       {
         stdio: 'inherit',
         cwd: mockEjectedProjectPath
@@ -46,5 +42,4 @@ describe('Eject Libraries > Create Angular Library', () => {
   it('should generate a library using Angular CLI', () => {
     verifySpawn();
   });
-
 });

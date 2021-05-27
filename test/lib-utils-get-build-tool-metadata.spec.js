@@ -54,7 +54,9 @@ describe('Get build tool metadata', () => {
       '@blackbaud-internal/skyux-angular-builders': 'file:.dist'
     };
 
-    latestVersionSpy.and.returnValue(Promise.reject(new Error('invalid version')));
+    latestVersionSpy.and.returnValue(
+      Promise.reject(new Error('invalid version'))
+    );
 
     const getBuildToolMetadata = getUtil();
     const result = await getBuildToolMetadata();
@@ -68,7 +70,7 @@ describe('Get build tool metadata', () => {
 
   it('should handle missing build tool', async () => {
     mockPackageJson.devDependencies = {
-      'invalid': '1.0.0'
+      invalid: '1.0.0'
     };
 
     const getBuildToolMetadata = getUtil();

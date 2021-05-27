@@ -17,11 +17,8 @@ describe('npm audit library', () => {
   it('should spawn `npm audit fix`', async () => {
     const npmAudit = mock.reRequire('../lib/utils/npm-audit');
     await npmAudit();
-    expect(spawnSpy).toHaveBeenCalledWith(
-      'npm',
-      ['audit', 'fix'],
-      { stdio: 'inherit' }
-    );
+    expect(spawnSpy).toHaveBeenCalledWith('npm', ['audit', 'fix'], {
+      stdio: 'inherit'
+    });
   });
-
 });

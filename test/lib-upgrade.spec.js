@@ -59,7 +59,8 @@ describe('Upgrade', () => {
       currentlyInstalledMajorVersion: 5
     };
 
-    buildToolMetadataSpy = jasmine.createSpy('getBuildToolMetadata')
+    buildToolMetadataSpy = jasmine
+      .createSpy('getBuildToolMetadata')
       .and.callFake(() => {
         return Promise.resolve(mockBuildToolMetadata);
       });
@@ -89,8 +90,14 @@ describe('Upgrade', () => {
   });
 
   it('should upgrade an application', async (done) => {
-    const upgradeDependenciesSpy = spyOn(appDependenciesMock, 'upgradeDependencies').and.callThrough();
-    const skyDependenciesSpy = spyOn(appDependenciesMock, 'addSkyPeerDependencies').and.callThrough();
+    const upgradeDependenciesSpy = spyOn(
+      appDependenciesMock,
+      'upgradeDependencies'
+    ).and.callThrough();
+    const skyDependenciesSpy = spyOn(
+      appDependenciesMock,
+      'addSkyPeerDependencies'
+    ).and.callThrough();
 
     const dependencies = {
       '@foo/bar': '12.2.3'
@@ -198,7 +205,10 @@ describe('Upgrade', () => {
   });
 
   it('should be backwards compatible with Builder 3 projects', async (done) => {
-    const upgradeDependenciesV3Spy = spyOn(appDependenciesV3Mock, 'upgradeDependencies').and.callThrough();
+    const upgradeDependenciesV3Spy = spyOn(
+      appDependenciesV3Mock,
+      'upgradeDependencies'
+    ).and.callThrough();
 
     mockBuildToolMetadata = {
       name: '@skyux-sdk/builder',
@@ -218,7 +228,10 @@ describe('Upgrade', () => {
   });
 
   it('should be backwards compatible with Builder 4 projects', async (done) => {
-    const upgradeDependenciesV4Spy = spyOn(appDependenciesV4Mock, 'upgradeDependencies').and.callThrough();
+    const upgradeDependenciesV4Spy = spyOn(
+      appDependenciesV4Mock,
+      'upgradeDependencies'
+    ).and.callThrough();
 
     mockBuildToolMetadata = {
       name: '@skyux-sdk/builder',
@@ -251,7 +264,10 @@ describe('Upgrade', () => {
     });
 
     expect(npmAuditSpy).toHaveBeenCalled();
-    expect(npmInstallCalled).toBe(true, 'Running an audit should always run install.');
+    expect(npmInstallCalled).toBe(
+      true,
+      'Running an audit should always run install.'
+    );
 
     done();
   });
@@ -271,7 +287,10 @@ describe('Upgrade', () => {
     });
 
     expect(npmAuditSpy).toHaveBeenCalled();
-    expect(npmInstallCalled).toBe(true, 'Running a clean install should always run install.');
+    expect(npmInstallCalled).toBe(
+      true,
+      'Running a clean install should always run install.'
+    );
     expect(deleteDependenciesSpy).toHaveBeenCalled();
     done();
   });

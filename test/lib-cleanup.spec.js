@@ -41,5 +41,4 @@ describe('Cleanup', () => {
     expect(fsExtraMock.unlink).not.toHaveBeenCalledWith('package-lock.json');
     expect(fsExtraMock.remove).not.toHaveBeenCalledWith('node_modules');
   });
-
 });

@@ -12,7 +12,7 @@ describe('skyux CLI', () => {
     spyOn(logger, 'info');
     spyOn(logger, 'error');
     spyOn(logger, 'warn');
-  })
+  });
 
   afterEach(() => {
     mock.stopAll();
@@ -46,32 +46,25 @@ describe('skyux CLI', () => {
 
     mock('glob', {
       sync: (pattern) => {
-
         // Emulates local package installed
         if (pattern.indexOf(cwd) > -1) {
-          return [
-            'local-module/package.json'
-          ];
+          return ['local-module/package.json'];
 
-        // Emulates global package that's not scoped to @blackbaud
+          // Emulates global package that's not scoped to @blackbaud
         } else if (pattern.indexOf('../..') > -1) {
-          return [
-            'non-scoped-global-module/package.json'
-          ];
+          return ['non-scoped-global-module/package.json'];
 
-        // Emulates global package that's scoped
+          // Emulates global package that's scoped
         } else {
-          return [
-            'scoped-global-module/package.json'
-          ];
+          return ['scoped-global-module/package.json'];
         }
       }
     });
   }
 
   function cli(options) {
-      let requiredMock = mock.reRequire('../index');
-      requiredMock(options);
+    let requiredMock = mock.reRequire('../index');
+    requiredMock(options);
   }
 
   function sharedTests() {
@@ -169,8 +162,12 @@ describe('skyux CLI', () => {
 
     it('should accept unknown command', () => {
       cli({ _: ['unknownCommand'] });
-      expect(logger.info).toHaveBeenCalledWith(`SKY UX is processing the 'unknownCommand' command.`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the 'unknownCommand' command. Please check your syntax. For more information, use the 'help' command.`);
+      expect(logger.info).toHaveBeenCalledWith(
+        `SKY UX is processing the 'unknownCommand' command.`
+      );
+      expect(logger.error).toHaveBeenCalledWith(
+        `No modules were found that handle the 'unknownCommand' command. Please check your syntax. For more information, use the 'help' command.`
+      );
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
 
@@ -204,8 +201,12 @@ describe('skyux CLI', () => {
 
     it('should fail and log an error', () => {
       cli({ _: ['serve'] });
-      expect(logger.info).toHaveBeenCalledWith(`SKY UX is processing the 'serve' command.`);
-      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the 'serve' command. Please check your syntax. For more information, use the 'help' command.`);
+      expect(logger.info).toHaveBeenCalledWith(
+        `SKY UX is processing the 'serve' command.`
+      );
+      expect(logger.error).toHaveBeenCalledWith(
+        `No modules were found that handle the 'serve' command. Please check your syntax. For more information, use the 'help' command.`
+      );
       expect(spyProcessExit).toHaveBeenCalledWith(1);
     });
 
@@ -213,7 +214,9 @@ describe('skyux CLI', () => {
       spyOn(process, 'cwd').and.returnValue('non-spa-dir');
 
       cli({ _: ['unknownCommand'] });
-      expect(logger.error).toHaveBeenCalledWith(`Are you in a SKY UX SPA directory?`);
+      expect(logger.error).toHaveBeenCalledWith(
+        `Are you in a SKY UX SPA directory?`
+      );
     });
 
     it('should log an error if path contains "skyux-spa" but the "node_modules" dir does not exist', () => {
@@ -221,7 +224,9 @@ describe('skyux CLI', () => {
       spyOn(fs, 'existsSync').and.returnValue(false);
 
       cli({ _: ['unknownCommand'] });
-      expect(logger.error).toHaveBeenCalledWith(`The 'node_modules' folder was not found. Did you run 'npm install'?`);
+      expect(logger.error).toHaveBeenCalledWith(
+        `The 'node_modules' folder was not found. Did you run 'npm install'?`
+      );
     });
 
     it('should not log an special errors if in skyux-spa dir and node_modules exists', () => {
@@ -229,12 +234,15 @@ describe('skyux CLI', () => {
       spyOn(fs, 'existsSync').and.returnValue(true);
 
       cli({ _: ['unknownCommand'] });
-      expect(logger.error).not.toHaveBeenCalledWith(`Are you in a SKY UX SPA directory?`);
-      expect(logger.error).not.toHaveBeenCalledWith(`The 'node_modules' folder was not found. Did you run 'npm install'?`);
-    })
+      expect(logger.error).not.toHaveBeenCalledWith(
+        `Are you in a SKY UX SPA directory?`
+      );
+      expect(logger.error).not.toHaveBeenCalledWith(
+        `The 'node_modules' folder was not found. Did you run 'npm install'?`
+      );
+    });
 
     sharedTests();
-
   });
 
   describe('when containing modules', () => {
@@ -273,11 +281,21 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed the '${customCommand}' command to 2 modules:`)
-      expect(logger.verbose).toHaveBeenCalledWith(`local-module-name, non-scoped-global-module-name`);
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to local-module-name at local-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to scoped-global-module-name at scoped-global-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Successfully passed the '${customCommand}' command to 2 modules:`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `local-module-name, non-scoped-global-module-name`
+      );
     });
 
     it('should verbosely log the correct plural form of "module"', () => {
@@ -310,10 +328,18 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Successfully passed the '${customCommand}' command to 1 module:`);
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to local-module-name at local-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to non-scoped-global-module-name at non-scoped-global-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to scoped-global-module-name at scoped-global-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Successfully passed the '${customCommand}' command to 1 module:`
+      );
       expect(logger.verbose).toHaveBeenCalledWith(`local-module-name`);
     });
 
@@ -328,7 +354,9 @@ describe('skyux CLI', () => {
       });
 
       cli({ _: [customCommand] });
-      expect(logger.error).toHaveBeenCalledWith(`No modules were found that handle the '${customCommand}' command. Please check your syntax. For more information, use the 'help' command.`);
+      expect(logger.error).toHaveBeenCalledWith(
+        `No modules were found that handle the '${customCommand}' command. Please check your syntax. For more information, use the 'help' command.`
+      );
     });
 
     it('should handle an error when requiring a malformed module', () => {
@@ -343,17 +371,17 @@ describe('skyux CLI', () => {
 
       cli({ _: [customCommand] });
 
-      expect(logger.verbose).toHaveBeenCalledWith(jasmine.stringMatching(
-        `Error loading non-scoped-global-module/package.json. Error: Cannot find module 'non-scoped-global-module'`
-      ));
-
+      expect(logger.verbose).toHaveBeenCalledWith(
+        jasmine.stringMatching(
+          `Error loading non-scoped-global-module/package.json. Error: Cannot find module 'non-scoped-global-module'`
+        )
+      );
     });
 
-    sharedTests()
+    sharedTests();
   });
 
   describe('when containing modules but no name property in package.json', () => {
-
     beforeEach(() => {
       setupMock(true);
       mock('local-module', {
@@ -367,19 +395,30 @@ describe('skyux CLI', () => {
       mock('scoped-global-module', {
         runCommand: () => {}
       });
-    })
+    });
 
     it('should log path', () => {
       cli({ _: ['customCommand'] });
 
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the ommand to local-module-name at local-module/package.json.`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the command to non-scoped-global-module-name.`);
-      expect(logger.verbose).not.toHaveBeenCalledWith(`Passing the command to scoped-global-module-name at scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to local-module at local-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to non-scoped-global-module at non-scoped-global-module/package.json.`);
-      expect(logger.verbose).toHaveBeenCalledWith(`Passing the command to scoped-global-module at scoped-global-module/package.json.`);
+      expect(logger.verbose).not.toHaveBeenCalledWith(
+        `Passing the ommand to local-module-name at local-module/package.json.`
+      );
+      expect(logger.verbose).not.toHaveBeenCalledWith(
+        `Passing the command to non-scoped-global-module-name.`
+      );
+      expect(logger.verbose).not.toHaveBeenCalledWith(
+        `Passing the command to scoped-global-module-name at scoped-global-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to local-module at local-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to non-scoped-global-module at non-scoped-global-module/package.json.`
+      );
+      expect(logger.verbose).toHaveBeenCalledWith(
+        `Passing the command to scoped-global-module at scoped-global-module/package.json.`
+      );
     });
-
   });
 
   it('should not call the same package more than once', () => {
@@ -410,24 +449,20 @@ describe('skyux CLI', () => {
 
     mock('glob', {
       sync: (pattern) => {
-
         // Emulates local package installed
         if (pattern.indexOf(cwd) > -1) {
-          return [
-            'local-module/package.json'
-          ];
-
+          return ['local-module/package.json'];
         } else {
-          return [
-            'global-module/package.json'
-          ];
+          return ['global-module/package.json'];
         }
       }
     });
 
     cli({ _: ['customCommand'] });
 
-    expect(logger.verbose).toHaveBeenCalledWith('Passing the command to duplicate-module-name at local-module/package.json.');
+    expect(logger.verbose).toHaveBeenCalledWith(
+      'Passing the command to duplicate-module-name at local-module/package.json.'
+    );
     expect(logger.verbose).toHaveBeenCalledWith(
       'Multiple instances were found. Skipping passing the command to duplicate-module-name at local-module/package.json.'
     );
@@ -450,12 +485,20 @@ describe('skyux CLI', () => {
 
     cli({ _: [] });
 
-    expect(patternsCalled.includes('*/skyux-builder*/package.json')).toEqual(true);
-    expect(patternsCalled.includes('@skyux-sdk/builder*/package.json')).toEqual(true);
+    expect(patternsCalled.includes('*/skyux-builder*/package.json')).toEqual(
+      true
+    );
+    expect(patternsCalled.includes('@skyux-sdk/builder*/package.json')).toEqual(
+      true
+    );
   });
 
   it('should validate the cert for serve, e2e, and build (if also serving)', () => {
-    const spyGenerator = jasmine.createSpyObj('generator', ['validate', 'getCertPath', 'getKeyPath']);
+    const spyGenerator = jasmine.createSpyObj('generator', [
+      'validate',
+      'getCertPath',
+      'getKeyPath'
+    ]);
 
     mock('../lib/utils/certs/generator', spyGenerator);
     mock('glob', {
@@ -468,42 +511,55 @@ describe('skyux CLI', () => {
       { _: ['serve'] },
       { _: ['e2e'] },
       { _: ['build'], s: true },
-      { _: ['build'], serve: true },
+      { _: ['build'], serve: true }
     ];
 
-    argvs.forEach(argv => {
+    argvs.forEach((argv) => {
       cli(argv);
       expect(spyGenerator.validate).toHaveBeenCalledWith(argv);
-      expect(logger.warn).toHaveBeenCalledWith(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
-      expect(logger.warn).toHaveBeenCalledWith(`You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`);
+      expect(logger.warn).toHaveBeenCalledWith(
+        `Unable to validate ${argv.sslCert} and ${argv.sslKey}.`
+      );
+      expect(logger.warn).toHaveBeenCalledWith(
+        `You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`
+      );
       spyGenerator.validate.calls.reset();
     });
   });
 
   it('should not validate the cert for test or build (without also serving)', () => {
-    const spyGenerator = jasmine.createSpyObj('generator', ['validate', 'getCertPath', 'getKeyPath']);
+    const spyGenerator = jasmine.createSpyObj('generator', [
+      'validate',
+      'getCertPath',
+      'getKeyPath'
+    ]);
 
     mock('../lib/utils/cert-utils', spyGenerator);
     mock('glob', {
       sync: () => []
     });
 
-    const argvs = [
-      { _: ['test'] },
-      { _: ['build'] },
-    ];
+    const argvs = [{ _: ['test'] }, { _: ['build'] }];
 
-    argvs.forEach(argv => {
+    argvs.forEach((argv) => {
       cli(argv);
       expect(spyGenerator.validate).not.toHaveBeenCalled();
-      expect(logger.warn).not.toHaveBeenCalledWith(`Unable to validate ${argv.sslCert} and ${argv.sslKey}.`);
-      expect(logger.warn).not.toHaveBeenCalledWith(`You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`);
+      expect(logger.warn).not.toHaveBeenCalledWith(
+        `Unable to validate ${argv.sslCert} and ${argv.sslKey}.`
+      );
+      expect(logger.warn).not.toHaveBeenCalledWith(
+        `You may proceed, but \`skyux ${argv['_'][0]}\` may not function properly.`
+      );
       spyGenerator.validate.calls.reset();
     });
   });
 
   it('should not validate the cert if --sslCert and --sslKey are passed in', () => {
-    const certUtilsSpy = jasmine.createSpyObj('certUtils', ['validate', 'getCertPath', 'getKeyPath']);
+    const certUtilsSpy = jasmine.createSpyObj('certUtils', [
+      'validate',
+      'getCertPath',
+      'getKeyPath'
+    ]);
 
     mock('../lib/utils/cert-utils', certUtilsSpy);
     mock('glob', {
@@ -522,9 +578,12 @@ describe('skyux CLI', () => {
   });
 
   it('should catch running install certs instead of certs install', () => {
-    cli({ _: ['install', 'certs']});
-    expect(logger.error).toHaveBeenCalledWith('The `skyux install` command is invalid.');
-    expect(logger.error).toHaveBeenCalledWith('Did you mean to run `skyux certs install` instead?');
+    cli({ _: ['install', 'certs'] });
+    expect(logger.error).toHaveBeenCalledWith(
+      'The `skyux install` command is invalid.'
+    );
+    expect(logger.error).toHaveBeenCalledWith(
+      'Did you mean to run `skyux certs install` instead?'
+    );
   });
-
 });

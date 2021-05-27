@@ -6,10 +6,10 @@ describe('writeJson', () => {
   let mockFsExtra;
 
   beforeEach(() => {
-    mockFsExtra = jasmine.createSpyObj(
-      'fs-extra',
-      ['ensureDirSync', 'writeJsonSync']
-    )
+    mockFsExtra = jasmine.createSpyObj('fs-extra', [
+      'ensureDirSync',
+      'writeJsonSync'
+    ]);
 
     mock('fs-extra', mockFsExtra);
 
@@ -28,22 +28,15 @@ describe('writeJson', () => {
 
     writeJson(filePath, contents);
 
-    expect(mockFsExtra.writeJsonSync).toHaveBeenCalledWith(
-      filePath,
-      contents,
-      {
-        spaces: 2
-      }
-    );
+    expect(mockFsExtra.writeJsonSync).toHaveBeenCalledWith(filePath, contents, {
+      spaces: 2
+    });
   });
 
   it('should create the directory for the JSON file if it does not exist', () => {
-    writeJson(
-      path.join('foo', 'bar.json'),
-      {
-        foo: 'bar'
-      }
-    );
+    writeJson(path.join('foo', 'bar.json'), {
+      foo: 'bar'
+    });
 
     expect(mockFsExtra.ensureDirSync).toHaveBeenCalledWith('foo');
   });

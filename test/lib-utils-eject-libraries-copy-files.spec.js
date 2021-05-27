@@ -2,7 +2,6 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('Eject Libraries > Copy Files', () => {
-
   let copySyncSpy;
   let moveSyncSpy;
   let removeSyncSpy;
@@ -50,7 +49,11 @@ describe('Eject Libraries > Copy Files', () => {
   }
 
   it('should copy source files', () => {
-    getUtil().copySourceFiles(mockSourcePath, mockEjectedProjectPath, mockProjectDirectory);
+    getUtil().copySourceFiles(
+      mockSourcePath,
+      mockEjectedProjectPath,
+      mockProjectDirectory
+    );
 
     expect(removeSyncSpy).toHaveBeenCalledWith(
       path.join('mock/ejected/path/projects/my-lib/src/lib')
@@ -94,5 +97,4 @@ describe('Eject Libraries > Copy Files', () => {
 
     expect(moveSyncSpy).not.toHaveBeenCalled();
   });
-
 });

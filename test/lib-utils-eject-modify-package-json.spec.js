@@ -17,7 +17,7 @@ describe('Modify package.json', () => {
 
     mock('fs-extra', {
       readJsonSync(file) {
-        switch(file) {
+        switch (file) {
           case path.join(ejectedProjectPath, 'package.json'):
             return mockEjectedPackageJson;
           case path.join(CWD, 'package.json'):
@@ -25,13 +25,10 @@ describe('Modify package.json', () => {
         }
 
         return {};
-      },
+      }
     });
 
-    mockSpawn = jasmine.createSpyObj(
-      'cross-spawn',
-      ['sync']
-    );
+    mockSpawn = jasmine.createSpyObj('cross-spawn', ['sync']);
 
     mock('cross-spawn', mockSpawn);
 
@@ -47,7 +44,9 @@ describe('Modify package.json', () => {
       }
     });
 
-    modifyPackageJson = mock.reRequire('../lib/utils/eject/modify-package-json');
+    modifyPackageJson = mock.reRequire(
+      '../lib/utils/eject/modify-package-json'
+    );
   });
 
   afterEach(() => {
@@ -76,22 +75,22 @@ describe('Modify package.json', () => {
         '@angular/core': '11'
       },
       devDependencies: {
-        'tslint': '5'
+        tslint: '5'
       }
     };
 
     upgradeDependenciesSpy.and.callFake((dependencies) => {
       Object.assign(
         dependencies,
-        dependencies['@blackbaud-internal/skyux-lib-analytics'] ?
-        {
-          '@blackbaud-internal/skyux-lib-analytics': '4.1',
-          '@blackbaud/skyux-lib-stache': '4.1',
-          '@skyux/core': '4.1'
-        } :
-        {
-          '@skyux-sdk/testing': '4.1',
-        }
+        dependencies['@blackbaud-internal/skyux-lib-analytics']
+          ? {
+              '@blackbaud-internal/skyux-lib-analytics': '4.1',
+              '@blackbaud/skyux-lib-stache': '4.1',
+              '@skyux/core': '4.1'
+            }
+          : {
+              '@skyux-sdk/testing': '4.1'
+            }
       );
     });
 
@@ -109,7 +108,7 @@ describe('Modify package.json', () => {
       devDependencies: {
         '@skyux-sdk/testing': '4.1',
         'third-party-dev-dep': '2',
-        'tslint': '5'
+        tslint: '5'
       }
     });
 
@@ -133,7 +132,7 @@ describe('Modify package.json', () => {
 
   it('should handle package.json files from libraries', async () => {
     mockPackageJson = {
-      'peerDependencies': {
+      peerDependencies: {
         '@angular/common': '^9.1.7',
         '@angular/core': '^9.1.7',
         '@angular/forms': '^9.1.7',
@@ -143,10 +142,10 @@ describe('Modify package.json', () => {
         '@skyux/i18n': '^4.0.0',
         '@skyux/indicators': '^4.0.0'
       },
-      'dependencies': {
-        'moment': '2.29.1'
+      dependencies: {
+        moment: '2.29.1'
       },
-      'devDependencies': {
+      devDependencies: {
         '@angular/animations': '9.1.13',
         '@angular/common': '9.1.13',
         '@angular/compiler': '9.1.13',
@@ -186,11 +185,11 @@ describe('Modify package.json', () => {
         '@skyux/router': '4.0.1',
         '@skyux/tabs': '4.4.1',
         '@skyux/theme': '4.13.2',
-        'codelyzer': '5.2.2',
-        'rxjs': '6.6.3',
+        codelyzer: '5.2.2',
+        rxjs: '6.6.3',
         'ts-node': '8.3.0',
-        'tslint': '6.1.3',
-        'typescript': '3.8.3',
+        tslint: '6.1.3',
+        typescript: '3.8.3',
         'zone.js': '0.10.3'
       }
     };
@@ -205,8 +204,8 @@ describe('Modify package.json', () => {
         '@angular/platform-browser': '~11.2.9',
         '@angular/platform-browser-dynamic': '~11.2.9',
         '@angular/router': '~11.2.9',
-        'rxjs': '~6.6.0',
-        'tslib': '^2.0.0',
+        rxjs: '~6.6.0',
+        tslib: '^2.0.0',
         'zone.js': '~0.11.3'
       },
       devDependencies: {
@@ -215,22 +214,22 @@ describe('Modify package.json', () => {
         '@angular/compiler-cli': '~11.2.9',
         '@types/jasmine': '~3.6.0',
         '@types/node': '^12.11.1',
-        'codelyzer': '^6.0.0',
+        codelyzer: '^6.0.0',
         'jasmine-core': '~3.6.0',
         'jasmine-spec-reporter': '~5.0.0',
-        'karma': '~6.1.0',
+        karma: '~6.1.0',
         'karma-chrome-launcher': '~3.1.0',
         'karma-coverage': '~2.0.3',
         'karma-jasmine': '~4.0.0',
         'karma-jasmine-html-reporter': '^1.5.0',
-        'protractor': '~7.0.0',
+        protractor: '~7.0.0',
         'ts-node': '~8.3.0',
-        'tslint': '~6.1.0',
-        'typescript': '~4.1.5'
+        tslint: '~6.1.0',
+        typescript: '~4.1.5'
       }
     };
 
-    upgradeDependenciesSpy.and.callFake(dependencies => dependencies);
+    upgradeDependenciesSpy.and.callFake((dependencies) => dependencies);
 
     await modifyPackageJson(ejectedProjectPath);
 
@@ -270,9 +269,9 @@ describe('Modify package.json', () => {
         '@skyux/router': '4.0.1',
         '@skyux/tabs': '4.4.1',
         '@skyux/theme': '4.13.2',
-        'moment': '2.29.1',
-        'rxjs': '~6.6.0',
-        'tslib': '^2.0.0',
+        moment: '2.29.1',
+        rxjs: '~6.6.0',
+        tslib: '^2.0.0',
         'zone.js': '~0.11.3'
       },
       devDependencies: {
@@ -283,18 +282,18 @@ describe('Modify package.json', () => {
         '@skyux-sdk/testing': '4.2.3',
         '@types/jasmine': '~3.6.0',
         '@types/node': '^12.11.1',
-        'codelyzer': '^6.0.0',
+        codelyzer: '^6.0.0',
         'jasmine-core': '~3.6.0',
         'jasmine-spec-reporter': '~5.0.0',
-        'karma': '~6.1.0',
+        karma: '~6.1.0',
         'karma-chrome-launcher': '~3.1.0',
         'karma-coverage': '~2.0.3',
         'karma-jasmine': '~4.0.0',
         'karma-jasmine-html-reporter': '^1.5.0',
-        'protractor': '~7.0.0',
+        protractor: '~7.0.0',
         'ts-node': '~8.3.0',
-        'tslint': '~6.1.0',
-        'typescript': '~4.1.5'
+        tslint: '~6.1.0',
+        typescript: '~4.1.5'
       }
     });
   });

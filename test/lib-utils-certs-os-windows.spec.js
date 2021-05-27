@@ -1,9 +1,6 @@
-
-
 const mock = require('mock-require');
 
 describe('cert utils windows', () => {
-
   afterEach(() => {
     mock.stopAll();
   });
@@ -17,7 +14,10 @@ describe('cert utils windows', () => {
   }
 
   function spyOnFS() {
-    const spyFS = jasmine.createSpyObj('fs-extra', ['writeFileSync', 'removeSync']);
+    const spyFS = jasmine.createSpyObj('fs-extra', [
+      'writeFileSync',
+      'removeSync'
+    ]);
     mock('fs-extra', spyFS);
     return spyFS;
   }
@@ -29,11 +29,13 @@ describe('cert utils windows', () => {
   }
 
   function spyOnGenerator() {
-    const spyGenerator = jasmine.createSpyObj(
-      'generator',
-      ['getCertDirPath', 'getCertAuthPath', 'getCertAuthCommonName', 'getCertCommonName']
-    );
-    mock('../lib/utils/certs/generator', spyGenerator );
+    const spyGenerator = jasmine.createSpyObj('generator', [
+      'getCertDirPath',
+      'getCertAuthPath',
+      'getCertAuthCommonName',
+      'getCertCommonName'
+    ]);
+    mock('../lib/utils/certs/generator', spyGenerator);
     return spyGenerator;
   }
 
@@ -95,37 +97,47 @@ describe('cert utils windows', () => {
 
   async function test(action, argv) {
     const results = await run(action, argv);
-    
-    expect(results.spyPath.resolve).toHaveBeenCalledWith(results.certDirPath, 'skyux-temp-windows-commands.bat');
-    expect(results.spyFS.writeFileSync).toHaveBeenCalledWith(results.batchResolve, results.commands.join('\n'));
-    expect(results.spyExecute).toHaveBeenCalledWith(action, 'OS', jasmine.any(Function));
-    expect(results.spySpawn).toHaveBeenCalledWith(`powershell`, `start-process ${results.batchResolve} -verb runas -wait`);
+
+    expect(results.spyPath.resolve).toHaveBeenCalledWith(
+      results.certDirPath,
+      'skyux-temp-windows-commands.bat'
+    );
+    expect(results.spyFS.writeFileSync).toHaveBeenCalledWith(
+      results.batchResolve,
+      results.commands.join('\n')
+    );
+    expect(results.spyExecute).toHaveBeenCalledWith(
+      action,
+      'OS',
+      jasmine.any(Function)
+    );
+    expect(results.spySpawn).toHaveBeenCalledWith(
+      `powershell`,
+      `start-process ${results.batchResolve} -verb runas -wait`
+    );
     expect(results.spyFS.removeSync).toHaveBeenCalledWith(results.batchResolve);
   }
 
   it('should expose a public API', () => {
     const lib = getLib();
-    const methods = [
-      'trust',
-      'untrust'
-    ];
-    methods.forEach(method => expect(lib[method]).toBeDefined());
+    const methods = ['trust', 'untrust'];
+    methods.forEach((method) => expect(lib[method]).toBeDefined());
   });
 
   it('should trust at the OS level with PAUSE', async () => {
-    await test('trust', {})
+    await test('trust', {});
   });
 
   it('should trust at the OS level without PAUSE', async () => {
-    await test('trust', { pause: false })
+    await test('trust', { pause: false });
   });
 
   it('should untrust at the OS level with PAUSE', async () => {
-    await test('untrust', {})
+    await test('untrust', {});
   });
 
   it('should untrust at the OS level without PAUSE', async () => {
-    await test('untrust', { pause: false })
+    await test('untrust', { pause: false });
   });
 
   it('should always delete the batch file but let the error bubble up', async () => {
@@ -139,5 +151,4 @@ describe('cert utils windows', () => {
     await expectAsync(lib.trust({})).toBeRejectedWithError(err);
     expect(spyFS.removeSync).toHaveBeenCalled();
   });
-
 });

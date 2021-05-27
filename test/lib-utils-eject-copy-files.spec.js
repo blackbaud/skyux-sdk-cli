@@ -5,16 +5,14 @@ const CWD = process.cwd();
 const EJECTED_PROJECT_PATH = 'ejected-path';
 
 describe('eject utils copy files', () => {
-
   let copySyncSpy;
 
   beforeEach(() => {
-
     mock('@blackbaud/skyux-logger', {
       info() {}
     });
 
-    copySyncSpy = jasmine.createSpy('copySync')
+    copySyncSpy = jasmine.createSpy('copySync');
     mock('fs-extra', {
       copySync: copySyncSpy,
       existsSync(file) {
@@ -36,13 +34,9 @@ describe('eject utils copy files', () => {
         switch (pattern) {
           case path.join(CWD, 'src/app/**/*'):
             // Glob always returns paths with forward slashes.
-            return [
-              `${CWD.replace(/\\/g, '/')}/src/app/home.component.ts`
-            ];
+            return [`${CWD.replace(/\\/g, '/')}/src/app/home.component.ts`];
           case path.join(CWD, 'src/lib/**/*'):
-            return [
-              `${CWD.replace(/\\/g, '/')}/src/lib/jquery.js`
-            ];
+            return [`${CWD.replace(/\\/g, '/')}/src/lib/jquery.js`];
           default:
             return [];
         }
@@ -93,5 +87,4 @@ describe('eject utils copy files', () => {
       path.join(EJECTED_PROJECT_PATH, 'README.md')
     );
   });
-
 });

@@ -2,13 +2,11 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('Angular utils', () => {
-
   let writeFileSyncSpy;
   let defaultAppModuleContent;
   let defaultCompononentContent;
 
   beforeEach(() => {
-
     writeFileSyncSpy = jasmine.createSpy('writeFileSync');
     defaultAppModuleContent = `@NgModule({}) export class AppModule {}`;
     defaultCompononentContent = '';
@@ -27,7 +25,6 @@ describe('Angular utils', () => {
       },
       writeFileSync: writeFileSyncSpy
     });
-
   });
 
   afterEach(() => {
@@ -36,11 +33,7 @@ describe('Angular utils', () => {
 
   it('should should not add main module to itself', () => {
     const utils = mock.reRequire('../lib/utils/angular-utils');
-    utils.addModuleToMainModuleImports(
-      '',
-      'AppModule',
-      './app.module'
-    );
+    utils.addModuleToMainModuleImports('', 'AppModule', './app.module');
     expect(writeFileSyncSpy).not.toHaveBeenCalled();
   });
 
@@ -52,11 +45,7 @@ describe('Angular utils', () => {
   ]
 })
 export class AppModule { }`;
-    utils.addModuleToMainModuleImports(
-      '',
-      'FooModule',
-      './foo.module'
-    );
+    utils.addModuleToMainModuleImports('', 'FooModule', './foo.module');
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join('src/app/app.module.ts'),
       `import {
@@ -79,11 +68,7 @@ export class AppModule { }`
   exports: []
 })
 export class AppModule { }`;
-    utils.addModuleToMainModuleImports(
-      '',
-      'FooModule',
-      './foo.module'
-    );
+    utils.addModuleToMainModuleImports('', 'FooModule', './foo.module');
     expect(writeFileSyncSpy).toHaveBeenCalledWith(
       path.join('src/app/app.module.ts'),
       `import {
@@ -125,5 +110,4 @@ export class AppModule { }`
       );
     }
   });
-
 });

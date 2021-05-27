@@ -1,7 +1,6 @@
 const mock = require('mock-require');
 
 describe('skyux bin', () => {
-
   const cliExpectedArgs = {
     _: [],
     0: 'TEST1',
@@ -44,7 +43,7 @@ describe('skyux bin', () => {
       version: 'Test-Version'
     };
 
-    mock('../package.json', () => (pkg));
+    mock('../package.json', () => pkg);
     require('../bin/skyux');
 
     expect(notifierArgs.pkg()).toEqual(pkg);

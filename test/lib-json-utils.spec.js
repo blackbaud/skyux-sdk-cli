@@ -21,7 +21,6 @@ describe('JSON utils', () => {
   });
 
   describe('readJson() method', () => {
-
     it('should read a JSON file', async () => {
       fsExtraMock.readJson.and.callFake(async () => {
         return {
@@ -43,18 +42,13 @@ describe('JSON utils', () => {
 
       expect(result).toBeUndefined();
     });
-
   });
 
   describe('writeJson() method', () => {
-
     it('should write a JSON file with indentation of 2 spaces', async () => {
-      await jsonUtils.writeJson(
-        'file1.json',
-        {
-          foo: 'bar'
-        }
-      );
+      await jsonUtils.writeJson('file1.json', {
+        foo: 'bar'
+      });
 
       expect(fsExtraMock.writeJson).toHaveBeenCalledWith(
         'file1.json',
@@ -66,7 +60,5 @@ describe('JSON utils', () => {
         }
       );
     });
-
   });
-
 });

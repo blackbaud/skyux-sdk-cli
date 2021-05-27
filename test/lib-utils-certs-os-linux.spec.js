@@ -1,10 +1,7 @@
-
-
 const mock = require('mock-require');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('cert utils linux', () => {
-
   beforeEach(() => {
     spyOn(logger, 'info');
     spyOn(logger, 'error');
@@ -22,7 +19,7 @@ describe('cert utils linux', () => {
 
   function spyOnPath() {
     const spyPath = jasmine.createSpyObj('path', ['resolve']);
-    spyPath.resolve.and.callFake(p => p);
+    spyPath.resolve.and.callFake((p) => p);
 
     mock('path', spyPath);
     return spyPath;
@@ -41,11 +38,15 @@ describe('cert utils linux', () => {
   }
 
   function spyOnGenerator() {
-    const spyGenerator = jasmine.createSpyObj(
-      'generator',
-      ['getCertAuthPath', 'getCertAuthName', 'getCertAuthCommonName', 'getCertPath', 'getCertName', 'getCertCommonName']
-    );
-    mock('../lib/utils/certs/generator', spyGenerator );
+    const spyGenerator = jasmine.createSpyObj('generator', [
+      'getCertAuthPath',
+      'getCertAuthName',
+      'getCertAuthCommonName',
+      'getCertPath',
+      'getCertName',
+      'getCertCommonName'
+    ]);
+    mock('../lib/utils/certs/generator', spyGenerator);
     return spyGenerator;
   }
 
@@ -108,7 +109,9 @@ describe('cert utils linux', () => {
     spyGenerator.getCertPath.and.returnValue(certPath);
     spyGenerator.getCertName.and.returnValue(certName);
     spyGenerator.getCertCommonName.and.returnValue(certCommonName);
-    spyExecute.and.callFake((command, level, cb) => level === 'NSS Chrome' ? cb() : Promise.resolve());
+    spyExecute.and.callFake((command, level, cb) =>
+      level === 'NSS Chrome' ? cb() : Promise.resolve()
+    );
 
     return {
       homeDir,
@@ -139,20 +142,27 @@ describe('cert utils linux', () => {
 
   it('should expose a public API', () => {
     const lib = getLib();
-    const methods = [
-      'trust',
-      'untrust'
-    ];
-    methods.forEach(method => expect(lib[method]).toBeDefined());
+    const methods = ['trust', 'untrust'];
+    methods.forEach((method) => expect(lib[method]).toBeDefined());
   });
 
   it('should trust at the OS level', async () => {
     const results = await setupForOS('trust');
-    expect(results.spyExecute).toHaveBeenCalledWith('trust', 'OS', jasmine.any(Function));
-    expect(results.spySpawn).toHaveBeenCalledWith(
-      `sudo`, `cp`, results.certAuthPath, `/usr/local/share/ca-certificates/${results.certAuthName}`
+    expect(results.spyExecute).toHaveBeenCalledWith(
+      'trust',
+      'OS',
+      jasmine.any(Function)
     );
-    expect(results.spySpawn).toHaveBeenCalledWith(`sudo`, `update-ca-certificates`);
+    expect(results.spySpawn).toHaveBeenCalledWith(
+      `sudo`,
+      `cp`,
+      results.certAuthPath,
+      `/usr/local/share/ca-certificates/${results.certAuthName}`
+    );
+    expect(results.spySpawn).toHaveBeenCalledWith(
+      `sudo`,
+      `update-ca-certificates`
+    );
     expect(logger.info).toHaveBeenCalledWith(
       `Skipped trusting the SKY UX certificate at the NSS Chrome level.`
     );
@@ -160,24 +170,51 @@ describe('cert utils linux', () => {
 
   it('should trust at the NSS level', async () => {
     const results = await testForNSS('trust');
-    expect(results.spyPath.resolve).toHaveBeenCalledWith(`${results.homeDir}/.pki/nssdb`);
-    expect(results.spyExecute).toHaveBeenCalledWith('trust', 'NSS Chrome', jasmine.any(Function));
+    expect(results.spyPath.resolve).toHaveBeenCalledWith(
+      `${results.homeDir}/.pki/nssdb`
+    );
+    expect(results.spyExecute).toHaveBeenCalledWith(
+      'trust',
+      'NSS Chrome',
+      jasmine.any(Function)
+    );
     expect(results.spySpawn).toHaveBeenCalledWith(
-      `certutil`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-A`, `-t`, `C`, `-n`, results.certAuthCommonName, `-i`, results.certAuthPath
+      `certutil`,
+      `-d`,
+      `sql:${results.linuxChromeNSSPath}`,
+      `-A`,
+      `-t`,
+      `C`,
+      `-n`,
+      results.certAuthCommonName,
+      `-i`,
+      results.certAuthPath
     );
   });
 
   it('should untrust at the OS level', async () => {
     const results = await setupForOS('untrust');
-    expect(results.spyExecute).toHaveBeenCalledWith('untrust', 'OS', jasmine.any(Function));
-    expect(results.spySpawn).toHaveBeenCalledWith(
-      `sudo`, `rm`, `-rf`, `/usr/local/share/ca-certificates/${results.certName}`
+    expect(results.spyExecute).toHaveBeenCalledWith(
+      'untrust',
+      'OS',
+      jasmine.any(Function)
     );
     expect(results.spySpawn).toHaveBeenCalledWith(
-      `sudo`, `rm`, `-rf`, `/usr/local/share/ca-certificates/${results.certAuthName}`
+      `sudo`,
+      `rm`,
+      `-rf`,
+      `/usr/local/share/ca-certificates/${results.certName}`
     );
     expect(results.spySpawn).toHaveBeenCalledWith(
-      `sudo`, `update-ca-certificates`, `--fresh`
+      `sudo`,
+      `rm`,
+      `-rf`,
+      `/usr/local/share/ca-certificates/${results.certAuthName}`
+    );
+    expect(results.spySpawn).toHaveBeenCalledWith(
+      `sudo`,
+      `update-ca-certificates`,
+      `--fresh`
     );
     expect(logger.info).toHaveBeenCalledWith(
       `Skipped untrusting the SKY UX certificate at the NSS Chrome level.`
@@ -186,12 +223,26 @@ describe('cert utils linux', () => {
 
   it('should untrust at the NSS level', async () => {
     const results = await testForNSS('untrust');
-    expect(results.spyExecute).toHaveBeenCalledWith('untrust', 'NSS Chrome', jasmine.any(Function));
-    expect(results.spySpawn).toHaveBeenCalledWith(
-      `certutil`, `-D`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-n`, results.certCommonName
+    expect(results.spyExecute).toHaveBeenCalledWith(
+      'untrust',
+      'NSS Chrome',
+      jasmine.any(Function)
     );
     expect(results.spySpawn).toHaveBeenCalledWith(
-      `certutil`, `-D`, `-d`, `sql:${results.linuxChromeNSSPath}`, `-n`, results.certAuthCommonName
+      `certutil`,
+      `-D`,
+      `-d`,
+      `sql:${results.linuxChromeNSSPath}`,
+      `-n`,
+      results.certCommonName
+    );
+    expect(results.spySpawn).toHaveBeenCalledWith(
+      `certutil`,
+      `-D`,
+      `-d`,
+      `sql:${results.linuxChromeNSSPath}`,
+      `-n`,
+      results.certAuthCommonName
     );
   });
 
@@ -200,21 +251,36 @@ describe('cert utils linux', () => {
 
     // Emulate not finding the old certificate
     spies.spySpawn.and.callFake(async (...args) => {
-      return args[args.length - 1] === spies.certCommonName ? Promise.reject() : Promise.resolve();
+      return args[args.length - 1] === spies.certCommonName
+        ? Promise.reject()
+        : Promise.resolve();
     });
 
     await runForNSS('untrust');
 
-    expect(spies.spyExecute).toHaveBeenCalledWith('untrust', 'NSS Chrome', jasmine.any(Function));
-    expect(spies.spySpawn).toHaveBeenCalledWith(
-      `certutil`, `-D`, `-d`, `sql:${spies.linuxChromeNSSPath}`, `-n`, spies.certCommonName
+    expect(spies.spyExecute).toHaveBeenCalledWith(
+      'untrust',
+      'NSS Chrome',
+      jasmine.any(Function)
     );
     expect(spies.spySpawn).toHaveBeenCalledWith(
-      `certutil`, `-D`, `-d`, `sql:${spies.linuxChromeNSSPath}`, `-n`, spies.certAuthCommonName
+      `certutil`,
+      `-D`,
+      `-d`,
+      `sql:${spies.linuxChromeNSSPath}`,
+      `-n`,
+      spies.certCommonName
+    );
+    expect(spies.spySpawn).toHaveBeenCalledWith(
+      `certutil`,
+      `-D`,
+      `-d`,
+      `sql:${spies.linuxChromeNSSPath}`,
+      `-n`,
+      spies.certAuthCommonName
     );
     expect(logger.info).toHaveBeenCalledWith(
       'Certificate from old technique did not exist. OK to proceed and ignore previous error.'
     );
   });
-
 });

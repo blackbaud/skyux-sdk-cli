@@ -10,23 +10,23 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set output
-      id: vars
-      run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
-    # Setup .npmrc file to publish to npm
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '14.x'
-        registry-url: 'https://registry.npmjs.org'
-    - name: Install
-      run: |
-        npm install
-    - name: Publish
-      run: npm publish --access public --tag next
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-    - uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_MESSAGE: Successfully published `@skyux-sdk/cli@${{ steps.vars.outputs.tag }}` to NPM. http://github.com/${{ github.repository }}/blob/${{ steps.vars.outputs.tag }}/CHANGELOG.md
+      - uses: actions/checkout@v2
+      - name: Set output
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install
+        run: |
+          npm install
+      - name: Publish
+        run: npm publish --access public --tag next
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_MESSAGE: Successfully published `@skyux-sdk/cli@${{ steps.vars.outputs.tag }}` to NPM. http://github.com/${{ github.repository }}/blob/${{ steps.vars.outputs.tag }}/CHANGELOG.md

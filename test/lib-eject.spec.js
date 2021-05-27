@@ -53,7 +53,6 @@ describe('Eject', () => {
   let copyRootProjectFilesSpy;
 
   beforeEach(() => {
-
     mockRoutesData = {};
     mockRouteGuardsData = {};
     mockComponentData = {
@@ -97,22 +96,24 @@ describe('Eject', () => {
     writeJsonSpy = jasmine.createSpy('writeJson');
 
     // Save the ejected project name.
-    createAngularApplicationSpy.and.callFake((_ejectedProjectPath, projectName) => {
-      ejectedProjectName = projectName;
-      mockAngularJson = {
-        projects: {
-          [ejectedProjectName]: {
-            architect: {
-              build: {
-                options: {
-                  styles: []
+    createAngularApplicationSpy.and.callFake(
+      (_ejectedProjectPath, projectName) => {
+        ejectedProjectName = projectName;
+        mockAngularJson = {
+          projects: {
+            [ejectedProjectName]: {
+              architect: {
+                build: {
+                  options: {
+                    styles: []
+                  }
                 }
               }
             }
           }
-        }
-      };
-    });
+        };
+      }
+    );
 
     promptForStrictModeSpy.and.returnValue(Promise.resolve(false));
 
@@ -160,12 +161,16 @@ describe('Eject', () => {
           return '@NgModule({}) export class AppModule {}';
         }
 
-        const foundRouteGuard = Object.keys(mockRouteGuardsData).find(x => x === file);
+        const foundRouteGuard = Object.keys(mockRouteGuardsData).find(
+          (x) => x === file
+        );
         if (foundRouteGuard) {
           return mockRouteGuardsData[foundRouteGuard];
         }
 
-        const foundComponent = Object.keys(mockComponentData).find(x => x === file);
+        const foundComponent = Object.keys(mockComponentData).find(
+          (x) => x === file
+        );
         if (foundComponent) {
           return mockComponentData[foundComponent];
         }
@@ -196,9 +201,7 @@ describe('Eject', () => {
           case 'skyuxconfig?(.*).json':
             return [path.join(CWD, 'skyuxconfig.json')];
           case path.join(CWD, 'src/app/**/*'):
-            return [
-              path.join(CWD, 'src/app/home.component.ts')
-            ];
+            return [path.join(CWD, 'src/app/home.component.ts')];
           case 'src/app/**/index.html':
             return Object.keys(mockRoutesData);
           case 'src/app/**/index.guard.ts':
@@ -232,7 +235,10 @@ describe('Eject', () => {
     mock('../lib/utils/eject/eject-library', ejectLibrarySpy);
 
     installAngularBuildersSpy = jasmine.createSpy('installAngularBuilders');
-    mock('../lib/utils/eject/install-angular-builders', installAngularBuildersSpy);
+    mock(
+      '../lib/utils/eject/install-angular-builders',
+      installAngularBuildersSpy
+    );
 
     moveEjectedFilesSpy = jasmine.createSpy('moveEjectedFiles');
     mock('../lib/utils/eject/move-ejected-files', moveEjectedFilesSpy);
@@ -240,7 +246,9 @@ describe('Eject', () => {
     backupSourceFilesSpy = jasmine.createSpy('backupSourceFiles');
     mock('../lib/utils/eject/backup-source-files', backupSourceFilesSpy);
 
-    npmInstallSpy = jasmine.createSpy('npmInstall').and.returnValue(Promise.resolve());
+    npmInstallSpy = jasmine
+      .createSpy('npmInstall')
+      .and.returnValue(Promise.resolve());
     mock('../lib/utils/npm-install', npmInstallSpy);
 
     mockOriginUrl = 'https://github.com/';
@@ -260,10 +268,19 @@ describe('Eject', () => {
       }
     });
 
-    mock('../lib/utils/eject/create-angular-application', createAngularApplicationSpy);
+    mock(
+      '../lib/utils/eject/create-angular-application',
+      createAngularApplicationSpy
+    );
     mock('../lib/utils/eject/deprecate-files', deprecateFilesSpy);
-    mock('../lib/utils/eject/ensure-not-found-component', ensureNotFoundComponentSpy);
-    mock('../lib/utils/eject/migrate-skyux-config-files', migrateSkyuxConfigFilesSpy);
+    mock(
+      '../lib/utils/eject/ensure-not-found-component',
+      ensureNotFoundComponentSpy
+    );
+    mock(
+      '../lib/utils/eject/migrate-skyux-config-files',
+      migrateSkyuxConfigFilesSpy
+    );
     mock('../lib/utils/eject/modify-app-component', modifyAppComponentSpy);
     mock('../lib/utils/eject/modify-package-json', modifyPackageJsonSpy);
     mock('../lib/utils/eject/prompt-for-strict-mode', promptForStrictModeSpy);
@@ -328,7 +345,11 @@ describe('Eject', () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();
 
-    expect(createAngularApplicationSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', false);
+    expect(createAngularApplicationSpy).toHaveBeenCalledWith(
+      ejectedProjectPath,
+      'skyuxconfig-name',
+      false
+    );
   });
 
   it('should prompt for strict mode', async () => {
@@ -339,7 +360,11 @@ describe('Eject', () => {
 
     expect(promptForStrictModeSpy).toHaveBeenCalledWith(CWD);
 
-    expect(createAngularApplicationSpy).toHaveBeenCalledWith(ejectedProjectPath, 'skyuxconfig-name', true);
+    expect(createAngularApplicationSpy).toHaveBeenCalledWith(
+      ejectedProjectPath,
+      'skyuxconfig-name',
+      true
+    );
   });
 
   it('should throw an error if new project directory already exists', async () => {
@@ -364,9 +389,10 @@ describe('Eject', () => {
       ]
     };
     await eject();
-    expect(actualAngularJson.projects[ejectedProjectName].architect.build.options.styles).toEqual([
-      'foobar/baz.css'
-    ]);
+    expect(
+      actualAngularJson.projects[ejectedProjectName].architect.build.options
+        .styles
+    ).toEqual(['foobar/baz.css']);
   });
 
   it('should update source files', async () => {
@@ -382,7 +408,10 @@ describe('Eject', () => {
 
     await eject();
 
-    expect(migrateSkyuxConfigFilesSpy).toHaveBeenCalledWith(ejectedProjectPath, false);
+    expect(migrateSkyuxConfigFilesSpy).toHaveBeenCalledWith(
+      ejectedProjectPath,
+      false
+    );
   });
 
   it('should add `@skyux-sdk/angular-builders` for public projects', async () => {
@@ -474,7 +503,8 @@ const routes: Routes = [
   providers: []
 })
 export class AppRoutingModule { }
-`);
+`
+    );
   });
 
   it('should migrate complex routes', async () => {

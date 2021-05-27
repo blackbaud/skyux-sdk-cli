@@ -14,39 +14,41 @@ describe('(v4-compat) App dependencies', () => {
       warn() {}
     };
 
-    latestVersionMock = jasmine.createSpy('latestVersion').and.callFake((packageName) => {
-      let version;
-      switch (packageName) {
-        case '@foo/bar':
-          version = '12.2.5';
-          break;
-        case '@foo/baz':
-          version = '4.5.6';
-          break;
-        case 'from-branch':
-          version = 'foo/bar#branch';
-          break;
-        case 'foo':
-          version = '11.7.0';
-          break;
-        case 'bar':
-          version = '1.1.3';
-          break;
-        case 'baz':
-          version = '7.5.0';
-          break;
-        case 'sample':
-          version = '2.0.1';
-          break;
-        case 'invalid':
-          return Promise.reject(new Error());
-        default:
-          version = '9.8.7';
-          break;
-      }
+    latestVersionMock = jasmine
+      .createSpy('latestVersion')
+      .and.callFake((packageName) => {
+        let version;
+        switch (packageName) {
+          case '@foo/bar':
+            version = '12.2.5';
+            break;
+          case '@foo/baz':
+            version = '4.5.6';
+            break;
+          case 'from-branch':
+            version = 'foo/bar#branch';
+            break;
+          case 'foo':
+            version = '11.7.0';
+            break;
+          case 'bar':
+            version = '1.1.3';
+            break;
+          case 'baz':
+            version = '7.5.0';
+            break;
+          case 'sample':
+            version = '2.0.1';
+            break;
+          case 'invalid':
+            return Promise.reject(new Error());
+          default:
+            version = '9.8.7';
+            break;
+        }
 
-      return Promise.resolve(version);
-    });
+        return Promise.resolve(version);
+      });
 
     getPackageJsonMock = jasmine.createSpy('getPackageJson');
 
@@ -71,16 +73,14 @@ describe('(v4-compat) App dependencies', () => {
   });
 
   describe('upgradeDependencies() method', () => {
-
     it('should upgrade dependencies', async () => {
-
       // The utility should respect existing version ranges or convert hard-versions to ranges.
       const dependencies = {
         '@foo/bar': '12.2.3',
-        'foo': '^11.0.0',
-        'bar': '~1.1.1',
-        'baz': 'latest',
-        'sample': '1 || ^2'
+        foo: '^11.0.0',
+        bar: '~1.1.1',
+        baz: 'latest',
+        sample: '1 || ^2'
       };
 
       const devDependencies = {
@@ -92,10 +92,10 @@ describe('(v4-compat) App dependencies', () => {
 
       expect(dependencies).toEqual({
         '@foo/bar': '12.2.5',
-        'foo': '11.7.0',
-        'bar': '1.1.3',
-        'baz': '7.5.0',
-        'sample': '2.0.1'
+        foo: '11.7.0',
+        bar: '1.1.3',
+        baz: '7.5.0',
+        sample: '2.0.1'
       });
 
       await appDependencies.upgradeDependencies(devDependencies);
@@ -147,34 +147,25 @@ describe('(v4-compat) App dependencies', () => {
         'prerelease-foo': '1.0.0-rc.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'prerelease-foo',
-        {
-          version: '^1.0.0-rc.0'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('prerelease-foo', {
+        version: '^1.0.0-rc.0'
+      });
 
       await appDependencies.upgradeDependencies({
         'prerelease-foo': '1.0.0-alpha.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'prerelease-foo',
-        {
-          version: '^1.0.0-alpha.0'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('prerelease-foo', {
+        version: '^1.0.0-alpha.0'
+      });
 
       await appDependencies.upgradeDependencies({
         'prerelease-foo': '1.0.0-beta.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'prerelease-foo',
-        {
-          version: '^1.0.0-beta.0'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('prerelease-foo', {
+        version: '^1.0.0-beta.0'
+      });
     });
 
     it('should handle "latest" versions', async () => {
@@ -182,40 +173,38 @@ describe('(v4-compat) App dependencies', () => {
         'latest-foo': 'latest'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'latest-foo',
-        {
-          version: 'latest'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('latest-foo', {
+        version: 'latest'
+      });
     });
 
     it('should handle invalid versions', async () => {
       const loggerSpy = spyOn(loggerMock, 'warn').and.callThrough();
 
       await appDependencies.upgradeDependencies({
-        'invalid': '1.0.0'
+        invalid: '1.0.0'
       });
 
-      expect(loggerSpy).toHaveBeenCalledWith('Warning: Skipped package invalid because it did not provide a valid version or range: "^1.0.0".');
+      expect(loggerSpy).toHaveBeenCalledWith(
+        'Warning: Skipped package invalid because it did not provide a valid version or range: "^1.0.0".'
+      );
     });
 
     it('should use a specific range for TypeScript', async () => {
       const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
 
       await appDependencies.upgradeDependencies({
-        'typescript': '2.1.0'
+        typescript: '2.1.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'typescript',
-        {
-          version: '~3.8.3'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('typescript', {
+        version: '~3.8.3'
+      });
 
       expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because TypeScript does not support semantic versioning/)
+        jasmine.stringMatching(
+          /because TypeScript does not support semantic versioning/
+        )
       );
     });
 
@@ -226,15 +215,14 @@ describe('(v4-compat) App dependencies', () => {
         'zone.js': '1.1.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'zone.js',
-        {
-          version: '~0.10.2'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('zone.js', {
+        version: '~0.10.2'
+      });
 
       expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because Angular requires a specific minor version/)
+        jasmine.stringMatching(
+          /because Angular requires a specific minor version/
+        )
       );
     });
 
@@ -245,15 +233,14 @@ describe('(v4-compat) App dependencies', () => {
         'ts-node': '1.0.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'ts-node',
-        {
-          version: '~8.3.0'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('ts-node', {
+        version: '~8.3.0'
+      });
 
       expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because Angular requires a specific minor version/)
+        jasmine.stringMatching(
+          /because Angular requires a specific minor version/
+        )
       );
     });
 
@@ -261,18 +248,17 @@ describe('(v4-compat) App dependencies', () => {
       const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
 
       await appDependencies.upgradeDependencies({
-        'tslint': '1.0.0'
+        tslint: '1.0.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'tslint',
-        {
-          version: '~6.1.0'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('tslint', {
+        version: '~6.1.0'
+      });
 
       expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because Angular requires a specific minor version/)
+        jasmine.stringMatching(
+          /because Angular requires a specific minor version/
+        )
       );
     });
 
@@ -280,18 +266,17 @@ describe('(v4-compat) App dependencies', () => {
       const loggerSpy = spyOn(loggerMock, 'info').and.callThrough();
 
       await appDependencies.upgradeDependencies({
-        'codelyzer': '2.1.0'
+        codelyzer: '2.1.0'
       });
 
-      expect(latestVersionMock).toHaveBeenCalledWith(
-        'codelyzer',
-        {
-          version: '^5.2.2'
-        }
-      );
+      expect(latestVersionMock).toHaveBeenCalledWith('codelyzer', {
+        version: '^5.2.2'
+      });
 
       expect(loggerSpy).toHaveBeenCalledWith(
-        jasmine.stringMatching(/because Angular requires a specific major version/)
+        jasmine.stringMatching(
+          /because Angular requires a specific major version/
+        )
       );
     });
 
@@ -316,28 +301,26 @@ describe('(v4-compat) App dependencies', () => {
       });
 
       expect(latestVersionMock.calls.allArgs()).toEqual([
-        [ '@angular/common', { version: '^9.0.0' } ],
-        [ '@blackbaud/skyux-lib-clipboard', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-code-block', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-media', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0' } ],
-        [ '@blackbaud/skyux-lib-stache', { version: '^4.0.0' } ],
-        [ '@skyux-sdk/builder', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' } ],
-        [ '@skyux-sdk/e2e', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/pact', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux-sdk/testing', { version: '^4.0.0-rc.0' } ],
-        [ '@skyux/auth-client-factory', { version: '^2.0.0' } ],
-        [ '@skyux/foobar', { version: '^4.0.0-rc.0' } ]
+        ['@angular/common', { version: '^9.0.0' }],
+        ['@blackbaud/skyux-lib-clipboard', { version: '^4.0.0' }],
+        ['@blackbaud/skyux-lib-code-block', { version: '^4.0.0' }],
+        ['@blackbaud/skyux-lib-media', { version: '^4.0.0' }],
+        ['@blackbaud/skyux-lib-restricted-view', { version: '^4.0.0' }],
+        ['@blackbaud/skyux-lib-stache', { version: '^4.0.0' }],
+        ['@skyux-sdk/builder', { version: '^4.0.0-rc.0' }],
+        ['@skyux-sdk/builder-plugin-pact', { version: '^4.0.0-rc.0' }],
+        ['@skyux-sdk/builder-plugin-skyux', { version: '^4.0.0-rc.0' }],
+        ['@skyux-sdk/builder-plugin-stache', { version: '^2.0.0' }],
+        ['@skyux-sdk/e2e', { version: '^4.0.0-rc.0' }],
+        ['@skyux-sdk/pact', { version: '^4.0.0-rc.0' }],
+        ['@skyux-sdk/testing', { version: '^4.0.0-rc.0' }],
+        ['@skyux/auth-client-factory', { version: '^2.0.0' }],
+        ['@skyux/foobar', { version: '^4.0.0-rc.0' }]
       ]);
     });
-
   });
 
   describe('addSkyPeerDependencies() method', () => {
-
     it('should add peer dependencies for SKY UX dependencies', async () => {
       getPackageJsonMock.and.callFake((packageName) => {
         switch (packageName) {
@@ -348,7 +331,7 @@ describe('(v4-compat) App dependencies', () => {
               peerDependencies: {
                 '@blackbaud/skyux-lib-foo': '^9.8.0',
                 'non-blackbaud-peer': '~0.8.0',
-                'tslib': '^1.0.0'
+                tslib: '^1.0.0'
               }
             };
           case '@blackbaud/skyux-lib-foo':
@@ -397,17 +380,21 @@ describe('(v4-compat) App dependencies', () => {
       ]);
 
       // Missing peers that are not SKY UX packages shouldn't be added.
-      expect(dependencies).not.toEqual(jasmine.objectContaining({
-        'non-blackbaud-peer': '~0.8.0'
-      }));
+      expect(dependencies).not.toEqual(
+        jasmine.objectContaining({
+          'non-blackbaud-peer': '~0.8.0'
+        })
+      );
       expect(loggerSpy).toHaveBeenCalledWith(
         `non-blackbaud-peer@~0.8.0 --> peer of @skyux/indicators@3.0.0`
       );
 
       // Package tslib should not be added to the warning log since it'll be a common missing peer.
-      expect(dependencies).not.toEqual(jasmine.objectContaining({
-        'tslib': '^1.0.0'
-      }));
+      expect(dependencies).not.toEqual(
+        jasmine.objectContaining({
+          tslib: '^1.0.0'
+        })
+      );
       expect(loggerSpy).not.toHaveBeenCalledWith(
         `tslib@^1.0.0 --> peer of @skyux/indicators@3.0.0`
       );
@@ -420,7 +407,5 @@ describe('(v4-compat) App dependencies', () => {
 
       expect(dependencies).toBeUndefined();
     });
-
   });
-
 });

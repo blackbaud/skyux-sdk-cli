@@ -16,7 +16,9 @@ describe('Eject Libraries > Modify root README', () => {
   });
 
   it('should modify the root README file', () => {
-    const modifyRootReadme = mock.reRequire('../lib/utils/eject/libraries/modify-root-readme');
+    const modifyRootReadme = mock.reRequire(
+      '../lib/utils/eject/libraries/modify-root-readme'
+    );
     const mockEjectedPath = 'mock/ejected/path';
     const mockProjectDirectory = 'my-lib';
     const mockPackageName = '@blackbaud/foobar';

@@ -2,7 +2,6 @@ const mock = require('mock-require');
 const logger = require('@blackbaud/skyux-logger');
 
 describe('cert utils generator', () => {
-
   beforeEach(() => {
     spyOn(logger, 'info');
     spyOn(logger, 'error');
@@ -19,10 +18,15 @@ describe('cert utils generator', () => {
   }
 
   function spyOnPath() {
-    const spyPath = jasmine.createSpyObj('path', ['resolve', 'join', 'dirname', 'indexOf']);
-    spyPath.dirname.and.callFake(p => p);
+    const spyPath = jasmine.createSpyObj('path', [
+      'resolve',
+      'join',
+      'dirname',
+      'indexOf'
+    ]);
+    spyPath.dirname.and.callFake((p) => p);
     spyPath.join.and.callFake((...p) => p.join('/'));
-    spyPath.resolve.and.callFake(p => p);
+    spyPath.resolve.and.callFake((p) => p);
 
     mock('path', spyPath);
     return spyPath;
@@ -61,7 +65,7 @@ describe('cert utils generator', () => {
       'validate'
     ];
 
-    methods.forEach(method => expect(generator[method]).toBeDefined());
+    methods.forEach((method) => expect(generator[method]).toBeDefined());
   });
 
   it('should return the cert dir path', () => {
@@ -71,7 +75,7 @@ describe('cert utils generator', () => {
     const spyOS = spyOnOS();
     const spyPath = spyOnPath();
 
-    spyOS.homedir.and.returnValue(fakeHomeDir)
+    spyOS.homedir.and.returnValue(fakeHomeDir);
 
     const generator = getGenerator();
 
@@ -108,7 +112,7 @@ describe('cert utils generator', () => {
     const fakeHomeDir = 'my-homedir';
     const fakeCertDir = `${fakeHomeDir}/.skyux/certs/`;
     const spyOS = spyOnOS();
-    spyOS.homedir.and.returnValue(fakeHomeDir)
+    spyOS.homedir.and.returnValue(fakeHomeDir);
 
     spyOnPath();
 
@@ -124,18 +128,22 @@ describe('cert utils generator', () => {
       const generator = getGenerator();
 
       expect(generator.validate()).toBe(false);
-      expect(logger.error.calls.argsFor(0)[0].indexOf(`Error locating certificate:`)).toBe(0);
+      expect(
+        logger.error.calls.argsFor(0)[0].indexOf(`Error locating certificate:`)
+      ).toBe(0);
     });
 
     it('should return false if keyPath does not exist', () => {
       const spyFS = spyOnFS();
 
       // Get past the cert check
-      spyFS.existsSync.and.callFake(p => p.indexOf('.key') === -1);
+      spyFS.existsSync.and.callFake((p) => p.indexOf('.key') === -1);
       const generator = getGenerator();
 
       expect(generator.validate()).toBe(false);
-      expect(logger.error.calls.argsFor(0)[0].indexOf(`Error locating key:`)).toBe(0);
+      expect(
+        logger.error.calls.argsFor(0)[0].indexOf(`Error locating key:`)
+      ).toBe(0);
     });
 
     it('should return true if certPath and keyPath both exist', () => {
@@ -149,7 +157,6 @@ describe('cert utils generator', () => {
   });
 
   it('should generate a ca, certificate, and key', () => {
-
     const fakeHomeDir = 'my-homedir';
     const fakeCertDir = `${fakeHomeDir}/.skyux/certs/`;
     const spyOS = spyOnOS();
@@ -162,10 +169,10 @@ describe('cert utils generator', () => {
     const spyMdSha256Crate = jasmine.createSpy('md.sha256.create');
     const spySign = jasmine.createSpy('sign');
 
-    spyOS.homedir.and.returnValue(fakeHomeDir)
-    spyPath.dirname.and.callFake(p => p);
+    spyOS.homedir.and.returnValue(fakeHomeDir);
+    spyPath.dirname.and.callFake((p) => p);
     spyPath.join.and.callFake((...p) => p.join('/'));
-    spyPath.resolve.and.callFake(p => p);
+    spyPath.resolve.and.callFake((p) => p);
 
     spyMdSha256Crate.and.returnValue('created-256');
     spyPrivateKeyToPem.and.returnValue('private-key-to-pem');
@@ -199,7 +206,7 @@ describe('cert utils generator', () => {
         sha256: {
           create: spyMdSha256Crate
         }
-      },
+      }
     });
 
     const generator = getGenerator();
@@ -207,21 +214,29 @@ describe('cert utils generator', () => {
 
     expect(spyFS.ensureDirSync).toHaveBeenCalledWith(fakeCertDir);
     expect(spyFS.writeFileSync.calls.argsFor(0)[0]).toContain('skyux-ca.crt');
-    expect(spyFS.writeFileSync.calls.argsFor(1)[0]).toContain('skyux-server.crt');
-    expect(spyFS.writeFileSync.calls.argsFor(2)[0]).toContain('skyux-server.key');
-    expect(logger.info).toHaveBeenCalledWith(`Successfully generated the following:`);
+    expect(spyFS.writeFileSync.calls.argsFor(1)[0]).toContain(
+      'skyux-server.crt'
+    );
+    expect(spyFS.writeFileSync.calls.argsFor(2)[0]).toContain(
+      'skyux-server.key'
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      `Successfully generated the following:`
+    );
     expect(logger.info).toHaveBeenCalledWith(` - ${fakeCertDir}/skyux-ca.crt`);
-    expect(logger.info).toHaveBeenCalledWith(` - ${fakeCertDir}/skyux-server.crt`);
-    expect(logger.info).toHaveBeenCalledWith(` - ${fakeCertDir}/skyux-server.key`);
+    expect(logger.info).toHaveBeenCalledWith(
+      ` - ${fakeCertDir}/skyux-server.crt`
+    );
+    expect(logger.info).toHaveBeenCalledWith(
+      ` - ${fakeCertDir}/skyux-server.key`
+    );
 
     expect(spyPrivateKeyFromPem).toHaveBeenCalledWith('private-key-to-pem');
     expect(spySign).toHaveBeenCalledWith('private-key', 'created-256');
     expect(spySign).toHaveBeenCalledWith('private-key-from-pem', 'created-256');
   });
 
-  it('should sign the server server with the ca key', () => {
-
-  });
+  it('should sign the server server with the ca key', () => {});
 
   it('should remove the certificates and key', () => {
     const spyPath = spyOnPath();
@@ -235,5 +250,4 @@ describe('cert utils generator', () => {
 
     expect(spyFS.removeSync).toHaveBeenCalledWith(fakeDefaultPath);
   });
-
 });

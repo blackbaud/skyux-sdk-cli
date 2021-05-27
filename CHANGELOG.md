@@ -18,7 +18,6 @@
 - Fixed the `skyux eject` command to install the builder after an Angular library is generated. [#128](https://github.com/blackbaud/skyux-sdk-cli/pull/128)
 - Fixed the `skyux eject` command to properly copy files on Windows machines. [#134](https://github.com/blackbaud/skyux-sdk-cli/pull/134)
 
-
 # 4.7.0 (2021-04-27)
 
 - Updated the `skyux upgrade` command to work with Angular CLI projects. [#121](https://github.com/blackbaud/skyux-sdk-cli/pull/121)
@@ -159,10 +158,9 @@
   - Added a catch for when users accidentally type `skyux install certs` instead of `skyux certs install`.
   - Fixed the logging for `skyux certs install`.
 
-
 # 3.2.2 (2019-11-04)
 
-- Fixed a bug to correctly handle Windows paths that include spaces when running `skyux certs install`.  [#45](https://github.com/blackbaud/skyux-sdk-cli/pull/45)
+- Fixed a bug to correctly handle Windows paths that include spaces when running `skyux certs install`. [#45](https://github.com/blackbaud/skyux-sdk-cli/pull/45)
 
 # 3.2.1 (2019-10-31)
 

@@ -11,7 +11,7 @@ describe('CLI version', function () {
         return Promise.resolve('4.0.0-rc.1');
       }
       return Promise.resolve('1.2.3');
-    }
+    };
 
     testPackageJson = {
       name: '@skyux-sdk/cli',
@@ -88,5 +88,4 @@ Version installed: 4.0.0-rc.0
 Version wanted: 4.0.0-rc.1`
     );
   });
-
 });

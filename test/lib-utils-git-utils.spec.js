@@ -2,7 +2,6 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('git utils', () => {
-
   let syncSpy;
 
   beforeEach(() => {
@@ -31,14 +30,14 @@ describe('git utils', () => {
 
     expect(url).toEqual('https://github.com/');
 
-    expect(syncSpy).toHaveBeenCalledWith('git', [
-      'config',
-      '--get',
-      'remote.origin.url'
-    ], {
-      cwd: path.join(process.cwd()),
-      stdio: 'pipe'
-    });
+    expect(syncSpy).toHaveBeenCalledWith(
+      'git',
+      ['config', '--get', 'remote.origin.url'],
+      {
+        cwd: path.join(process.cwd()),
+        stdio: 'pipe'
+      }
+    );
   });
 
   it('should check if git is clean', () => {
@@ -53,10 +52,7 @@ describe('git utils', () => {
     const isClean = util.isGitClean();
     expect(isClean).toBeTrue();
 
-    expect(syncSpy).toHaveBeenCalledWith('git', [
-      'status',
-      '--porcelain'
-    ], {
+    expect(syncSpy).toHaveBeenCalledWith('git', ['status', '--porcelain'], {
       cwd: path.join(process.cwd()),
       stdio: 'pipe'
     });
@@ -74,5 +70,4 @@ describe('git utils', () => {
     const isClean = util.isGitClean();
     expect(isClean).toBeFalse();
   });
-
 });

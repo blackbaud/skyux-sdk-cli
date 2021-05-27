@@ -10,17 +10,14 @@ describe('Eject > Create Angular Application', () => {
   function validateSpawn(strictMode) {
     createAngularCliProject(ejectedProjectPath, projectName, strictMode);
 
-    expect(runNgCommandSpy).toHaveBeenCalledWith(
-      'new',
-      [
-        projectName,
-        `--directory=${path.basename(ejectedProjectPath)}`,
-        '--legacy-browsers',
-        '--routing',
-        `--strict=${strictMode}`,
-        '--style=scss'
-      ]
-    );
+    expect(runNgCommandSpy).toHaveBeenCalledWith('new', [
+      projectName,
+      `--directory=${path.basename(ejectedProjectPath)}`,
+      '--legacy-browsers',
+      '--routing',
+      `--strict=${strictMode}`,
+      '--style=scss'
+    ]);
   }
 
   beforeEach(() => {
@@ -34,7 +31,9 @@ describe('Eject > Create Angular Application', () => {
 
     mock('../lib/utils/run-ng-command', runNgCommandSpy);
 
-    createAngularCliProject = mock.reRequire('../lib/utils/eject/create-angular-application');
+    createAngularCliProject = mock.reRequire(
+      '../lib/utils/eject/create-angular-application'
+    );
   });
 
   afterEach(() => {

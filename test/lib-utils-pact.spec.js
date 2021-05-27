@@ -14,9 +14,10 @@ describe('Pact utils', function () {
     };
 
     jsonUtilsMock = {
-      readJson: () => Promise.resolve({
-        pacts: []
-      }),
+      readJson: () =>
+        Promise.resolve({
+          pacts: []
+        }),
       writeJson: () => Promise.resolve()
     };
 
@@ -73,7 +74,6 @@ describe('Pact utils', function () {
   });
 
   describe('validateConfig()', () => {
-
     it('should migrate `pacts` and add plugin to skyuxconfig.pact.json', async () => {
       spyOn(jsonUtilsMock, 'readJson').and.callFake((fileName) => {
         if (fileName === 'skyuxconfig.json') {
@@ -90,12 +90,10 @@ describe('Pact utils', function () {
 
       await pact.validateConfig();
 
-      expect(writeSpy).toHaveBeenCalledWith('skyuxconfig.json', { });
+      expect(writeSpy).toHaveBeenCalledWith('skyuxconfig.json', {});
       expect(writeSpy).toHaveBeenCalledWith('skyuxconfig.pact.json', {
         pacts: [],
-        plugins: [
-          '@skyux-sdk/builder-plugin-pact'
-        ]
+        plugins: ['@skyux-sdk/builder-plugin-pact']
       });
     });
 
@@ -137,5 +135,4 @@ describe('Pact utils', function () {
       expect(writeSpy).not.toHaveBeenCalled();
     });
   });
-
 });

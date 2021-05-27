@@ -54,7 +54,7 @@ describe('skyux certs command', () => {
 
     spyOS.type.and.returnValue(osType);
 
-    const argv = { _: ['certs', action ]};
+    const argv = { _: ['certs', action] };
     const lib = getLib();
     await lib(argv);
 
@@ -69,7 +69,11 @@ describe('skyux certs command', () => {
   async function runUninstallTest(osType, certsUtilFile) {
     const results = await runTest('uninstall', osType, certsUtilFile);
 
-    expect(results.spyExecute).toHaveBeenCalledWith('uninstall', 'system', jasmine.any(Function));
+    expect(results.spyExecute).toHaveBeenCalledWith(
+      'uninstall',
+      'system',
+      jasmine.any(Function)
+    );
     expect(results.spyCertsOS.untrust).toHaveBeenCalledWith(results.argv);
     expect(results.spyGenerator.removeCertDirPath).toHaveBeenCalled();
   }
@@ -78,12 +82,20 @@ describe('skyux certs command', () => {
     const results = await runTest('install', osType, certsUtilFile);
 
     if (osType !== 'Windows_NT') {
-      expect(results.spyExecute).toHaveBeenCalledWith('uninstall', 'system', jasmine.any(Function));
+      expect(results.spyExecute).toHaveBeenCalledWith(
+        'uninstall',
+        'system',
+        jasmine.any(Function)
+      );
       expect(results.spyCertsOS.untrust).toHaveBeenCalledWith(results.argv);
       expect(results.spyGenerator.removeCertDirPath).toHaveBeenCalled();
     }
 
-    expect(results.spyExecute).toHaveBeenCalledWith('install', 'system', jasmine.any(Function));
+    expect(results.spyExecute).toHaveBeenCalledWith(
+      'install',
+      'system',
+      jasmine.any(Function)
+    );
     expect(results.spyGenerator.generate).toHaveBeenCalled();
     expect(results.spyCertsOS.trust).toHaveBeenCalledWith(results.argv);
   }
@@ -95,9 +107,13 @@ describe('skyux certs command', () => {
     spyOS.type.and.returnValue('unsupported-platform');
 
     const lib = getLib();
-    await lib({ _: ['certs', action]});
+    await lib({ _: ['certs', action] });
 
-    expect(spyExecute).toHaveBeenCalledWith('uninstall', 'system', jasmine.any(Function));
+    expect(spyExecute).toHaveBeenCalledWith(
+      'uninstall',
+      'system',
+      jasmine.any(Function)
+    );
     expect(logger.error).toHaveBeenCalledWith(
       `Unsupported platform. You will need to manually ${actionMessage} the certificate.`
     );
@@ -106,22 +122,26 @@ describe('skyux certs command', () => {
   it('should handle the generate action', () => {
     const spyGenerator = spyOnGenerator();
     const lib = getLib();
-    lib({ _: ['certs', 'generate' ]});
+    lib({ _: ['certs', 'generate'] });
     expect(spyGenerator.generate).toHaveBeenCalled();
   });
 
   it('should handle the validate action', () => {
     const spyGenerator = spyOnGenerator();
     const lib = getLib();
-    lib({ _: ['certs', 'validate' ]});
+    lib({ _: ['certs', 'validate'] });
     expect(spyGenerator.validate).toHaveBeenCalled();
   });
 
   it('should handle an unknown action', () => {
     const lib = getLib();
-    lib({ _: ['certs', 'asdf']});
-    expect(logger.warn).toHaveBeenCalledWith(`Unknown action for the certs command.`);
-    expect(logger.warn).toHaveBeenCalledWith(`Available actions are install and uninstall.`);
+    lib({ _: ['certs', 'asdf'] });
+    expect(logger.warn).toHaveBeenCalledWith(
+      `Unknown action for the certs command.`
+    );
+    expect(logger.warn).toHaveBeenCalledWith(
+      `Available actions are install and uninstall.`
+    );
   });
 
   describe('install action', () => {

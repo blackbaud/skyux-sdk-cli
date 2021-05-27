@@ -227,6 +227,9 @@ function processArgv(argv) {
     case 'eject':
       require('./lib/eject')(argv);
       break;
+    case 'check-workspace':
+      require('./lib/check-workspace')(argv);
+      break;
     default:
       isInternalCommand = false;
   }

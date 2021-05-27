@@ -157,7 +157,8 @@ describe('Check workspace', () => {
       await checkWorkspace();
 
       expect(errorSpy).toHaveBeenCalledWith(
-        '[skyux check-workspace] Error: The "tsconfig.json" file specifies an invalid target of "es2015". Legacy browsers require a build target of "es5".'
+        '[skyux check-workspace] Error: The "tsconfig.json" file specifies an ' +
+        'invalid target of "es2015". Legacy browsers require a build target of "es5".'
       );
     });
 
@@ -205,7 +206,8 @@ IE 11.
       await checkWorkspace();
 
       expect(errorSpy).toHaveBeenCalledWith(
-        '[skyux check-workspace] Error: Expected file ".browserslistrc" to exist but it was not found.'
+        '[skyux check-workspace] Error: Expected file ".browserslistrc" to ' +
+        'exist but it was not found.'
       );
     });
 

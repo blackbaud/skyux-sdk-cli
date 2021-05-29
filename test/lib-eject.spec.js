@@ -404,6 +404,17 @@ describe('Eject', () => {
     );
   });
 
+  it('should add `@blackbaud-internal/skyux-angular-builders` when passing `--internal` to argv', async () => {
+    const eject = mock.reRequire('../lib/eject');
+    await eject({
+      internal: true
+    });
+    expect(installAngularBuildersSpy).toHaveBeenCalledWith(
+      ejectedProjectPath,
+      true
+    );
+  });
+
   it('should update package.json', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();

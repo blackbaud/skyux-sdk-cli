@@ -57,6 +57,13 @@ describe('Eject > Install Angular Builders', () => {
     validateSpawn('@blackbaud-internal/skyux-angular-builders');
   });
 
+  it('should add `@skyux-sdk/angular-builders-compat` for all projects', async () => {
+    const installAngularBuilders = getUtil();
+    installAngularBuilders(mockEjectedProjectPath);
+
+    validateSpawn('@skyux-sdk/angular-builders-compat');
+  });
+
   it('should handle errors', async () => {
     mockSpawnStatusCode = 1;
 
@@ -68,7 +75,7 @@ describe('Eject > Install Angular Builders', () => {
     } catch (err) {
       expect(err).toEqual(
         new Error(
-          'Failed to add @blackbaud-internal/skyux-angular-builders to project.'
+          'Failed to add "@blackbaud-internal/skyux-angular-builders" to project.'
         )
       );
     }

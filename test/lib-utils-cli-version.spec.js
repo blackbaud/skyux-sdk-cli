@@ -25,6 +25,7 @@ describe('CLI version', function () {
     mock('@blackbaud/skyux-logger', {
       info() {}
     });
+
     mock('latest-version', latestVersionMock);
     mock('../lib/utils/json-utils', jsonUtilsMock);
   });

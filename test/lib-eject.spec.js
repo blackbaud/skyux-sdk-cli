@@ -26,6 +26,7 @@ describe('Eject', () => {
   let ejectLibrarySpy;
   let ensureNotFoundComponentSpy;
   let errorSpy;
+  let getBuildToolMetadataSpy;
   let installAngularBuildersSpy;
   let moveEjectedFilesSpy;
   let backupSourceFilesSpy;
@@ -40,6 +41,7 @@ describe('Eject', () => {
   let writeFileSyncSpy;
   let writeJsonSpy;
 
+  let mockBuildToolMetadata;
   let mockComponentData;
   let mockRouteGuardsData;
   let mockRoutesData;
@@ -276,10 +278,38 @@ describe('Eject', () => {
     });
 
     mock('../lib/utils/eject/write-json', writeJsonSpy);
+
+    mockBuildToolMetadata = {
+      name: '@skyux-sdk/builder',
+      currentlyInstalledMajorVersion: 4
+    };
+
+    getBuildToolMetadataSpy = jasmine.createSpy('getBuildToolMetadata').and.callFake(() => {
+      return mockBuildToolMetadata;
+    });
+
+    mock('../lib/utils/get-build-tool-metadata', getBuildToolMetadataSpy);
   });
 
   afterEach(() => {
     mock.stopAll();
+  });
+
+  it('should throw an error if not executed on SKY UX 4 project', async () => {
+    const eject = mock.reRequire('../lib/eject');
+
+    mockBuildToolMetadata = {
+      name: '@skyux-sdk/builder',
+      currentlyInstalledMajorVersion: 3
+    };
+
+    await eject();
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[skyux eject] Error: The eject command is only available to SKY UX 4 projects. Aborting.'
+    );
+
+    expect(processExitSpy).toHaveBeenCalledWith(1);
   });
 
   it('should throw an error if uncommitted changes found', async () => {

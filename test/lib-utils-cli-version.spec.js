@@ -22,6 +22,10 @@ describe('CLI version', function () {
       readJson: () => Promise.resolve(testPackageJson)
     };
 
+    mock('@blackbaud/skyux-logger', {
+      info() {}
+    });
+
     mock('latest-version', latestVersionMock);
     mock('../lib/utils/json-utils', jsonUtilsMock);
   });

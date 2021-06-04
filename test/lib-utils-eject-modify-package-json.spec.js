@@ -15,6 +15,11 @@ describe('Modify package.json', () => {
   beforeEach(() => {
     ejectedProjectPath = 'foo';
 
+    mock('@blackbaud/skyux-logger', {
+      info() {},
+      verbose() {}
+    });
+
     mock('fs-extra', {
       readJsonSync(file) {
         switch(file) {

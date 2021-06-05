@@ -230,9 +230,6 @@ function processArgv(argv) {
     case 'check-workspace':
       require('./lib/check-workspace')();
       break;
-    case 'outdated':
-      require('./lib/outdated')(argv);
-      break;
     default:
       isInternalCommand = false;
   }

@@ -10,14 +10,13 @@ describe('Modify package.json', () => {
   let mockPackageJson;
   let mockSpawn;
   let modifyPackageJson;
-  let upgradeDependenciesSpy;
+  let ensureLatestSkyuxPackagesSpy;
 
   beforeEach(() => {
     ejectedProjectPath = 'foo';
 
     mock('@blackbaud/skyux-logger', {
-      info() {},
-      verbose() {}
+      info() {}
     });
 
     mock('fs-extra', {
@@ -40,11 +39,9 @@ describe('Modify package.json', () => {
 
     mock('cross-spawn', mockSpawn);
 
-    upgradeDependenciesSpy = jasmine.createSpy('upgradeDependencies');
+    ensureLatestSkyuxPackagesSpy = jasmine.createSpy('ensureLatestSkyuxPackages');
 
-    mock('../lib/app-dependencies', {
-      upgradeDependencies: upgradeDependenciesSpy
-    });
+    mock('../lib/utils/eject/ensure-latest-skyux-packages', ensureLatestSkyuxPackagesSpy);
 
     mock('../lib/utils/eject/write-json', (file, contents) => {
       if (file.indexOf('package.json') > -1) {
@@ -85,7 +82,7 @@ describe('Modify package.json', () => {
       }
     };
 
-    upgradeDependenciesSpy.and.callFake((dependencies) => {
+    ensureLatestSkyuxPackagesSpy.and.callFake((dependencies) => {
       Object.assign(
         dependencies,
         dependencies['@blackbaud-internal/skyux-lib-analytics'] ?
@@ -152,51 +149,51 @@ describe('Modify package.json', () => {
         'moment': '2.29.1'
       },
       'devDependencies': {
-        '@angular/animations': '^9.1.13',
-        '@angular/common': '^9.1.13',
-        '@angular/compiler': '^9.1.13',
-        '@angular/compiler-cli': '^9.1.13',
-        '@angular/core': '^9.1.13',
-        '@angular/forms': '^9.1.13',
-        '@angular/platform-browser': '^9.1.13',
-        '@angular/platform-browser-dynamic': '^9.1.13',
-        '@angular/router': '^9.1.13',
-        '@blackbaud/auth-client': '^2.40.0',
-        '@blackbaud/skyux-lib-clipboard': '^4.0.0',
-        '@blackbaud/skyux-lib-code-block': '^4.0.1',
-        '@blackbaud/skyux-lib-media': '^4.0.0',
-        '@blackbaud/skyux-lib-restricted-view': '^4.2.0',
-        '@blackbaud/skyux-lib-stache': '^4.2.1',
-        '@skyux-sdk/builder': '^4.7.1',
-        '@skyux-sdk/builder-plugin-skyux': '^4.1.4',
-        '@skyux-sdk/e2e': '^4.0.0',
-        '@skyux-sdk/testing': '^4.2.3',
-        '@skyux/animations': '^4.0.1',
-        '@skyux/assets': '^4.0.1',
-        '@skyux/config': '^4.2.0',
-        '@skyux/core': '^4.3.2',
-        '@skyux/datetime': '^4.7.0',
-        '@skyux/docs-tools': '^4.8.0',
-        '@skyux/forms': '^4.14.0',
-        '@skyux/http': '^4.1.0',
-        '@skyux/i18n': '^4.0.3',
-        '@skyux/indicators': '^4.7.1',
-        '@skyux/inline-form': '^4.1.0',
-        '@skyux/layout': '^4.3.1',
-        '@skyux/lists': '^4.5.0',
-        '@skyux/lookup': '^4.8.2',
-        '@skyux/modals': '^4.5.1',
-        '@skyux/omnibar-interop': '^4.0.1',
-        '@skyux/popovers': '^4.4.0',
-        '@skyux/router': '^4.0.1',
-        '@skyux/tabs': '^4.4.1',
-        '@skyux/theme': '^4.13.2',
-        'codelyzer': '^5.2.2',
-        'rxjs': '~6.6.3',
-        'ts-node': '~8.3.0',
-        'tslint': '~6.1.3',
-        'typescript': '~3.8.3',
-        'zone.js': '~0.10.3'
+        '@angular/animations': '9.1.13',
+        '@angular/common': '9.1.13',
+        '@angular/compiler': '9.1.13',
+        '@angular/compiler-cli': '9.1.13',
+        '@angular/core': '9.1.13',
+        '@angular/forms': '9.1.13',
+        '@angular/platform-browser': '9.1.13',
+        '@angular/platform-browser-dynamic': '9.1.13',
+        '@angular/router': '9.1.13',
+        '@blackbaud/auth-client': '2.40.0',
+        '@blackbaud/skyux-lib-clipboard': '4.0.0',
+        '@blackbaud/skyux-lib-code-block': '4.0.1',
+        '@blackbaud/skyux-lib-media': '4.0.0',
+        '@blackbaud/skyux-lib-restricted-view': '4.2.0',
+        '@blackbaud/skyux-lib-stache': '4.2.1',
+        '@skyux-sdk/builder': '4.7.1',
+        '@skyux-sdk/builder-plugin-skyux': '4.1.4',
+        '@skyux-sdk/e2e': '4.0.0',
+        '@skyux-sdk/testing': '4.2.3',
+        '@skyux/animations': '4.0.1',
+        '@skyux/assets': '4.0.1',
+        '@skyux/config': '4.2.0',
+        '@skyux/core': '4.3.2',
+        '@skyux/datetime': '4.7.0',
+        '@skyux/docs-tools': '4.8.0',
+        '@skyux/forms': '4.14.0',
+        '@skyux/http': '4.1.0',
+        '@skyux/i18n': '4.0.3',
+        '@skyux/indicators': '4.7.1',
+        '@skyux/inline-form': '4.1.0',
+        '@skyux/layout': '4.3.1',
+        '@skyux/lists': '4.5.0',
+        '@skyux/lookup': '4.8.2',
+        '@skyux/modals': '4.5.1',
+        '@skyux/omnibar-interop': '4.0.1',
+        '@skyux/popovers': '4.4.0',
+        '@skyux/router': '4.0.1',
+        '@skyux/tabs': '4.4.1',
+        '@skyux/theme': '4.13.2',
+        'codelyzer': '5.2.2',
+        'rxjs': '6.6.3',
+        'ts-node': '8.3.0',
+        'tslint': '6.1.3',
+        'typescript': '3.8.3',
+        'zone.js': '0.10.3'
       }
     };
 
@@ -235,7 +232,7 @@ describe('Modify package.json', () => {
       }
     };
 
-    upgradeDependenciesSpy.and.callFake(dependencies => dependencies);
+    ensureLatestSkyuxPackagesSpy.and.callFake(dependencies => dependencies);
 
     await modifyPackageJson(ejectedProjectPath);
 

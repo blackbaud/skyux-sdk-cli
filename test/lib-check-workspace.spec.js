@@ -8,7 +8,6 @@ describe('Check workspace', () => {
   let mockTsConfig;
 
   let browserslistrcExists;
-  let projectsDirExists;
   let packageLockExists;
 
   let errorSpy;
@@ -23,6 +22,9 @@ describe('Check workspace', () => {
           architect: {
             build: {
               builder: '@blackbaud-internal/skyux-angular-builders:browser',
+              options: {
+                tsConfig: 'tsconfig.app.json'
+              },
               configurations: {
                 production: {
                   outputHashing: 'bundles'
@@ -37,7 +39,7 @@ describe('Check workspace', () => {
             }
           }
         },
-        ['my-lib']: {
+        'my-lib': {
           projectType: 'library',
           architect: {
             test: {
@@ -45,7 +47,8 @@ describe('Check workspace', () => {
             }
           }
         }
-      }
+      },
+      defaultProject: 'my-app'
     };
 
     mockBrowserslistrc = [
@@ -67,7 +70,6 @@ describe('Check workspace', () => {
     };
 
     browserslistrcExists = true;
-    projectsDirExists = false;
     packageLockExists = true;
 
     errorSpy = jasmine.createSpy('error');
@@ -83,20 +85,16 @@ describe('Check workspace', () => {
       warn: warnSpy
     });
 
-    mock('comment-json', {
-      parse: (x) => JSON.parse(x)
-    });
-
     mock('fs-extra', {
       existsSync(filePath) {
         const fileName = path.basename(filePath);
         switch (fileName) {
           case '.browserslistrc':
             return browserslistrcExists;
-          case 'projects':
-            return projectsDirExists;
           case 'package-lock.json':
             return packageLockExists;
+          default:
+            return true;
         }
       },
       readFileSync(filePath) {
@@ -106,17 +104,9 @@ describe('Check workspace', () => {
             return mockBrowserslistrc.join('\n');
           case 'angular.json':
             return JSON.stringify(mockAngularJson);
-          case 'tsconfig.json':
+          case 'tsconfig.app.json':
             return JSON.stringify(mockTsConfig);
         }
-      }
-    });
-
-    mock('glob', {
-      sync() {
-        return [
-          'tsconfig.json'
-        ];
       }
     });
 
@@ -157,12 +147,11 @@ describe('Check workspace', () => {
       await checkWorkspace();
 
       expect(errorSpy).toHaveBeenCalledWith(
-        '[skyux check-workspace] Error: The "tsconfig.json" file specifies an ' +
-        'invalid target of "es2015". Legacy browsers require a build target of "es5".'
+        '[skyux check-workspace] Error: The "/tsconfig.app.json" file specifies an invalid compile target of "es2015". A compiler target of "es5" is required.'
       );
     });
 
-    it('should handle tsconfig files without a target', async () => {
+    xit('should handle tsconfig files without a target', async () => {
       mockTsConfig.compilerOptions = {};
 
       const checkWorkspace = getUtil();
@@ -172,13 +161,16 @@ describe('Check workspace', () => {
     });
 
     it('should skip validation for libraries', async () => {
-      projectsDirExists = true;
+      mockAngularJson.defaultProject = 'my-lib';
 
       const checkWorkspace = getUtil();
-      await checkWorkspace();
+
+      await checkWorkspace({
+        projectType: 'library'
+      });
 
       expect(verboseSpy).toHaveBeenCalledWith(
-        'Angular "projects" directory detected. Skipping tsconfig build target validation.'
+        'Angular library project detected. Skipping tsconfig build target validation.'
       );
     });
   });
@@ -212,13 +204,16 @@ IE 11.
     });
 
     it('should skip validating .browserslistrc for libraries', async () => {
-      projectsDirExists = true;
+      mockAngularJson.defaultProject = 'my-lib';
 
       const checkWorkspace = getUtil();
-      await checkWorkspace();
+
+      await checkWorkspace({
+        projectType: 'library'
+      });
 
       expect(verboseSpy).toHaveBeenCalledWith(
-        'Angular "projects" directory detected. Skipping tsconfig build target validation.'
+        'Angular library project detected. Skipping browser list validation.'
       );
     });
   });

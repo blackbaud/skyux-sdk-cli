@@ -1,63 +1,46 @@
 const mock = require('mock-require');
-const path = require('path');
+// const path = require('path');
+const createWorkspaceState = require('../lib/utils/check-workspace/create-workspace-state');
 
-fdescribe('Check workspace', () => {
-  const buildTool = {
+fdescribe('Check workspace > Validate angular.json', () => {
+  const mockBuildTool = {
     name: '@blackbaud-internal/skyux-angular-builders'
   };
 
-  let mockAngularJson;
+  let mockProject;
+  let mockWorkspaceState;
 
   beforeEach(() => {
-    mockAngularJson = {
-      projects: {
-        'my-app': {
-          projectType: 'application',
-          architect: {
-            build: {
-              builder: '@blackbaud-internal/skyux-angular-builders:browser',
-              options: {
-                tsConfig: 'tsconfig.app.json'
-              },
-              configurations: {
-                production: {
-                  outputHashing: 'bundles'
-                }
+    mockProject = {
+      projectDefinition: {
+        projectType: 'application',
+        architect: {
+          build: {
+            builder: '@blackbaud-internal/skyux-angular-builders:browser',
+            options: {
+              tsConfig: 'tsconfig.app.json'
+            },
+            configurations: {
+              production: {
+                outputHashing: 'bundles'
               }
-            },
-            serve: {
-              builder: '@blackbaud-internal/skyux-angular-builders:dev-server'
-            },
-            test: {
-              builder: '@blackbaud-internal/skyux-angular-builders:karma'
             }
-          }
-        },
-        'my-lib': {
-          projectType: 'library',
-          architect: {
-            test: {
-              builder: '@blackbaud-internal/skyux-angular-builders:karma'
-            }
+          },
+          serve: {
+            builder: '@blackbaud-internal/skyux-angular-builders:dev-server'
+          },
+          test: {
+            builder: '@blackbaud-internal/skyux-angular-builders:karma'
           }
         }
       },
-      defaultProject: 'my-app'
+      projectName: 'my-app'
     };
+
+    mockWorkspaceState = createWorkspaceState();
 
     mock('@blackbaud/skyux-logger', {
       info() {}
-    });
-
-    mock('fs-extra', {
-      existsSync: () => true,
-      readFileSync(filePath) {
-        const fileName = path.basename(filePath);
-        switch (fileName) {
-          case 'angular.json':
-            return JSON.stringify(mockAngularJson);
-        }
-      }
     });
   });
 
@@ -69,49 +52,76 @@ fdescribe('Check workspace', () => {
     return mock.reRequire('../lib/utils/check-workspace/validate-angular-json');
   }
 
-  it('should throw an error if app does not use our builder', async () => {
-    mockAngularJson.projects['my-app'].architect.build.builder = '@angular-devkit/build-angular:browser';
+  it('should check if app uses our builder', async () => {
+    mockProject.projectDefinition.architect.build.builder = '@angular-devkit/build-angular:browser';
 
     const checkWorkspace = getUtil();
-    try {
-      await checkWorkspace(buildTool);
-      fail('Expected test to fail.');
-    } catch (err) {
-      expect(err.message).toEqual(
-        'The "projects/my-app/architect/build/builder" node ' +
-          'in angular.json specifies an unsupported builder "@angular-devkit/build-angular:browser". ' +
-          'A builder from the "@blackbaud-internal/skyux-angular-builders" package is required.'
-      );
-    }
+    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+
+    expect(mockWorkspaceState.messages).toEqual([
+      {
+        message: 'The "projects/my-app/architect/build/builder" node in angular.json specifies an unsupported builder "@angular-devkit/build-angular:browser". A builder from the "@blackbaud-internal/skyux-angular-builders" package is required.',
+        status: 'failed'
+      },
+      {
+        message: 'The "serve" target in angular.json specifies the builder "@blackbaud-internal/skyux-angular-builders:dev-server".',
+        status: 'passed'
+      },
+      {
+        message: 'The "test" target in angular.json specifies the builder "@blackbaud-internal/skyux-angular-builders:karma".',
+        status: 'passed'
+      }
+    ]);
   });
 
-  it('should throw an error if library does not use our builder', async () => {
-    mockAngularJson.projects['my-lib'].architect.test.builder = '@angular-devkit/build-angular:karma';
+  it('should check if library uses our builder', async () => {
+    mockProject.projectDefinition = {
+      architect: {
+        test: {
+          builder: '@angular-devkit/build-angular:karma'
+        }
+      },
+      projectType: 'library'
+    };
+
+    mockProject.projectName = 'my-lib';
 
     const checkWorkspace = getUtil();
-    try {
-      await checkWorkspace(buildTool);
-      fail('Expected test to fail.');
-    } catch (err) {
-      expect(err.message).toEqual(
-        'The "projects/my-lib/architect/test/builder" node ' +
-          'in angular.json specifies an unsupported builder "@angular-devkit/build-angular:karma". ' +
-          'A builder from the "@blackbaud-internal/skyux-angular-builders" package is required.'
-      );
-    }
+    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+
+    expect(mockWorkspaceState.messages).toEqual([
+      {
+        message: 'The "projects/my-lib/architect/test/builder" node in angular.json specifies an unsupported builder "@angular-devkit/build-angular:karma". A builder from the "@blackbaud-internal/skyux-angular-builders" package is required.',
+        status: 'failed'
+      }
+    ]);
   });
 
-  it('should throw an error if build incorrectly sets outputHashing', async () => {
-    mockAngularJson.projects['my-app'].architect.build.configurations.production.outputHashing = 'all';
+  it('should check if build target incorrectly sets outputHashing', async () => {
+    mockProject.projectDefinition.architect.build.configurations.production.outputHashing = 'all';
 
     const checkWorkspace = getUtil();
-    try {
-      await checkWorkspace(buildTool);
-      fail('Expected test to fail.');
-    } catch (err) {
-      expect(err.message).toEqual(
-        'The "projects/my-app/architect/build/configurations/production/outputHashing" node in angular.json is set to "all" but a value of "bundles" is required.'
-      );
-    }
+    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+
+    expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
+      {
+        message: 'The "projects/my-app/architect/build/configurations/production/outputHashing" node in angular.json is set to "all" but a value of "bundles" is required.',
+        status: 'failed'
+      }
+    ]));
+  });
+
+  it('should check if build target does not set outputHashing', async () => {
+    delete mockProject.projectDefinition.architect.build.configurations.production.outputHashing;
+
+    const checkWorkspace = getUtil();
+    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+
+    expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
+      {
+        message: 'The "projects/my-app/architect/build/configurations/production/outputHashing" node in angular.json is not defined but a value of "bundles" is required.',
+        status: 'failed'
+      }
+    ]));
   });
 });

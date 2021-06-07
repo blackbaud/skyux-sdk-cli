@@ -3,6 +3,8 @@ const path = require('path');
 
 const createWorkspaceState = require('../lib/utils/check-workspace/create-workspace-state');
 
+const { REQUIRED_COMPILER_TARGET } = require('../lib/utils/check-workspace/constants');
+
 fdescribe('Check workspace > Validate compiler target', () => {
   let mockProject;
   let mockTsconfigAppJson;
@@ -28,7 +30,7 @@ fdescribe('Check workspace > Validate compiler target', () => {
 
     mockTsconfigAppJson = {
       compilerOptions: {
-        target: 'es5'
+        target: REQUIRED_COMPILER_TARGET
       }
     };
 
@@ -63,7 +65,7 @@ fdescribe('Check workspace > Validate compiler target', () => {
 
     expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
       {
-        message: 'The TypeScript compiler target is set to "es5".',
+        message: `The TypeScript compiler target is set to "es5".`,
         status: 'passed'
       }
     ]));

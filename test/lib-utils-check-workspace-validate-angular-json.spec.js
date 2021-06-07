@@ -1,4 +1,6 @@
 const mock = require('mock-require');
+
+const { REQUIRED_OUTPUT_HASHING_VALUE } = require('../lib/utils/check-workspace/constants');
 const createWorkspaceState = require('../lib/utils/check-workspace/create-workspace-state');
 
 fdescribe('Check workspace > Validate angular.json', () => {
@@ -16,12 +18,9 @@ fdescribe('Check workspace > Validate angular.json', () => {
         architect: {
           build: {
             builder: '@blackbaud-internal/skyux-angular-builders:browser',
-            options: {
-              tsConfig: 'tsconfig.app.json'
-            },
             configurations: {
               production: {
-                outputHashing: 'bundles'
+                outputHashing: REQUIRED_OUTPUT_HASHING_VALUE
               }
             }
           },

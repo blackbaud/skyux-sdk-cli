@@ -79,7 +79,7 @@ describe('Check workspace > Validate compiler target', () => {
 
     expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
       {
-        message: 'The "/tsconfig.app.json" file specifies an invalid compile target of "invalid". A compiler target of "es5" is required.',
+        message: `The "${path.join('/tsconfig.app.json')}" file specifies an invalid compile target of "invalid". A compiler target of "es5" is required.`,
         status: 'failed'
       }
     ]));
@@ -93,7 +93,7 @@ describe('Check workspace > Validate compiler target', () => {
 
     expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
       {
-        message: 'A value for "target" was not defined in the "/tsconfig.app.json" file. A compile target of "es5" is required.',
+        message: `A value for "target" was not defined in the "${path.join('/tsconfig.app.json')}" file. A compile target of "es5" is required.`,
         status: 'failed'
       }
     ]));

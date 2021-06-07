@@ -1,5 +1,4 @@
 const mock = require('mock-require');
-// const path = require('path');
 const createWorkspaceState = require('../lib/utils/check-workspace/create-workspace-state');
 
 fdescribe('Check workspace > Validate angular.json', () => {
@@ -38,10 +37,6 @@ fdescribe('Check workspace > Validate angular.json', () => {
     };
 
     mockWorkspaceState = createWorkspaceState();
-
-    mock('@blackbaud/skyux-logger', {
-      info() {}
-    });
   });
 
   afterEach(() => {
@@ -52,11 +47,11 @@ fdescribe('Check workspace > Validate angular.json', () => {
     return mock.reRequire('../lib/utils/check-workspace/validate-angular-json');
   }
 
-  it('should check if app uses our builder', async () => {
+  it('should check if app uses our builder', () => {
     mockProject.projectDefinition.architect.build.builder = '@angular-devkit/build-angular:browser';
 
     const checkWorkspace = getUtil();
-    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+    checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
 
     expect(mockWorkspaceState.messages).toEqual([
       {
@@ -74,7 +69,7 @@ fdescribe('Check workspace > Validate angular.json', () => {
     ]);
   });
 
-  it('should check if library uses our builder', async () => {
+  it('should check if library uses our builder', () => {
     mockProject.projectDefinition = {
       architect: {
         test: {
@@ -87,7 +82,7 @@ fdescribe('Check workspace > Validate angular.json', () => {
     mockProject.projectName = 'my-lib';
 
     const checkWorkspace = getUtil();
-    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+    checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
 
     expect(mockWorkspaceState.messages).toEqual([
       {
@@ -97,11 +92,11 @@ fdescribe('Check workspace > Validate angular.json', () => {
     ]);
   });
 
-  it('should check if build target incorrectly sets outputHashing', async () => {
+  it('should check build target correctly sets outputHashing', () => {
     mockProject.projectDefinition.architect.build.configurations.production.outputHashing = 'all';
 
     const checkWorkspace = getUtil();
-    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+    checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
 
     expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
       {
@@ -111,11 +106,11 @@ fdescribe('Check workspace > Validate angular.json', () => {
     ]));
   });
 
-  it('should check if build target does not set outputHashing', async () => {
+  it('should check if build target does not set outputHashing', () => {
     delete mockProject.projectDefinition.architect.build.configurations.production.outputHashing;
 
     const checkWorkspace = getUtil();
-    await checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
+    checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
 
     expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
       {

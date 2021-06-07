@@ -4,7 +4,7 @@ const path = require('path');
 const { REQUIRED_BROWSERS_LIST } = require('../lib/utils/check-workspace/constants');
 const createWorkspaceState = require('../lib/utils/check-workspace/create-workspace-state');
 
-fdescribe('Check workspace > Validate browserslistrc', () => {
+describe('Check workspace > Validate browserslistrc', () => {
   let browserslistrcExists;
   let mockBrowserslistrc;
   let mockProject;
@@ -99,77 +99,4 @@ fdescribe('Check workspace > Validate browserslistrc', () => {
       }
     ]);
   });
-
-  // it('should check if app uses our builder', () => {
-  //   mockProject.projectDefinition.architect.build.builder = '@angular-devkit/build-angular:browser';
-
-  //   const checkWorkspace = getUtil();
-  //   checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
-
-  //   expect(mockWorkspaceState.messages).toEqual([
-  //     {
-  //       message: 'The "projects/my-app/architect/build/builder" node in angular.json specifies an unsupported builder "@angular-devkit/build-angular:browser". A builder from the "@blackbaud-internal/skyux-angular-builders" package is required.',
-  //       status: 'failed'
-  //     },
-  //     {
-  //       message: 'The "serve" target in angular.json specifies the builder "@blackbaud-internal/skyux-angular-builders:dev-server".',
-  //       status: 'passed'
-  //     },
-  //     {
-  //       message: 'The "test" target in angular.json specifies the builder "@blackbaud-internal/skyux-angular-builders:karma".',
-  //       status: 'passed'
-  //     }
-  //   ]);
-  // });
-
-  // it('should check if library uses our builder', () => {
-  //   mockProject.projectDefinition = {
-  //     architect: {
-  //       test: {
-  //         builder: '@angular-devkit/build-angular:karma'
-  //       }
-  //     },
-  //     projectType: 'library'
-  //   };
-
-  //   mockProject.projectName = 'my-lib';
-
-  //   const checkWorkspace = getUtil();
-  //   checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
-
-  //   expect(mockWorkspaceState.messages).toEqual([
-  //     {
-  //       message: 'The "projects/my-lib/architect/test/builder" node in angular.json specifies an unsupported builder "@angular-devkit/build-angular:karma". A builder from the "@blackbaud-internal/skyux-angular-builders" package is required.',
-  //       status: 'failed'
-  //     }
-  //   ]);
-  // });
-
-  // it('should check build target correctly sets outputHashing', () => {
-  //   mockProject.projectDefinition.architect.build.configurations.production.outputHashing = 'all';
-
-  //   const checkWorkspace = getUtil();
-  //   checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
-
-  //   expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
-  //     {
-  //       message: 'The "projects/my-app/architect/build/configurations/production/outputHashing" node in angular.json is set to "all" but a value of "bundles" is required.',
-  //       status: 'failed'
-  //     }
-  //   ]));
-  // });
-
-  // it('should check if build target does not set outputHashing', () => {
-  //   delete mockProject.projectDefinition.architect.build.configurations.production.outputHashing;
-
-  //   const checkWorkspace = getUtil();
-  //   checkWorkspace(mockProject, mockBuildTool, mockWorkspaceState);
-
-  //   expect(mockWorkspaceState.messages).toEqual(jasmine.arrayContaining([
-  //     {
-  //       message: 'The "projects/my-app/architect/build/configurations/production/outputHashing" node in angular.json is not defined but a value of "bundles" is required.',
-  //       status: 'failed'
-  //     }
-  //   ]));
-  // });
 });

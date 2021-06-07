@@ -5,7 +5,7 @@ const createWorkspaceState = require('../lib/utils/check-workspace/create-worksp
 
 const { REQUIRED_COMPILER_TARGET } = require('../lib/utils/check-workspace/constants');
 
-fdescribe('Check workspace > Validate compiler target', () => {
+describe('Check workspace > Validate compiler target', () => {
   let mockProject;
   let mockTsconfigAppJson;
   let mockWorkspaceState;

@@ -3,7 +3,7 @@ const mock = require('mock-require');
 const { REQUIRED_OUTPUT_HASHING_VALUE } = require('../lib/utils/check-workspace/constants');
 const createWorkspaceState = require('../lib/utils/check-workspace/create-workspace-state');
 
-fdescribe('Check workspace > Validate angular.json', () => {
+describe('Check workspace > Validate angular.json', () => {
   const mockBuildTool = {
     name: '@blackbaud-internal/skyux-angular-builders'
   };

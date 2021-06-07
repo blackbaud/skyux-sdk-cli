@@ -1,11 +1,12 @@
 const mock = require('mock-require');
 const path = require('path');
 
-fdescribe('Check workspace', () => {
+describe('Check workspace', () => {
   let mockAngularJson;
   let mockBuildToolName;
 
   let errorSpy;
+  let infoSpy;
   let validateAngularJsonSpy;
   let validateBrowserslistrcSpy;
   let validateCompilerTargetSpy;
@@ -30,13 +31,14 @@ fdescribe('Check workspace', () => {
     mockBuildToolName = '@blackbaud-internal/skyux-angular-builders';
 
     errorSpy = jasmine.createSpy('error');
+    infoSpy = jasmine.createSpy('info');
     warnSpy = jasmine.createSpy('warn');
 
     spyOn(process, 'exit');
 
     mock('@blackbaud/skyux-logger', {
       error: errorSpy,
-      info() {},
+      info: infoSpy,
       warn: warnSpy
     });
 
@@ -89,7 +91,7 @@ fdescribe('Check workspace', () => {
     return mock.reRequire('../lib/check-workspace');
   }
 
-  it('should run validators', async () => {
+  it('should run validators for applications by default', async () => {
     const checkWorkspace = getUtil();
 
     await checkWorkspace();
@@ -97,6 +99,21 @@ fdescribe('Check workspace', () => {
     expect(validateAngularJsonSpy).toHaveBeenCalled();
     expect(validateBrowserslistrcSpy).toHaveBeenCalled();
     expect(validateCompilerTargetSpy).toHaveBeenCalled();
+    expect(validatePackageLockSpy).toHaveBeenCalled();
+  });
+
+  it('should run validators for libraries', async () => {
+    const checkWorkspace = getUtil();
+
+    mockAngularJson.defaultProject = 'my-lib';
+
+    await checkWorkspace({
+      projectType: 'library'
+    });
+
+    expect(validateAngularJsonSpy).toHaveBeenCalled();
+    expect(validateBrowserslistrcSpy).not.toHaveBeenCalled();
+    expect(validateCompilerTargetSpy).not.toHaveBeenCalled();
     expect(validatePackageLockSpy).toHaveBeenCalled();
   });
 
@@ -134,6 +151,29 @@ fdescribe('Check workspace', () => {
       '[skyux check-workspace] Error: The default project "my-app" defined ' +
         'in angular.json is of type "application" but a project type of ' +
         '"library" is required.'
+    );
+  });
+
+  it('should print failing and passing checks', async () => {
+    validatePackageLockSpy.and.callFake((workspaceState) => {
+      workspaceState.addPassed('The angular.json file is valid.');
+      workspaceState.addFailed('The package-lock.json file does not exist.');
+    });
+
+    const checkWorkspace = getUtil();
+
+    await checkWorkspace();
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      '[skyux check-workspace] Error: Workspace did not pass validation checks.'
+    );
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      ' ✘ FAILED  The package-lock.json file does not exist.'
+    );
+
+    expect(infoSpy).toHaveBeenCalledWith(
+      ' ✔ PASSED  The angular.json file is valid. OK.'
     );
   });
 });

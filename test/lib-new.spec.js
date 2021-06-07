@@ -406,5 +406,16 @@ describe('skyux new command', () => {
         'Change into that directory and run `ng serve` to begin.'
       );
     });
+
+    it('should skip compat builders when installing SKY UX', async () => {
+      const spies = getSpies('name', '');
+      await getLib()({});
+
+      expect(spies.spyInstallAngularBuilders).toHaveBeenCalledWith(
+        '.skyux-spa-name-tmp',
+        true,
+        true
+      );
+    });
   });
 });

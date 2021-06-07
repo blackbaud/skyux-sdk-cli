@@ -124,8 +124,7 @@ describe('Check workspace', () => {
     await checkWorkspace();
 
     expect(warnSpy).toHaveBeenCalledWith(
-      'The `check-workspace` command is not available for ' +
-        '`@skyux-sdk/builder` projects. Skipping.'
+      'The `check-workspace` command is only available for Angular CLI projects. Skipping.'
     );
   });
 

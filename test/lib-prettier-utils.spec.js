@@ -62,8 +62,7 @@ describe('prettier utils', () => {
     expect(mockJsonUtils.writeJson).toHaveBeenCalledWith(
       path.join('foo/.prettierrc'),
       {
-        singleQuote: true,
-        trailingComma: 'none'
+        singleQuote: true
       }
     );
   });

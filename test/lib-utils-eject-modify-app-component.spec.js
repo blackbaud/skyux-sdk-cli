@@ -32,4 +32,17 @@ describe('modifyAppComponent()', () => {
     );
   });
 
+  it('should support ESLint rule disabling', async () => {
+    modifyAppComponent(ejectedProjectPath, true);
+
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/app.component.html'),
+      `<router-outlet></router-outlet>`
+    );
+
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/app.component.spec.ts'),
+      jasmine.stringMatching(/\/\/ eslint-disable-next-line @angular-eslint\/component-selector/)
+    );
+  });
 });

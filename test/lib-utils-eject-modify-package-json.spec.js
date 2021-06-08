@@ -10,7 +10,7 @@ describe('Modify package.json', () => {
   let mockPackageJson;
   let mockSpawn;
   let modifyPackageJson;
-  let upgradeDependenciesSpy;
+  let ensureLatestSkyuxPackagesSpy;
 
   beforeEach(() => {
     ejectedProjectPath = 'foo';
@@ -39,11 +39,9 @@ describe('Modify package.json', () => {
 
     mock('cross-spawn', mockSpawn);
 
-    upgradeDependenciesSpy = jasmine.createSpy('upgradeDependencies');
+    ensureLatestSkyuxPackagesSpy = jasmine.createSpy('ensureLatestSkyuxPackages');
 
-    mock('../lib/app-dependencies', {
-      upgradeDependencies: upgradeDependenciesSpy
-    });
+    mock('../lib/utils/eject/ensure-latest-skyux-packages', ensureLatestSkyuxPackagesSpy);
 
     mock('../lib/utils/eject/write-json', (file, contents) => {
       if (file.indexOf('package.json') > -1) {
@@ -84,7 +82,7 @@ describe('Modify package.json', () => {
       }
     };
 
-    upgradeDependenciesSpy.and.callFake((dependencies) => {
+    ensureLatestSkyuxPackagesSpy.and.callFake((dependencies) => {
       Object.assign(
         dependencies,
         dependencies['@blackbaud-internal/skyux-lib-analytics'] ?
@@ -234,7 +232,7 @@ describe('Modify package.json', () => {
       }
     };
 
-    upgradeDependenciesSpy.and.callFake(dependencies => dependencies);
+    ensureLatestSkyuxPackagesSpy.and.callFake(dependencies => dependencies);
 
     await modifyPackageJson(ejectedProjectPath);
 

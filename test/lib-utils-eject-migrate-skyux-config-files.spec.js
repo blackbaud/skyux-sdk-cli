@@ -81,6 +81,9 @@ describe('migrateSkyuxConfigFiles', () => {
         },
         bar: true
       },
+      pipelineSettings: {
+        foo: 'bar'
+      },
       routes: {
         public: [
           '/foo'
@@ -121,6 +124,9 @@ describe('migrateSkyuxConfigFiles', () => {
           required: true
         },
         bar: true
+      },
+      pipelineSettings: {
+        foo: 'bar'
       },
       routes: {
         public: [

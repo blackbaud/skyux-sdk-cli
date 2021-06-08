@@ -640,6 +640,23 @@ export class AppRoutingModule { }
     );
   });
 
+  it('should generate a route component with the expected selector', async () => {
+    const eject = mock.reRequire('../lib/eject');
+
+    rootIndexHtmlExists = true;
+
+    mockRoutesData = {
+      'src/app/users/index.html': ''
+    };
+
+    await eject();
+
+    expect(writeFileSyncSpy).toHaveBeenCalledWith(
+      path.join(ejectedProjectPath, 'src/app/users/index.component.ts'),
+      jasmine.stringMatching(/selector: 'app-users-route-index'/g)
+    );
+  });
+
   it('should modify the app component', async () => {
     const eject = mock.reRequire('../lib/eject');
     await eject();

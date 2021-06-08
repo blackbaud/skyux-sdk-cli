@@ -1,5 +1,4 @@
 const mock = require('mock-require');
-const path = require('path');
 
 describe('skyux new command', () => {
   let promptDoneSpy;
@@ -72,7 +71,7 @@ describe('skyux new command', () => {
   function spyOnFs() {
     const spyFs = jasmine.createSpyObj(
       'fs-extra',
-      ['readdirSync', 'removeSync', 'copySync', 'readJsonSync', 'writeJson', 'existsSync']
+      ['readdirSync', 'removeSync', 'copySync', 'existsSync']
     )
     mock('fs-extra', spyFs);
     return spyFs;
@@ -90,6 +89,68 @@ describe('skyux new command', () => {
     return spyNpmInstall;
   }
 
+  function spyOnCreateAngularApplication() {
+    const spy = jasmine.createSpy('createAngularApplication');
+    mock('../lib/utils/eject/create-angular-application', spy);
+    return spy;
+  }
+
+  function spyOnInstallAngularBuilders() {
+    const spy = jasmine.createSpy('installAngularBuilders');
+    mock('../lib/utils/eject/install-angular-builders', spy);
+    return spy;
+  }
+
+  function spyOnInstallESLint() {
+    const spy = jasmine.createSpy('installEsLint').and.returnValue(Promise.resolve());
+    mock('../lib/utils/install-eslint', spy);
+    return spy;
+  }
+
+  function spyOnJsonUtils() {
+    const spy = jasmine.createSpyObj(
+      'json-utils',
+      [
+        'readJson',
+        'writeJson'
+      ]
+    );
+
+    spy.writeJson.and.returnValue(Promise.resolve());
+
+    mock('../lib/utils/json-utils', spy);
+    return spy;
+  }
+
+  function spyOnPrettierUtils() {
+    const spy = jasmine.createSpyObj(
+      'prettier-utils',
+      [
+        'addPrettierToDevDependencies',
+        'applyPrettierToFiles',
+        'configurePrettier'
+      ]
+    );
+
+    spy.addPrettierToDevDependencies.and.returnValue(Promise.resolve());
+    spy.configurePrettier.and.returnValue(Promise.resolve());
+
+    mock('../lib/utils/prettier-utils', spy);
+    return spy;
+  }
+
+  function spyOnModifyAppComponent() {
+    const spy = jasmine.createSpy('modifyAppComponent');
+    mock('../lib/utils/eject/modify-app-component', spy);
+    return spy;
+  }
+
+  function spyOnNewLibrary() {
+    const spy = jasmine.createSpy('newLibrary');
+    mock('../lib/utils/new/new-library', spy);
+    return spy;
+  }
+
   function getSpies(name, repo) {
     const spyClone = spyOnClone();
     const spyFs = spyOnFs();
@@ -98,6 +159,13 @@ describe('skyux new command', () => {
     const spyNpmInstall = spyOnNpmInstall();
     const spyPrompt = spyOnPromptly(name, repo);
     const spySpawn = spyOnSpawn();
+    const spyCreateAngularApplication = spyOnCreateAngularApplication();
+    const spyInstallAngularBuilders = spyOnInstallAngularBuilders();
+    const spyInstallESLint = spyOnInstallESLint();
+    const spyJsonUtils = spyOnJsonUtils();
+    const spyPrettierUtils = spyOnPrettierUtils();
+    const spyModifyAppComponent = spyOnModifyAppComponent();
+    const spyNewLibrary = spyOnNewLibrary();
 
     return {
       spyClone,
@@ -107,7 +175,14 @@ describe('skyux new command', () => {
       spyLoggerPromise: spyLoggers.spyLoggerPromise,
       spyNpmInstall,
       spyPrompt,
-      spySpawn
+      spySpawn,
+      spyCreateAngularApplication,
+      spyInstallAngularBuilders,
+      spyInstallESLint,
+      spyJsonUtils,
+      spyPrettierUtils,
+      spyModifyAppComponent,
+      spyNewLibrary
     };
   }
 
@@ -149,7 +224,7 @@ describe('skyux new command', () => {
 
     it('should use the --name argument', async () => {
       const spies = getSpies('name', '');
-      spies.spyFs.readJsonSync.and.returnValue({});
+      spies.spyJsonUtils.readJson.and.returnValue(Promise.resolve({}));
       await getLib()({
         name: 'name'
       });
@@ -170,6 +245,42 @@ describe('skyux new command', () => {
   });
 
   describe('SPA repo', () => {
+    async function validateCheckOutInitialCommit(testError) {
+      const name = 'my-spa-name';
+      const repo = 'https://example.com/custom-repo.git';
+      const error = 'custom-checkout-error';
+      const spies = getSpies(name, repo);
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyFs.readdirSync.and.returnValue([]);
+      spies.spyJsonUtils.readJson.and.returnValue(Promise.resolve({}));
+
+      if (testError) {
+        spies.spySpawn.spawnWithOptions.and.throwError(error);
+      } else {
+        spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
+      }
+
+      await getLib()({});
+
+      expect(spies.spySpawn.spawnWithOptions).toHaveBeenCalledWith(
+        jasmine.objectContaining({
+          cwd: `skyux-spa-${name}`,
+          stdio: 'pipe'
+        }),
+        `git`,
+        `checkout`,
+        `-b`,
+        `initial-commit`
+      );
+
+      if (testError) {
+        expect(spies.spyLoggerPromise.fail).toHaveBeenCalled();
+        expect(spies.spyLogger.error).toHaveBeenCalledWith(Error(error));
+      } else {
+        expect(spies.spyLoggerPromise.succeed).toHaveBeenCalled();
+      }
+    }
+
     it('should use the --repo argument', async () => {
       const repo = 'https://example.com/custom-repo.git';
       const spies = getSpies('name', '');
@@ -224,124 +335,44 @@ describe('skyux new command', () => {
       expect(spies.spyLoggerPromise.succeed).toHaveBeenCalled();
     });
 
+    it('should check out the `initial-commit` branch', async () => {
+      validateCheckOutInitialCommit(false);
+    });
+
     it('should handle errors when checking out the `initial-commit` branch', async () => {
-      const name = 'my-spa-name';
-      const repo = 'https://example.com/custom-repo.git';
-      const error = 'custom-checkout-error';
-      const spies = getSpies(name, repo);
-      spies.spyClone.and.returnValue(Promise.resolve());
-      spies.spyFs.readdirSync.and.returnValue([]);
-      spies.spyFs.readJsonSync.and.returnValue({});
-      spies.spySpawn.spawnWithOptions.and.throwError(error);
-      await getLib()({});
-      expect(spies.spySpawn.spawnWithOptions).toHaveBeenCalledWith(
-        jasmine.objectContaining({
-          cwd: `skyux-spa-${name}`,
-          stdio: 'pipe'
-        }),
-        `git`,
-        `checkout`,
-        `-b`,
-        `initial-commit`
-      );
-      expect(spies.spyLoggerPromise.fail).toHaveBeenCalled();
-      expect(spies.spyLogger.error).toHaveBeenCalledWith(Error(error));
+      validateCheckOutInitialCommit(true);
     });
   });
 
-  describe('cloning template', () => {
-    it('should use the template flag as a Git URL if it contains a colon', async () => {
-      const template = 'https://example.com/custom-template.git';
-      const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.resolve());
-      await getLib()({ template });
-      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
-        `${template} template successfully cloned.`
-      );
-    });
-
-    it('should clone use the alias `t`', async () => {
-      const template = 'custom-template';
+  describe('specifying template', () => {
+    it('should support the alias `t`', async () => {
+      const template = 'library';
       const spies = getSpies('name', '');
       spies.spyClone.and.returnValue(Promise.resolve());
       await getLib()({
         t: template
       });
-      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
-        `${template} template successfully cloned.`
-      );
-    });
-
-    it('should checkout the repo\'s 4.x.x branch', async () => {
-      const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.resolve());
-      await getLib()({});
-      expect(expect(spies.spyClone.calls.argsFor(0)[2]).toBe('4.x.x'));
-    });
-
-    it('should handle an error cloning a template because of url', async () => {
-      const template = 'custom-template';
-      const error = 'custom-cloning-error';
-      const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.reject({ message: error }));
-      await getLib()({ template });
-      expect(spies.spyLoggerPromise.fail).toHaveBeenCalledWith(
-        `Template not found at location, https://github.com/blackbaud/skyux-sdk-template-${template}.`
-      );
-    });
-
-    it('should handle an error cloning a template because of current branch', async () => {
-      const branch = '4.x.x';
-      const template = 'custom-template';
-      const error = 'custom-branch-error status 1,';
-      const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.reject({ message: error, branch }));
-      await getLib()({ template });
-      expect(spies.spyLoggerPromise.fail).toHaveBeenCalledWith(
-        `Template found but missing corresponding ${branch} branch. Please consult the template owner or use the '--branch' flag.`
-      );
-    });
-
-    it('should clone the default template if template flag is used without a name', async () => {
-      const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.resolve());
-      await getLib()({
-        template: {
-          url: 'does-not-matter'
-        }
-      });
-      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
-        `default template successfully cloned.`
-      );
-    });
-
-    it('should clone the default template if custom template not provided', async () => {
-      const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.resolve());
-      await getLib()({});
-      expect(spies.spyLoggerPromise.succeed).toHaveBeenCalledWith(
-        `default template successfully cloned.`
-      );
-    });
-
-    it('should handle errors when cleaning the template', async () => {
-      const error = 'custom-cleanup-error';
-      const spies = getSpies('name', '');
-      spies.spyClone.and.returnValue(Promise.resolve());
-      spies.spyFs.readJsonSync.and.returnValue({});
-      spies.spyFs.removeSync.and.throwError(error);
-      await getLib()({});
-      expect(spies.spyLogger.info).toHaveBeenCalledWith(
-        'Template cleanup failed.'
-      );
+      expect(spies.spyNewLibrary).toHaveBeenCalledOnceWith('.skyux-lib-name-tmp', 'name', 'skyux-lib-name');
     });
   });
 
   describe('miscellaneous', () => {
+    it('should handle errors when cleaning the temp path', async () => {
+      const error = 'custom-cleanup-error';
+      const spies = getSpies('name', '');
+      spies.spyClone.and.returnValue(Promise.resolve());
+      spies.spyJsonUtils.readJson.and.returnValue({});
+      spies.spyFs.removeSync.and.throwError(error);
+      await getLib()({});
+      expect(spies.spyLogger.info).toHaveBeenCalledWith(
+        'Temp path cleanup failed.'
+      );
+    });
+
     it('should pass stdio: inherit to spawn when logLevel is verbose', async () => {
       const spies = getSpies('name', '');
       spies.spyClone.and.returnValue(Promise.resolve());
-      spies.spyFs.readJsonSync.and.returnValue({});
+      spies.spyJsonUtils.readJson.and.returnValue(Promise.resolve({}));
       spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
       spies.spyLogger.logLevel = 'verbose';
       await getLib()({});
@@ -352,73 +383,38 @@ describe('skyux new command', () => {
       );
     });
 
-    it('should update package dependencies & devDeps but not peerDeps', async () => {
-      const name = 'custom-spa';
-      const repo = 'https://example.com/custom-repo.git';
-
-      const spies = getSpies(name, repo);
-      spies.spyClone.and.returnValue(Promise.resolve());
-      spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
-      spies.spyFs.readdirSync.and.returnValue([]);
-      spies.spyLatestVersion.and.callFake(dep => Promise.resolve(`${dep}-MOCKED-LATEST`));
-      spies.spyFs.readJsonSync.and.returnValue({
-        dependencies: {
-          foo: 'latest',
-          bar: '1.0.0'
-        },
-        devDependencies: {
-          foo: 'latest',
-          bar: '1.0.0'
-        },
-        peerDependencies: {
-          foo: 'latest',
-          bar: '1.0.0'
-        }
-      });
-      await getLib()({});
-
-      const [ writeJsonPath, writeJsonData, writeJsonOptions ] = spies.spyFs.writeJson.calls.argsFor(0);
-      expect(writeJsonPath).toEqual(path.join(`skyux-spa-${name}`, `tmp`, `package.json`));
-      expect(writeJsonData).toEqual(
-        jasmine.objectContaining({
-          dependencies: { foo: 'foo-MOCKED-LATEST', bar: 'bar-MOCKED-LATEST' },
-          peerDependencies: { foo: 'latest', bar: '1.0.0' },
-          devDependencies: { foo: 'foo-MOCKED-LATEST', bar: 'bar-MOCKED-LATEST' },
-          name: `blackbaud-skyux-spa-${name}`,
-          description: `A single-page application (SPA) named skyux-spa-${name}`,
-          repository: {
-            type: 'git',
-            url: repo
-          }
-        })
-      );
-      expect(writeJsonOptions).toEqual(
-        jasmine.objectContaining({
-          spaces: 2
-        })
-      );
-    });
-
     it('should handle libraries', async () => {
       const name = 'custom-lib';
       const spies = getSpies(name, '');
-      spies.spyClone.and.returnValue(Promise.resolve());
-      spies.spyFs.readJsonSync.and.returnValue({});
+      spies.spyJsonUtils.readJson.and.returnValue(Promise.resolve({}));
       spies.spySpawn.spawnWithOptions.and.returnValue(Promise.resolve());
       await getLib()({
         template: 'library'
       });
-      expect(spies.spyFs.writeJson.calls.argsFor(0)[1].description).toBe(
-        `A library named skyux-lib-${name}`
-      );
+
+      expect(spies.spyNewLibrary).toHaveBeenCalledOnceWith('.skyux-lib-custom-lib-tmp', name, 'skyux-lib-' + name);
+
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
         `\nCreating a library named 'skyux-lib-${name}'...`
       );
+
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
         `Created a library in directory skyux-lib-${name}`
       );
+
       expect(spies.spyLogger.info).toHaveBeenCalledWith(
-        'Change into that directory and run `skyux serve -l local` to begin.'
+        'Change into that directory and run `ng serve` to begin.'
+      );
+    });
+
+    it('should skip compat builders when installing SKY UX', async () => {
+      const spies = getSpies('name', '');
+      await getLib()({});
+
+      expect(spies.spyInstallAngularBuilders).toHaveBeenCalledWith(
+        '.skyux-spa-name-tmp',
+        true,
+        true
       );
     });
   });

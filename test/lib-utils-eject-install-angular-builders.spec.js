@@ -32,8 +32,14 @@ describe('Eject > Install Angular Builders', () => {
     return mock.reRequire('../lib/utils/eject/install-angular-builders');
   }
 
-  function validateSpawn(packageName) {
-    expect(runNgCommandSpy).toHaveBeenCalledWith(
+  function validateSpawn(packageName, wasRun = true) {
+    let ngRunCommandExpectation = expect(runNgCommandSpy);
+
+    if (!wasRun) {
+      ngRunCommandExpectation = ngRunCommandExpectation.not;
+    }
+
+    ngRunCommandExpectation.toHaveBeenCalledWith(
       'add',
       [packageName, '--skip-confirmation'],
       {
@@ -62,6 +68,13 @@ describe('Eject > Install Angular Builders', () => {
     installAngularBuilders(mockEjectedProjectPath);
 
     validateSpawn('@skyux-sdk/angular-builders-compat@next');
+  });
+
+  it('should skip adding `@skyux-sdk/angular-builders-compat` when `skipCompat` is true', async () => {
+    const installAngularBuilders = getUtil();
+    installAngularBuilders(mockEjectedProjectPath, true, true);
+
+    validateSpawn('@skyux-sdk/angular-builders-compat@next', false);
   });
 
   it('should handle errors', async () => {

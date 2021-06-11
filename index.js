@@ -21,13 +21,15 @@ function getGlobs() {
 
   dirs.forEach(dir => {
     const legacyPattern = path.join(dir, '*/skyux-builder*/package.json');
-    const newPattern = path.join(dir, '@skyux-sdk/builder*/package.json');
+    const skyux4Pattern = path.join(dir, '@skyux-sdk/builder*/package.json');
+    const skyux5Pattern = path.join(dir, '@skyux-sdk/cli-*/package.json');
 
-    logger.verbose(`Looking for modules in ${legacyPattern} and ${newPattern}.`);
+    logger.verbose(`Looking for modules in ${legacyPattern}, ${skyux4Pattern}, and ${skyux5Pattern}.`);
 
     globs = globs.concat([
       ...glob.sync(legacyPattern),
-      ...glob.sync(newPattern)
+      ...glob.sync(skyux4Pattern),
+      ...glob.sync(skyux5Pattern)
     ]);
   });
 

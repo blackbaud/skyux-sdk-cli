@@ -175,6 +175,14 @@ function validateCert(command, argv) {
  * @param [Object] argv
  */
 function processArgv(argv) {
+  logger.warn(
+    'WARNING: The package `@skyux-sdk/cli` is deprecated. To use the latest version of the SKY UX CLI, run the following commands:\n' +
+    '```\n' +
+    'npm uninstall -g @skyux-sdk/cli\n' +
+    'npm install -g @blackbaud-internal/skyux-cli\n' +
+    '```'
+  );
+
   const command = getCommand(argv);
   let isInternalCommand = true;
 
@@ -223,9 +231,6 @@ function processArgv(argv) {
       break;
     case 'migrate':
       require('./lib/migrate')(argv);
-      break;
-    case 'eject':
-      require('./lib/eject')(argv);
       break;
     default:
       isInternalCommand = false;

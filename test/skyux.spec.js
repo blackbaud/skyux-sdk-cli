@@ -5,6 +5,7 @@ const logger = require('@blackbaud/skyux-logger');
 
 describe('skyux CLI', () => {
   let spyProcessExit;
+  let testOriginUrl;
 
   beforeEach(() => {
     spyProcessExit = spyOn(process, 'exit');
@@ -12,6 +13,16 @@ describe('skyux CLI', () => {
     spyOn(logger, 'info');
     spyOn(logger, 'error');
     spyOn(logger, 'warn');
+
+    testOriginUrl = 'https://github.com/';
+    const getOriginUrlSpy = jasmine.createSpy('getOriginUrl');
+    getOriginUrlSpy.and.callFake(() => {
+      return testOriginUrl;
+    });
+
+    mock('../lib/utils/git-utils', {
+      getOriginUrl: getOriginUrlSpy
+    });
   })
 
   afterEach(() => {
@@ -525,6 +536,18 @@ describe('skyux CLI', () => {
     cli({ _: ['install', 'certs']});
     expect(logger.error).toHaveBeenCalledWith('The `skyux install` command is invalid.');
     expect(logger.error).toHaveBeenCalledWith('Did you mean to run `skyux certs install` instead?');
+  });
+
+  it('should log a warning if running against a private repo', () => {
+    testOriginUrl = 'https://dev.azure.com/_git/foobar';
+    cli({ _: ['eject'] });
+    expect(logger.warn).toHaveBeenCalledWith(`WARNING: SKY UX CLI's source code was moved to Azure DevOps and is now released to the internal NPM feed. Uninstall your local copy of the old CLI and install the new one. The new CLI has the same commands as the old one and is backward compatible for SKY UX 4 (and lower) projects, so it can be safely used from now on.
+
+==================================================
+npm uninstall --global @skyux-sdk/cli
+npm install --global @blackbaud-internal/skyux-cli
+==================================================
+`);
   });
 
 });

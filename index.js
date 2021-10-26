@@ -2,7 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
 const logger = require('@blackbaud/skyux-logger');
+
 const generator = require('./lib/utils/certs/generator');
+const gitUtils = require('./lib/utils/git-utils');
 
 /**
  * Returns results of glob.sync from specified directory and our glob pattern.
@@ -110,7 +112,6 @@ function invokeCommandError(command, isInternalCommand) {
  * @param {boolean} isInternalCommand
  */
 function invokeCommand(command, argv, isInternalCommand) {
-
   const globs = getGlobs();
 
   if (globs.length === 0) {
@@ -175,14 +176,6 @@ function validateCert(command, argv) {
  * @param [Object] argv
  */
 function processArgv(argv) {
-  logger.warn(
-    'WARNING: The package `@skyux-sdk/cli` is deprecated. To use the latest version of the SKY UX CLI, run the following commands:\n' +
-    '```\n' +
-    'npm uninstall -g @skyux-sdk/cli\n' +
-    'npm install -g @blackbaud-internal/skyux-cli\n' +
-    '```'
-  );
-
   const command = getCommand(argv);
   let isInternalCommand = true;
 
@@ -232,8 +225,29 @@ function processArgv(argv) {
     case 'migrate':
       require('./lib/migrate')(argv);
       break;
+    case 'eject':
+      require('./lib/eject')(argv);
+      break;
     default:
       isInternalCommand = false;
+  }
+
+  const gitOriginUrl = gitUtils.getOriginUrl();
+  const isPrivateRepo =
+    gitOriginUrl.includes('blackbaud.visualstudio.com') ||
+    gitOriginUrl.includes('dev.azure.com');
+
+  if (isInternalCommand && isPrivateRepo) {
+    logger.warn(
+      'WARNING: SKY UX CLI\'s source code was moved to Azure DevOps and is now released ' +
+        'to the internal NPM feed. Uninstall your local copy of the old CLI and install the ' +
+        'new one. The new CLI has the same commands as the old one and is backward compatible ' +
+        'for SKY UX 4 (and lower) projects, so it can be safely used from now on.\n\n' +
+        '==================================================\n' +
+        'npm uninstall --global @skyux-sdk/cli\n' +
+        'npm install --global @blackbaud-internal/skyux-cli\n'+
+        '==================================================\n'
+    );
   }
 
   invokeCommand(command, argv, isInternalCommand);

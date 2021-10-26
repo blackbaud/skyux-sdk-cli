@@ -1,3 +1,7 @@
+# 4.9.1 (2021-10-26)
+
+- Removed the `skyux eject` command. [#164](https://github.com/blackbaud/skyux-sdk-cli/pull/164)
+
 # 4.9.0 (2021-05-25)
 
 - Updated the `skyux upgrade` command to work with Angular 12 projects. [#146](https://github.com/blackbaud/skyux-sdk-cli/pull/146)

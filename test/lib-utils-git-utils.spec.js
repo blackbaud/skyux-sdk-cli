@@ -2,6 +2,7 @@ const mock = require('mock-require');
 const path = require('path');
 
 describe('git utils', () => {
+
   let syncSpy;
 
   beforeEach(() => {
@@ -10,13 +11,13 @@ describe('git utils', () => {
         stdout: {
           toString() {
             return 'https://github.com/';
-          },
-        },
+          }
+        }
       };
     });
 
     mock('cross-spawn', {
-      sync: syncSpy,
+      sync: syncSpy
     });
   });
 
@@ -30,14 +31,14 @@ describe('git utils', () => {
 
     expect(url).toEqual('https://github.com/');
 
-    expect(syncSpy).toHaveBeenCalledWith(
-      'git',
-      ['config', '--get', 'remote.origin.url'],
-      {
-        cwd: path.join(process.cwd()),
-        stdio: 'pipe',
-      }
-    );
+    expect(syncSpy).toHaveBeenCalledWith('git', [
+      'config',
+      '--get',
+      'remote.origin.url'
+    ], {
+      cwd: path.join(process.cwd()),
+      stdio: 'pipe'
+    });
   });
 
   it('should check if git is clean', () => {
@@ -46,15 +47,18 @@ describe('git utils', () => {
       stdout: {
         toString() {
           return '  ';
-        },
-      },
+        }
+      }
     });
     const isClean = util.isGitClean();
     expect(isClean).toBeTrue();
 
-    expect(syncSpy).toHaveBeenCalledWith('git', ['status', '--porcelain'], {
+    expect(syncSpy).toHaveBeenCalledWith('git', [
+      'status',
+      '--porcelain'
+    ], {
       cwd: path.join(process.cwd()),
-      stdio: 'pipe',
+      stdio: 'pipe'
     });
   });
 
@@ -64,10 +68,11 @@ describe('git utils', () => {
       stdout: {
         toString() {
           return 'M lib/foo.js';
-        },
-      },
+        }
+      }
     });
     const isClean = util.isGitClean();
     expect(isClean).toBeFalse();
   });
+
 });
